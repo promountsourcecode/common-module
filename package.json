@@ -1,0 +1,32 @@
+{
+  "name": "@promountsourcecode/common_module",
+  "version": "2.1.5",
+  "description": "shared model for diffrent projects",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/promountsourcecode/shared.git"
+  },
+  "license": "",
+  "author": "Promount Sourcecode",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "rollup": "rollup -c"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^21.0.1",
+    "@rollup/plugin-json": "^6.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.6",
+    "@rollup/plugin-typescript": "^8.3.0",
+    "rollup": "^2.60.0",
+    "rollup-plugin-dts": "^4.0.1",
+    "tslib": "^2.6.0"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
+}
