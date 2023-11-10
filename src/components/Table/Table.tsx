@@ -606,8 +606,6 @@ export const Table = (prop) => {
   };
 
   const onSelectCheckBox = (e, obj, fieldName) => {
-    console.log("e, obj, fieldName", e, obj, fieldName);
-
     let selectedItemsArray: any =
       selectCheckboxRc != undefined ? [...selectCheckboxRc] : [];
     const checked = e.checked;

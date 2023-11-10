@@ -204,14 +204,8 @@ class Setting extends Component {
     // });
     // }
     resetSettings() {
-        this.setState({
-            visible: this.state.columns.map((e) => (e.visible = true)),
-            columns: this.props.columns,
-            // columns: this.state.columns.map(e => [{ field: e.field, header: e.header, visible: true }]),
-        });
         this.resetFromServer();
-        this.getTabelHeaderData();
-        this.props.onSetting(this.tableColumns, this.state.filter, this.state.selectedPageSize);
+        this.props.onClose();
     }
     resetFromServer() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -1020,7 +1014,6 @@ const Table = (prop) => {
         return globalFilterData;
     };
     const onSelectCheckBox = (e, obj, fieldName) => {
-        console.log("e, obj, fieldName", e, obj, fieldName);
         let selectedItemsArray = selectCheckboxRc != undefined ? [...selectCheckboxRc] : [];
         const checked = e.checked;
         if (obj[fieldName] != undefined) {

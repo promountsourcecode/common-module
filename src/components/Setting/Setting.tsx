@@ -137,18 +137,9 @@ class Setting extends Component<ModalInputProps> {
 
   // }
   resetSettings() {
-    this.setState({
-      visible: this.state.columns.map((e) => (e.visible = true)),
-      columns: this.props.columns,
-      // columns: this.state.columns.map(e => [{ field: e.field, header: e.header, visible: true }]),
-    });
     this.resetFromServer();
-    this.getTabelHeaderData();
-    this.props.onSetting(
-      this.tableColumns,
-      this.state.filter,
-      this.state.selectedPageSize
-    );
+
+    this.props.onClose();
   }
   async resetFromServer() {
     let id;
