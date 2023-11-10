@@ -1102,8 +1102,8 @@ const Table = (prop) => {
                                         //  <Column header="Field Name" body={rowData => <span>Hello</span>} />;
                                     }
                                     if (e.type === "Button") {
-                                        return (React.createElement(Column, { header: e.header, body: (data2) => (React.createElement(React.Fragment, null, buttonAction.length > 0 &&
-                                                buttonAction.map((button) => (React.createElement(React.Fragment, null, button.visible == true && (React.createElement(Button, { tooltip: button.label, tooltipOptions: { position: "top" }, className: button.className + " gridIcon", onClick: () => button["id"] == "Delete"
+                                        return (React.createElement(Column, { header: e.header, style: { width: "20px" }, body: (data2) => (React.createElement(React.Fragment, null, buttonAction.length > 0 &&
+                                                buttonAction.map((button) => (React.createElement(React.Fragment, null, button.visible == true && (React.createElement(Button, { tooltip: button.label, tooltipOptions: { position: "top" }, style: { marginLeft: '1rem' }, className: button.className + " gridIcon", onClick: () => button["id"] == "Delete"
                                                         ? deleteConfirmOnAction(data2.id, button["askReason"], data2)
                                                         : eval(prop[buttonAction[0].command](data2.id, gridId, true, editObject)) },
                                                     React.createElement("i", { className: button.icon })))))))) }));

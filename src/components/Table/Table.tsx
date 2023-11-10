@@ -821,6 +821,7 @@ export const Table = (prop) => {
                         return (
                           <Column
                             header={e.header}
+                            
                             body={(data2) => (
                               <>
                                 <Checkbox
@@ -861,6 +862,7 @@ export const Table = (prop) => {
                         return (
                           <Column
                             header={e.header}
+                            style={{ width: "20px" }}
                             body={(data2) => (
                               <>
                                 {buttonAction.length > 0 &&
@@ -870,6 +872,7 @@ export const Table = (prop) => {
                                         <Button
                                           tooltip={button.label}
                                           tooltipOptions={{ position: "top" }}
+                                          style={{marginLeft:'1rem'}}
                                           className={
                                             button.className + " gridIcon"
                                           }

@@ -1132,8 +1132,8 @@ const Table = (prop) => {
                                         //  <Column header="Field Name" body={rowData => <span>Hello</span>} />;
                                     }
                                     if (e.type === "Button") {
-                                        return (React__default["default"].createElement(column.Column, { header: e.header, body: (data2) => (React__default["default"].createElement(React__default["default"].Fragment, null, buttonAction.length > 0 &&
-                                                buttonAction.map((button$1) => (React__default["default"].createElement(React__default["default"].Fragment, null, button$1.visible == true && (React__default["default"].createElement(button.Button, { tooltip: button$1.label, tooltipOptions: { position: "top" }, className: button$1.className + " gridIcon", onClick: () => button$1["id"] == "Delete"
+                                        return (React__default["default"].createElement(column.Column, { header: e.header, style: { width: "20px" }, body: (data2) => (React__default["default"].createElement(React__default["default"].Fragment, null, buttonAction.length > 0 &&
+                                                buttonAction.map((button$1) => (React__default["default"].createElement(React__default["default"].Fragment, null, button$1.visible == true && (React__default["default"].createElement(button.Button, { tooltip: button$1.label, tooltipOptions: { position: "top" }, style: { marginLeft: '1rem' }, className: button$1.className + " gridIcon", onClick: () => button$1["id"] == "Delete"
                                                         ? deleteConfirmOnAction(data2.id, button$1["askReason"], data2)
                                                         : eval(prop[buttonAction[0].command](data2.id, gridId, true, editObject)) },
                                                     React__default["default"].createElement("i", { className: button$1.icon })))))))) }));
