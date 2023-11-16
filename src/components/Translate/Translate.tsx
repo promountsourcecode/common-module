@@ -14,6 +14,7 @@ export const Translate = (prop) => {
   const [menuItemId, setMenuItemId] = useState(
     sessionStorage.getItem("menuItemId")
   );
+  const navigate = useNavigate();
   const screenConfigration = async () => {
     const languageDataLocal = JSON.parse(
       sessionStorage.getItem("LanguageData")
@@ -43,7 +44,7 @@ export const Translate = (prop) => {
             : 0
         }`
       );
-
+      getDataSC;
       setLanguageAPIData(getDataSC.data.languageDetails);
       sessionStorage.setItem("lastSyncTime", getDataSC.data.lastSyncTime);
       sessionStorage.setItem("LanguageData", JSON.stringify(getDataSC.data));
@@ -70,7 +71,14 @@ export const Translate = (prop) => {
     const languageDataLocal = JSON.parse(
       sessionStorage.getItem("LanguageData")
     );
-
+    if (languageDataLocal == undefined) {
+      navigate("/logout");
+    }
+    console.log(
+      "props",
+      prop.contentKey,
+      languageDataLocal["translations"][selectLanguage][prop.contentKey]
+    );
     if (
       languageDataLocal["translations"][selectLanguage][prop.contentKey] !=
       undefined
@@ -83,33 +91,32 @@ export const Translate = (prop) => {
     setIsMandatory(
       languageDataLocal["translations"][selectLanguage][prop.contentKey]
     );
-    if (
-      languageDataLocal["translations"][selectLanguage][prop.contentKey][
-        "type"
-      ] != undefined
-    ) {
-      const obj =
-        languageDataLocal["translations"][selectLanguage][prop.contentKey][
-          "type"
-        ];
-      if (
-        obj == "Textarea" ||
-        obj == "CheckBox" ||
-        obj == "Radio" ||
-        obj == "Text Field" ||
-        obj == "ComboBox"
-      ) {
-        setLableFlag(true);
-      } else {
-        setLableFlag(false);
-      }
-    }
+    // if (languageDataLocal['translations'][selectLanguage][prop.contentKey]['type'] != undefined) {
+    console.log(
+      "prop",
+      languageDataLocal["translations"][selectLanguage][prop.contentKey],
+      prop.contentKey
+    );
 
-    // languageData.map(e => {
-    //   if (e.key === prop.contentKey) {
-    //     setFinalValue(e.value);
-    //   }
-    // });console.log(finalValue + element);
+    const obj = languageDataLocal["translations"][selectLanguage][
+      prop.contentKey
+    ]["type"]
+      ? languageDataLocal["translations"][selectLanguage][prop.contentKey][
+          "type"
+        ]
+      : "";
+    if (
+      obj == "Textarea" ||
+      obj == "CheckBox" ||
+      obj == "Radio" ||
+      obj == "Text Field" ||
+      obj == "ComboBox"
+    ) {
+      setLableFlag(true);
+    } else {
+      setLableFlag(false);
+    }
+    // }
   };
 
   return (
