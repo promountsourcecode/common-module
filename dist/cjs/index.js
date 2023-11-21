@@ -2,29 +2,30 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
+var freeSolidSvgIcons = require('@fortawesome/free-solid-svg-icons');
+var reactFontawesome = require('@fortawesome/react-fontawesome');
+var common_module = require('@promountsourcecode/common_module');
+var axios = require('axios');
+var reactRouterDom = require('react-router-dom');
 var React = require('react');
-var checkbox = require('primereact/checkbox');
-var dialog = require('primereact/dialog');
-var button = require('primereact/button');
+var getMenuandmenuItem = require('app/shared/getMenuandmenuItem');
 var datatable = require('primereact/datatable');
 var column = require('primereact/column');
-var inputtext = require('primereact/inputtext');
-var dropdown = require('primereact/dropdown');
-var axios = require('axios');
-var reactFontawesome = require('@fortawesome/react-fontawesome');
-var freeSolidSvgIcons = require('@fortawesome/free-solid-svg-icons');
-var reactRouterDom = require('react-router-dom');
+var button = require('primereact/button');
 var splitbutton = require('primereact/splitbutton');
 var confirmdialog = require('primereact/confirmdialog');
 var jsPDF = require('jspdf');
 var autoTable = require('jspdf-autotable');
+var checkbox = require('primereact/checkbox');
+var dialog = require('primereact/dialog');
+var inputtext = require('primereact/inputtext');
 var paginator = require('primereact/paginator');
 var radiobutton = require('primereact/radiobutton');
 var utils = require('primereact/utils');
 var reactHookForm = require('react-hook-form');
 var reactstrap = require('reactstrap');
 var inputtextarea = require('primereact/inputtextarea');
-var common_module = require('@promountsourcecode/common_module');
+var dropdown = require('primereact/dropdown');
 require('lodash');
 var treetable = require('primereact/treetable');
 var moment = require('moment');
@@ -49,8 +50,8 @@ function _interopNamespace(e) {
   return Object.freeze(n);
 }
 
-var React__default = /*#__PURE__*/_interopDefaultLegacy(React);
 var axios__default = /*#__PURE__*/_interopDefaultLegacy(axios);
+var React__default = /*#__PURE__*/_interopDefaultLegacy(React);
 var jsPDF__default = /*#__PURE__*/_interopDefaultLegacy(jsPDF);
 var autoTable__default = /*#__PURE__*/_interopDefaultLegacy(autoTable);
 var moment__default = /*#__PURE__*/_interopDefaultLegacy(moment);
@@ -83,6 +84,123 @@ function __awaiter(thisArg, _arguments, P, generator) {
 typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
   var e = new Error(message);
   return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+};
+
+const Navigation = () => {
+    const [menuData, setMenuData] = React.useState([]);
+    const [menuItem, setMenuItem] = React.useState();
+    const [menu, setMenu] = React.useState();
+    const [coreScreen, setCoreScreen] = React.useState(false);
+    const [loading, setLoading] = React.useState(false);
+    const navigate = reactRouterDom.useNavigate();
+    const location = reactRouterDom.useLocation();
+    const { pathname } = location;
+    const splitLocation = pathname.split('/');
+    [
+        { label: menu ? menu.menuName : '', url: menu ? menu.menuLink : '' },
+        { label: menuItem ? menuItem.subMenuName : '', url: menuItem ? menuItem.subMenuLink : '' },
+    ];
+    React.useEffect(() => {
+        console.log("ssss", sessionStorage.getItem('LanguageData'));
+        if (sessionStorage.getItem('LanguageData') === null) {
+            getMenuDataFromlanguageData();
+            // screenConfigration(0);
+        }
+        const requestUrl = 'api/role-menu-item-mappings/getAllRoleMenuItemMappingByUser/1';
+        setLoading(true);
+        axios__default["default"].get(requestUrl).then((res) => __awaiter(void 0, void 0, void 0, function* () {
+            // (await sessionStorage.getItem('LanguageData')) == undefined ? screenConfigration(0) : '';
+            yield setMenuData(res.data.data);
+            yield sortMenus(menuData);
+            yield setLoading(false);
+        }));
+    }, []);
+    const getMenuDataFromlanguageData = () => {
+        setLoading(true);
+        axios__default["default"]
+            .get(`/api/screen-configurations/getAllScreenConfigurationsAndScreenControlValidations/${0}/${sessionStorage.getItem('lastSyncTime') ? sessionStorage.getItem('lastSyncTime') : 0}`)
+            .then(res => {
+            sessionStorage.setItem('lastSyncTime', res.data.lastSyncTime);
+            sessionStorage.setItem('LanguageData', JSON.stringify(res.data));
+            common_module.screenConfigration(0);
+            setLoading(false);
+        });
+    };
+    const checkChild = menu => {
+        let flag;
+        for (let i = 0; i < menu.subMenuList.length; i++) {
+            if (splitLocation[1].startsWith(menu.subMenuList[i].subMenuLink)) {
+                flag = true;
+                break;
+            }
+            else {
+                flag = false;
+            }
+        }
+        return flag;
+    };
+    const sortMenus = data => {
+        data.forEach(e => {
+            if (e.menuName == 'Core-Screens') {
+                setMenuData(e.submenuList);
+            }
+        });
+    };
+    const addMenuItemId = (item) => __awaiter(void 0, void 0, void 0, function* () {
+        setMenuItem(item);
+        sessionStorage.setItem('currentMenuItem', JSON.stringify(item));
+        sessionStorage.setItem('menuItemId', item.menuItemId);
+        setLoading(true);
+        axios__default["default"]
+            .get(`/api/screen-configurations/getAllScreenConfigurationsAndScreenControlValidations/${item.menuItemId}/${sessionStorage.getItem('lastSyncTime') ? sessionStorage.getItem('lastSyncTime') : 0}`)
+            .then((res) => __awaiter(void 0, void 0, void 0, function* () {
+            setLoading(false);
+            yield sessionStorage.setItem('lastSyncTime', res.data.lastSyncTime);
+            yield sessionStorage.setItem('LanguageData', JSON.stringify(res.data));
+            yield navigate(item.subMenuLink);
+        }));
+    });
+    function getActiveMethod(menu) {
+        if (splitLocation[1].startsWith(menu.subMenuLink)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    const setMenuObject = menu => {
+        sessionStorage.setItem('currentMenu', JSON.stringify(menu));
+    };
+    return (React__default["default"].createElement(React__default["default"].Fragment, null,
+        React__default["default"].createElement(common_module.LoadingSpinner, { visible: loading }),
+        React__default["default"].createElement("div", { className: "navigation" },
+            React__default["default"].createElement("div", { className: "navigation-menu-tab" },
+                React__default["default"].createElement("ul", null,
+                    React__default["default"].createElement("li", { className: "nav-item navigation-toggler mobile-toggler" },
+                        React__default["default"].createElement("a", { href: "#", className: "nav-link", "data-toggle": "tooltip", "data-nav-target": "nav-link", "data-placement": "right", title: "Show navigation" },
+                            React__default["default"].createElement("i", { className: "fa-solid fa-bars" })))),
+                React__default["default"].createElement("div", { className: "flex-grow-1" },
+                    React__default["default"].createElement("ul", null, !coreScreen &&
+                        menuData.map((item, index) => (React__default["default"].createElement("li", null,
+                            React__default["default"].createElement("a", { className: checkChild(item) ? 'active' : '', href: item.menuLink, "data-toggle": "tooltip", "data-nav-target": '#' + item.menuId, "data-placement": "right", title: item.menuName, onClick: () => setMenuObject(item) },
+                                React__default["default"].createElement("i", { className: item.menuIcon }))))))),
+                React__default["default"].createElement("div", null,
+                    React__default["default"].createElement("ul", null,
+                        React__default["default"].createElement("li", null,
+                            React__default["default"].createElement("a", { href: "/logout", "data-toggle": "tooltip", "data-placement": "right", title: "Logout" },
+                                React__default["default"].createElement(reactFontawesome.FontAwesomeIcon, { icon: freeSolidSvgIcons.faRightFromBracket })))))),
+            React__default["default"].createElement("div", { className: "navigation-menu-body" },
+                React__default["default"].createElement("div", { className: "navigation-menu-group" }, !coreScreen &&
+                    menuData.map((data, index) => data.hasSubMenu && (React__default["default"].createElement("div", { className: checkChild(data) ? 'open' : '', id: data.menuId },
+                        React__default["default"].createElement("ul", null,
+                            React__default["default"].createElement("li", { className: "navigation-divider" },
+                                React__default["default"].createElement("i", { className: data.menuIcon }),
+                                " ",
+                                React__default["default"].createElement(getMenuandmenuItem.MenuItemTranslate, { contentKey: data.keyName })),
+                            data.subMenuList.map((item, i) => (React__default["default"].createElement("li", { className: "toggleEdit" },
+                                React__default["default"].createElement("a", { className: getActiveMethod(item) ? 'active' : '', onClick: () => addMenuItemId(item) },
+                                    React__default["default"].createElement(reactFontawesome.FontAwesomeIcon, { icon: freeSolidSvgIcons.faAnglesRight }),
+                                    React__default["default"].createElement(getMenuandmenuItem.MenuItemTranslate, { contentKey: item.keyName }))))))))))))));
 };
 
 const Translate = (prop) => {
@@ -133,223 +251,6 @@ const Translate = (prop) => {
             React__default["default"].createElement("span", null, ":"),
             React__default["default"].createElement("span", { className: "reqsign" }, "*"))) : ("")) : lableFlag == true ? (React__default["default"].createElement("span", null, ":")) : ("")) : ("")));
 };
-
-class Setting extends React.Component {
-    constructor(props) {
-        var _a, _b, _c, _d;
-        super(props);
-        this.state = {
-            visible: this.props.show,
-            columns: this.props.columns,
-            filter: (_b = (_a = this.props) === null || _a === void 0 ? void 0 : _a.columns[0]) === null || _b === void 0 ? void 0 : _b.filterEnable,
-            gridData: this.props.gridData,
-            prop: this.props,
-            pageSize: [
-                { size: "10" },
-                { size: "20" },
-                { size: "50" },
-                { size: "100" },
-                { size: "200" },
-                { size: "500" },
-            ],
-            language: sessionStorage.getItem("Language"),
-            selectedPageSize: {
-                size: (_d = (_c = this.props) === null || _c === void 0 ? void 0 : _c.columns[0]) === null || _d === void 0 ? void 0 : _d.gridPageSize,
-            },
-        };
-        this.toggle = (e) => {
-            e.preventDefault();
-            this.setState({ visible: !this.state.visible });
-        };
-        this.checkboxChange = (event, index) => {
-            const data = this.tableColumns;
-            data[index].visible = event.checked;
-            this.setState({ columns: data });
-        };
-        this.footerContent = () => {
-            return (React__default["default"].createElement("div", null,
-                React__default["default"].createElement(button.Button, { label: "Apply", icon: "pi pi-check", onClick: () => this.handleChange(), autoFocus: true }),
-                React__default["default"].createElement(button.Button, { label: "Reset", onClick: () => this.resetSettings() }),
-                React__default["default"].createElement(button.Button, { label: "Cancel", icon: "pi pi-times", onClick: () => {
-                        this.handleCancel();
-                    }, className: "p-button-text" })));
-        };
-        if (this.state.gridData.length === 0) {
-            this.tableColumns = this.state.columns;
-            console.log("this.props?.columns[0]?.gridPageSize", this.state.selectedPageSize, this.state.filter);
-        }
-        else {
-            this.tableColumns = this.state.gridData;
-            console.log("this.props?.columns[0]?.gridPageSize", this.state.selectedPageSize, this.state.filter);
-        }
-    }
-    getcolumns() {
-        return __awaiter(this, void 0, void 0, function* () {
-            let data = [];
-            this.props.columns.forEach((column) => {
-                column["gridPageSize"] = this.state.selectedPageSize.size;
-                column["filterEnable"] = this.state.filter;
-            });
-            const entity = {
-                gridId: this.state.prop.gridId,
-                gridSettingDetailText: JSON.stringify(this.props.columns),
-                menuItemId: sessionStorage.getItem("menuItemId"),
-                userMasterId: 1,
-                hierarchyLevelId: 352,
-                languageId: 1,
-            };
-            data = yield axios__default["default"].put("api/grid-user-settings/saveUpdateData", entity);
-            const dataJson = JSON.parse(data.data.gridSettingDetailText);
-            // if(dataJson.length == 0 ){
-            //   this.tableColumns= this.state.columns
-            // }
-            // else{
-            this.tableColumns = dataJson;
-            // }
-        });
-    }
-    componentDidMount() {
-        // this.getcolumns();
-    }
-    setSelectedPageSize(e) {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log("e", e);
-            this.setState({
-                selectedPageSize: e,
-            });
-        });
-    }
-    handleChange() {
-        this.getTabelHeaderData();
-        this.props.onSetting(this.tableColumns, this.state.filter, this.state.selectedPageSize);
-    }
-    handleCancel() {
-        this.setState({
-            visible: false,
-            colums: this.props.columns,
-        });
-        this.props.onClose();
-    }
-    // resetSettings() {
-    // console.log(this.props);
-    // this.setState({
-    //   filter: this.props.filter,
-    //   columns: this.props.columns,
-    // });
-    // }
-    resetSettings() {
-        this.resetFromServer();
-        this.props.onClose();
-    }
-    resetFromServer() {
-        return __awaiter(this, void 0, void 0, function* () {
-            let id;
-            if (this.state.language === "en")
-                id = 1;
-            else if (this.state.language === "hi")
-                id = 2;
-            else
-                id = 3;
-            yield axios__default["default"].delete(`/api/grid-user-settings/deleteByUserIdAndHierarchyIdAndGridIdAndMenuItemId?userMasterId=${1}&languageId=${id}&gridId=${this.state.prop.gridId}`);
-        });
-    }
-    getTabelHeaderData() {
-        return __awaiter(this, void 0, void 0, function* () {
-            let data1 = [];
-            let id;
-            if (this.state.language === "en")
-                id = 1;
-            else if (this.state.language === "hi")
-                id = 2;
-            else
-                id = 3;
-            this.props.columns.forEach((column) => {
-                column["gridPageSize"] = this.state.selectedPageSize.size;
-                column["filterEnable"] = this.state.filter;
-            });
-            const entity = {
-                gridId: String(this.props.gridId),
-                gridSettingDetailText: JSON.stringify(this.state.columns),
-                menuItemId: sessionStorage.getItem("menuItemId"),
-                userMasterId: 1,
-                hierarchyLevelId: 1,
-                languageId: id,
-            };
-            data1 = yield axios__default["default"].put("api/grid-user-settings/saveUpdateData", entity, {
-                headers: { menuItemId: this.props.gridId },
-            });
-            JSON.parse(data1.data.gridSettingDetailText);
-        });
-    }
-    render() {
-        const cellEditor = (options) => {
-            return textEditor(options);
-        };
-        const textEditor = (options) => {
-            return (React__default["default"].createElement(inputtext.InputText, { type: "text", value: options.value, onChange: (e) => options.editorCallback(e.target.value) }));
-        };
-        const onCellEditComplete = (e) => {
-            const { rowData, newValue, field, originalEvent: event } = e;
-            switch (field) {
-                case "quantity":
-                default:
-                    if (newValue.trim().length > 0)
-                        rowData[field] = newValue;
-                    else
-                        event.preventDefault();
-                    break;
-            }
-        };
-        const rowReorder = (e) => {
-            // this.tableColumns = null;
-            // this.tableColumns = e.value;
-            if (this.state.gridData.length === 0) {
-                this.setState({ columns: e.value });
-                this.tableColumns = this.state.columns;
-            }
-            else {
-                this.setState({ gridData: e.value });
-                this.tableColumns = this.state.gridData;
-            }
-        };
-        return (React__default["default"].createElement(dialog.Dialog, { header: "Settings", 
-            //footer={this.footerContent}
-            visible: this.state.visible, style: { width: "80vw" }, onHide: () => {
-                this.handleCancel();
-            }, draggable: false, resizable: false, maximizable: true },
-            React__default["default"].createElement("div", null,
-                React__default["default"].createElement("div", { className: "modal-content" },
-                    React__default["default"].createElement("div", { className: "row" },
-                        React__default["default"].createElement("div", { className: "col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-xs-12" },
-                            React__default["default"].createElement("div", { className: "d-flex justify-content-left align-items-left" },
-                                React__default["default"].createElement("label", { className: "form-label" }, "Filter: "),
-                                React__default["default"].createElement(checkbox.Checkbox, { style: { marginLeft: "10px" }, onChange: (event) => this.setState({ filter: !this.state.filter }), checked: this.state.filter })),
-                            " "),
-                        React__default["default"].createElement("div", { className: "col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-xs-12 " },
-                            React__default["default"].createElement("div", { className: "d-flex justify-content-end align-items-center" },
-                                React__default["default"].createElement("label", { className: "form-label", style: { marginRight: "10px" } }, "Page Size:"),
-                                React__default["default"].createElement(dropdown.Dropdown, { value: this.state.selectedPageSize, onChange: (e) => this.setSelectedPageSize(e.value), options: this.state.pageSize, optionLabel: "size", placeholder: "Select a Page Size" })))),
-                    React__default["default"].createElement("div", { className: "tableWrap", style: { marginTop: "10px" } },
-                        React__default["default"].createElement(datatable.DataTable, { value: this.tableColumns, reorderableRows: true, onRowReorder: (e) => rowReorder(e), responsiveLayout: "scroll", rows: this.tableColumns.length, scrollable: true },
-                            React__default["default"].createElement(column.Column, { rowReorder: true, style: { width: "3rem" } }),
-                            React__default["default"].createElement(column.Column, { field: "header", header: "Columns", editor: (options) => cellEditor(options), onCellEditComplete: onCellEditComplete }),
-                            React__default["default"].createElement(column.Column, { field: "width", header: "Width", editor: (options) => cellEditor(options), onCellEditComplete: onCellEditComplete }),
-                            React__default["default"].createElement(column.Column, { header: "Display", body: (data, props) => (React__default["default"].createElement("div", null,
-                                    React__default["default"].createElement(checkbox.Checkbox, { onChange: (event) => this.checkboxChange(event, props.rowIndex), checked: data.visible }))) })))),
-                React__default["default"].createElement("div", { className: "p-dialog-footer" },
-                    React__default["default"].createElement(button.Button, { className: "btnStyle btn btn-success", onClick: () => this.handleChange(), autoFocus: true },
-                        React__default["default"].createElement(reactFontawesome.FontAwesomeIcon, { icon: freeSolidSvgIcons.faCheck }),
-                        " ",
-                        React__default["default"].createElement(Translate, { contentKey: "home.apply" })),
-                    React__default["default"].createElement(button.Button, { className: "btnStyle btn btn-info", onClick: () => this.resetSettings() },
-                        React__default["default"].createElement(reactFontawesome.FontAwesomeIcon, { icon: freeSolidSvgIcons.faRepeat }),
-                        " ",
-                        React__default["default"].createElement(Translate, { contentKey: "home.reset" })),
-                    React__default["default"].createElement(button.Button, { className: "btnStyle btn btn-danger", onClick: () => this.handleCancel() },
-                        React__default["default"].createElement(reactFontawesome.FontAwesomeIcon, { icon: "times" }),
-                        React__default["default"].createElement(Translate, { contentKey: "home.close" }))))));
-    }
-}
 
 class ExportSetting extends React.Component {
     constructor(props) {
@@ -1135,7 +1036,7 @@ const Table = (prop) => {
                     }, tooltip: "Setting", tooltipOptions: { position: "top" } },
                     React__default["default"].createElement(reactFontawesome.FontAwesomeIcon, { icon: "cogs" })),
                 React__default["default"].createElement(splitbutton.SplitButton, { tooltip: "Export", tooltipOptions: { position: "top" }, label: labelbtnFlag.export ? labelbtnFlag.export : "Export", className: "tableExportMenu", model: items }))),
-        modal && (React__default["default"].createElement(Setting, { show: modal, gridId: gridId, gridData: apiGridData, filter: filter, columns: column$1, menuItemId: menuItemId, onClose: closeSettingModal, onSetting: settingChanges, onReset: onReset })),
+        modal && (React__default["default"].createElement(Navigation, { show: modal, gridId: gridId, gridData: apiGridData, filter: filter, columns: column$1, menuItemId: menuItemId, onClose: closeSettingModal, onSetting: settingChanges, onReset: onReset })),
         modalExport && (React__default["default"].createElement(ExportSetting, { show: modalExport, columns: column$1, onSetting: settingChangesExport })),
         React__default["default"].createElement("div", { className: "dataTable" },
             React__default["default"].createElement(React__default["default"].Fragment, null,
@@ -1867,7 +1768,7 @@ exports.AskReason = AskReason;
 exports.DateFormat = index;
 exports.ExportSetting = ExportSetting;
 exports.LoadingSpinner = LoadingSpinner;
-exports.Setting = Setting;
+exports.Setting = Navigation;
 exports.Table = Table;
 exports.Translate = Translate;
 exports.Treetable = Treetable;
