@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { isFieldMandatory } from "../ValidationMethod";
-
+import { useNavigate } from "react-router-dom";
 export const Translate = (prop) => {
   const [selectLanguage, setSelectLanguage] = useState(
     sessionStorage.getItem("Language")
