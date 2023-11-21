@@ -1,27 +1,26 @@
-import { faRightFromBracket, faAnglesRight, faCheck } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { screenConfigration as screenConfigration$1, LoadingSpinner as LoadingSpinner$1, getControlValidationObj as getControlValidationObj$1, Translate as Translate$1, Setting } from '@promountsourcecode/common_module';
-import axios from 'axios';
-import { useNavigate, useLocation } from 'react-router-dom';
-import React, { useState, useEffect, Component, useRef, useCallback } from 'react';
-import { MenuItemTranslate } from 'app/shared/getMenuandmenuItem';
+import React, { Component, useState, useEffect, useRef, useCallback } from 'react';
+import { Checkbox } from 'primereact/checkbox';
+import { Dialog } from 'primereact/dialog';
+import { Button } from 'primereact/button';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { Button } from 'primereact/button';
+import { InputText } from 'primereact/inputtext';
+import { Dropdown } from 'primereact/dropdown';
+import axios from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck, faRepeat } from '@fortawesome/free-solid-svg-icons';
+import { Translate as Translate$1, getControlValidationObj as getControlValidationObj$1, Setting as Setting$1 } from '@promountsourcecode/common_module';
+import { useNavigate } from 'react-router-dom';
 import { SplitButton } from 'primereact/splitbutton';
 import { confirmDialog } from 'primereact/confirmdialog';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { Checkbox } from 'primereact/checkbox';
-import { Dialog } from 'primereact/dialog';
-import { InputText } from 'primereact/inputtext';
 import { Paginator } from 'primereact/paginator';
 import { RadioButton } from 'primereact/radiobutton';
 import { classNames } from 'primereact/utils';
 import { useForm, Controller } from 'react-hook-form';
 import { Button as Button$1 } from 'reactstrap';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { Dropdown } from 'primereact/dropdown';
 import 'lodash';
 import { TreeTable } from 'primereact/treetable';
 import moment from 'moment';
@@ -56,122 +55,211 @@ typeof SuppressedError === "function" ? SuppressedError : function (error, suppr
   return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
 };
 
-const Navigation = () => {
-    const [menuData, setMenuData] = useState([]);
-    const [menuItem, setMenuItem] = useState();
-    const [menu, setMenu] = useState();
-    const [coreScreen, setCoreScreen] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
-    const location = useLocation();
-    const { pathname } = location;
-    const splitLocation = pathname.split('/');
-    [
-        { label: menu ? menu.menuName : '', url: menu ? menu.menuLink : '' },
-        { label: menuItem ? menuItem.subMenuName : '', url: menuItem ? menuItem.subMenuLink : '' },
-    ];
-    useEffect(() => {
-        console.log("ssss", sessionStorage.getItem('LanguageData'));
-        if (sessionStorage.getItem('LanguageData') === null) {
-            getMenuDataFromlanguageData();
-            // screenConfigration(0);
-        }
-        const requestUrl = 'api/role-menu-item-mappings/getAllRoleMenuItemMappingByUser/1';
-        setLoading(true);
-        axios.get(requestUrl).then((res) => __awaiter(void 0, void 0, void 0, function* () {
-            // (await sessionStorage.getItem('LanguageData')) == undefined ? screenConfigration(0) : '';
-            yield setMenuData(res.data.data);
-            yield sortMenus(menuData);
-            yield setLoading(false);
-        }));
-    }, []);
-    const getMenuDataFromlanguageData = () => {
-        setLoading(true);
-        axios
-            .get(`/api/screen-configurations/getAllScreenConfigurationsAndScreenControlValidations/${0}/${sessionStorage.getItem('lastSyncTime') ? sessionStorage.getItem('lastSyncTime') : 0}`)
-            .then(res => {
-            sessionStorage.setItem('lastSyncTime', res.data.lastSyncTime);
-            sessionStorage.setItem('LanguageData', JSON.stringify(res.data));
-            screenConfigration$1(0);
-            setLoading(false);
-        });
-    };
-    const checkChild = menu => {
-        let flag;
-        for (let i = 0; i < menu.subMenuList.length; i++) {
-            if (splitLocation[1].startsWith(menu.subMenuList[i].subMenuLink)) {
-                flag = true;
-                break;
-            }
-            else {
-                flag = false;
-            }
-        }
-        return flag;
-    };
-    const sortMenus = data => {
-        data.forEach(e => {
-            if (e.menuName == 'Core-Screens') {
-                setMenuData(e.submenuList);
-            }
-        });
-    };
-    const addMenuItemId = (item) => __awaiter(void 0, void 0, void 0, function* () {
-        setMenuItem(item);
-        sessionStorage.setItem('currentMenuItem', JSON.stringify(item));
-        sessionStorage.setItem('menuItemId', item.menuItemId);
-        setLoading(true);
-        axios
-            .get(`/api/screen-configurations/getAllScreenConfigurationsAndScreenControlValidations/${item.menuItemId}/${sessionStorage.getItem('lastSyncTime') ? sessionStorage.getItem('lastSyncTime') : 0}`)
-            .then((res) => __awaiter(void 0, void 0, void 0, function* () {
-            setLoading(false);
-            yield sessionStorage.setItem('lastSyncTime', res.data.lastSyncTime);
-            yield sessionStorage.setItem('LanguageData', JSON.stringify(res.data));
-            yield navigate(item.subMenuLink);
-        }));
-    });
-    function getActiveMethod(menu) {
-        if (splitLocation[1].startsWith(menu.subMenuLink)) {
-            return true;
+class Setting extends Component {
+    constructor(props) {
+        var _a, _b, _c, _d;
+        super(props);
+        this.state = {
+            visible: this.props.show,
+            columns: this.props.columns,
+            filter: (_b = (_a = this.props) === null || _a === void 0 ? void 0 : _a.columns[0]) === null || _b === void 0 ? void 0 : _b.filterEnable,
+            gridData: this.props.gridData,
+            prop: this.props,
+            pageSize: [{ size: '10' }, { size: '20' }, { size: '50' }, { size: '100' }, { size: '200' }, { size: '500' }],
+            language: sessionStorage.getItem('Language'),
+            selectedPageSize: {
+                size: (_d = (_c = this.props) === null || _c === void 0 ? void 0 : _c.columns[0]) === null || _d === void 0 ? void 0 : _d.gridPageSize,
+            },
+        };
+        this.toggle = e => {
+            e.preventDefault();
+            this.setState({ visible: !this.state.visible });
+        };
+        this.checkboxChange = (event, index) => {
+            const data = this.tableColumns;
+            data[index].visible = event.checked;
+            this.setState({ columns: data });
+        };
+        this.footerContent = () => {
+            return (React.createElement("div", null,
+                React.createElement(Button, { label: "Apply", icon: "pi pi-check", onClick: () => this.handleChange(), autoFocus: true }),
+                React.createElement(Button, { label: "Reset", onClick: () => this.resetSettings() }),
+                React.createElement(Button, { label: "Cancel", icon: "pi pi-times", onClick: () => {
+                        this.handleCancel();
+                    }, className: "p-button-text" })));
+        };
+        if (this.state.gridData.length === 0) {
+            this.tableColumns = this.state.columns;
+            console.log('this.props?.columns[0]?.gridPageSize', this.state.selectedPageSize, this.state.filter);
         }
         else {
-            return false;
+            this.tableColumns = this.state.gridData;
+            console.log('this.props?.columns[0]?.gridPageSize', this.state.selectedPageSize, this.state.filter);
         }
+        //  const [language, setlanguage] = useState(sessionStorage.getItem('Language'));
     }
-    const setMenuObject = menu => {
-        sessionStorage.setItem('currentMenu', JSON.stringify(menu));
-    };
-    return (React.createElement(React.Fragment, null,
-        React.createElement(LoadingSpinner$1, { visible: loading }),
-        React.createElement("div", { className: "navigation" },
-            React.createElement("div", { className: "navigation-menu-tab" },
-                React.createElement("ul", null,
-                    React.createElement("li", { className: "nav-item navigation-toggler mobile-toggler" },
-                        React.createElement("a", { href: "#", className: "nav-link", "data-toggle": "tooltip", "data-nav-target": "nav-link", "data-placement": "right", title: "Show navigation" },
-                            React.createElement("i", { className: "fa-solid fa-bars" })))),
-                React.createElement("div", { className: "flex-grow-1" },
-                    React.createElement("ul", null, !coreScreen &&
-                        menuData.map((item, index) => (React.createElement("li", null,
-                            React.createElement("a", { className: checkChild(item) ? 'active' : '', href: item.menuLink, "data-toggle": "tooltip", "data-nav-target": '#' + item.menuId, "data-placement": "right", title: item.menuName, onClick: () => setMenuObject(item) },
-                                React.createElement("i", { className: item.menuIcon }))))))),
-                React.createElement("div", null,
-                    React.createElement("ul", null,
-                        React.createElement("li", null,
-                            React.createElement("a", { href: "/logout", "data-toggle": "tooltip", "data-placement": "right", title: "Logout" },
-                                React.createElement(FontAwesomeIcon, { icon: faRightFromBracket })))))),
-            React.createElement("div", { className: "navigation-menu-body" },
-                React.createElement("div", { className: "navigation-menu-group" }, !coreScreen &&
-                    menuData.map((data, index) => data.hasSubMenu && (React.createElement("div", { className: checkChild(data) ? 'open' : '', id: data.menuId },
-                        React.createElement("ul", null,
-                            React.createElement("li", { className: "navigation-divider" },
-                                React.createElement("i", { className: data.menuIcon }),
-                                " ",
-                                React.createElement(MenuItemTranslate, { contentKey: data.keyName })),
-                            data.subMenuList.map((item, i) => (React.createElement("li", { className: "toggleEdit" },
-                                React.createElement("a", { className: getActiveMethod(item) ? 'active' : '', onClick: () => addMenuItemId(item) },
-                                    React.createElement(FontAwesomeIcon, { icon: faAnglesRight }),
-                                    React.createElement(MenuItemTranslate, { contentKey: item.keyName }))))))))))))));
-};
+    getcolumns() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let data = [];
+            this.props.columns.forEach(column => {
+                column['gridPageSize'] = this.state.selectedPageSize.size;
+                column['filterEnable'] = this.state.filter;
+            });
+            const entity = {
+                gridId: this.state.prop.gridId,
+                gridSettingDetailText: JSON.stringify(this.props.columns),
+                menuItemId: sessionStorage.getItem('menuItemId'),
+                userMasterId: 1,
+                hierarchyLevelId: 352,
+                languageId: 1,
+            };
+            data = yield axios.put('api/grid-user-settings/saveUpdateData', entity);
+            const dataJson = JSON.parse(data.data.gridSettingDetailText);
+            // if(dataJson.length == 0 ){
+            //   this.tableColumns= this.state.columns
+            // }
+            // else{
+            this.tableColumns = dataJson;
+            // }
+        });
+    }
+    componentDidMount() {
+        // this.getcolumns();
+    }
+    //const coldata: any = [];
+    setSelectedPageSize(e) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('e', e);
+            this.setState({
+                selectedPageSize: e,
+            });
+            //this.coldata = e;
+        });
+    }
+    handleChange() {
+        this.getTabelHeaderData();
+        this.props.onSetting(this.tableColumns, this.state.filter, this.state.selectedPageSize);
+    }
+    handleCancel() {
+        this.setState({
+            visible: false,
+            colums: this.props.columns,
+        });
+        this.props.onClose();
+    }
+    resetSettings() {
+        this.resetFromServer();
+        this.props.onReset();
+    }
+    resetFromServer() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let id;
+            if (this.state.language === 'en')
+                id = 1;
+            else if (this.state.language === 'hi')
+                id = 2;
+            else
+                id = 3;
+            yield axios.delete(`/api/grid-user-settings/deleteByUserIdAndHierarchyIdAndGridIdAndMenuItemId?userMasterId=${1}&languageId=${id}&gridId=${this.state.prop.gridId}`);
+        });
+    }
+    getTabelHeaderData() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let data1 = [];
+            let id;
+            if (this.state.language === 'en')
+                id = 1;
+            else if (this.state.language === 'hi')
+                id = 2;
+            else
+                id = 3;
+            this.props.columns.forEach(column => {
+                column['gridPageSize'] = this.state.selectedPageSize.size;
+                column['filterEnable'] = this.state.filter;
+            });
+            const entity = {
+                gridId: String(this.props.gridId),
+                gridSettingDetailText: JSON.stringify(this.state.columns),
+                menuItemId: sessionStorage.getItem('menuItemId'),
+                userMasterId: 1,
+                hierarchyLevelId: 1,
+                languageId: id,
+            };
+            data1 = yield axios.put('api/grid-user-settings/saveUpdateData', entity, {
+                headers: { menuItemId: this.props.gridId },
+            });
+            JSON.parse(data1.data.gridSettingDetailText);
+        });
+    }
+    render() {
+        const cellEditor = options => {
+            return textEditor(options);
+        };
+        const textEditor = options => {
+            return React.createElement(InputText, { type: "text", value: options.value, onChange: e => options.editorCallback(e.target.value) });
+        };
+        const onCellEditComplete = e => {
+            const { rowData, newValue, field, originalEvent: event } = e;
+            switch (field) {
+                case 'quantity':
+                default:
+                    if (newValue.trim().length > 0)
+                        rowData[field] = newValue;
+                    else
+                        event.preventDefault();
+                    break;
+            }
+        };
+        const rowReorder = e => {
+            // this.tableColumns = null;
+            // this.tableColumns = e.value;
+            if (this.state.gridData.length === 0) {
+                this.setState({ columns: e.value });
+                this.tableColumns = this.state.columns;
+            }
+            else {
+                this.setState({ gridData: e.value });
+                this.tableColumns = this.state.gridData;
+            }
+        };
+        return (React.createElement(Dialog, { header: "Settings", 
+            //footer={this.footerContent}
+            visible: this.state.visible, style: { width: '80vw' }, onHide: () => {
+                this.handleCancel();
+            }, draggable: false, resizable: false, maximizable: true },
+            React.createElement("div", null,
+                React.createElement("div", { className: "modal-content" },
+                    React.createElement("div", { className: "row" },
+                        React.createElement("div", { className: "col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-xs-12" },
+                            React.createElement("div", { className: "d-flex justify-content-left align-items-left" },
+                                React.createElement("label", { className: "form-label" }, "Filter: "),
+                                React.createElement(Checkbox, { style: { marginLeft: '10px' }, onChange: event => this.setState({ filter: !this.state.filter }), checked: this.state.filter })),
+                            ' '),
+                        React.createElement("div", { className: "col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-xs-12 " },
+                            React.createElement("div", { className: "d-flex justify-content-end align-items-center" },
+                                React.createElement("label", { className: "form-label", style: { marginRight: '10px' } }, "Page Size:"),
+                                React.createElement(Dropdown, { value: this.state.selectedPageSize, onChange: e => this.setSelectedPageSize(e.value), options: this.state.pageSize, optionLabel: "size", placeholder: "Select a Page Size" })))),
+                    React.createElement("div", { className: "tableWrap", style: { marginTop: '10px' } },
+                        React.createElement(DataTable, { value: this.tableColumns, reorderableRows: true, onRowReorder: e => rowReorder(e), responsiveLayout: "scroll", rows: this.tableColumns.length, scrollable: true },
+                            React.createElement(Column, { rowReorder: true, style: { width: '3rem' } }),
+                            React.createElement(Column, { field: "header", header: "Columns", editor: options => cellEditor(options), onCellEditComplete: onCellEditComplete }),
+                            React.createElement(Column, { field: "width", header: "Width", editor: options => cellEditor(options), onCellEditComplete: onCellEditComplete }),
+                            React.createElement(Column, { header: "Display", body: (data, props) => (React.createElement("div", null,
+                                    React.createElement(Checkbox, { onChange: event => this.checkboxChange(event, props.rowIndex), checked: data.visible }))) })))),
+                React.createElement("div", { className: "p-dialog-footer" },
+                    React.createElement(Button, { className: "btnStyle btn btn-success", onClick: () => this.handleChange(), autoFocus: true },
+                        React.createElement(FontAwesomeIcon, { icon: faCheck }),
+                        " ",
+                        React.createElement(Translate$1, { contentKey: "home.apply" })),
+                    React.createElement(Button, { className: "btnStyle btn btn-info", onClick: () => this.resetSettings() },
+                        React.createElement(FontAwesomeIcon, { icon: faRepeat }),
+                        " ",
+                        React.createElement(Translate$1, { contentKey: "home.reset" })),
+                    React.createElement(Button, { className: "btnStyle btn btn-danger", onClick: () => this.handleCancel() },
+                        React.createElement(FontAwesomeIcon, { icon: "times" }),
+                        React.createElement(Translate$1, { contentKey: "home.close" }))))));
+    }
+}
 
 const Translate = (prop) => {
     const [selectLanguage, setSelectLanguage] = useState(sessionStorage.getItem("Language"));
@@ -1006,7 +1094,7 @@ const Table = (prop) => {
                     }, tooltip: "Setting", tooltipOptions: { position: "top" } },
                     React.createElement(FontAwesomeIcon, { icon: "cogs" })),
                 React.createElement(SplitButton, { tooltip: "Export", tooltipOptions: { position: "top" }, label: labelbtnFlag.export ? labelbtnFlag.export : "Export", className: "tableExportMenu", model: items }))),
-        modal && (React.createElement(Navigation, { show: modal, gridId: gridId, gridData: apiGridData, filter: filter, columns: column, menuItemId: menuItemId, onClose: closeSettingModal, onSetting: settingChanges, onReset: onReset })),
+        modal && (React.createElement(Setting, { show: modal, gridId: gridId, gridData: apiGridData, filter: filter, columns: column, menuItemId: menuItemId, onClose: closeSettingModal, onSetting: settingChanges, onReset: onReset })),
         modalExport && (React.createElement(ExportSetting, { show: modalExport, columns: column, onSetting: settingChangesExport })),
         React.createElement("div", { className: "dataTable" },
             React.createElement(React.Fragment, null,
@@ -1552,7 +1640,7 @@ const Treetable = (prop) => {
                     } },
                     React.createElement(FontAwesomeIcon, { icon: "cogs" })),
                 React.createElement(SplitButton, { tooltip: "Export", tooltipOptions: { position: "top" }, label: labelbtnFlag.export ? labelbtnFlag.export : "Export", className: "tableExportMenu", model: items })))),
-        modal && (React.createElement(Setting, { show: modal, onClose: closeSettingModal, gridId: gridId, gridData: apiGridData, filter: filter, columns: column, onSetting: settingChanges })),
+        modal && (React.createElement(Setting$1, { show: modal, onClose: closeSettingModal, gridId: gridId, gridData: apiGridData, filter: filter, columns: column, onSetting: settingChanges })),
         modalExport && (React.createElement(ExportSetting, { show: modalExport, columns: column, onSetting: settingChangesExport })),
         React.createElement("div", { className: "dataTable" },
             React.createElement(React.Fragment, null,
@@ -1734,5 +1822,5 @@ var index = /*#__PURE__*/Object.freeze({
   getDateFormat: getDateFormat
 });
 
-export { AskReason, index as DateFormat, ExportSetting, LoadingSpinner, Navigation as Setting, Table, Translate, Treetable, breadCrumbsFlag, checkReasonFlag, checkStatus, convertDateObjToDateString, convertDateStringToDateObj, getCalendarDateFormat, getControlValidationObj, getDateAndTimeFormate, getDateFormat, getDisplay, isFieldMandatory, screenConfigration, setMsgLangKeyInSessionStorage };
+export { AskReason, index as DateFormat, ExportSetting, LoadingSpinner, Setting, Table, Translate, Treetable, breadCrumbsFlag, checkReasonFlag, checkStatus, convertDateObjToDateString, convertDateStringToDateObj, getCalendarDateFormat, getControlValidationObj, getDateAndTimeFormate, getDateFormat, getDisplay, isFieldMandatory, screenConfigration, setMsgLangKeyInSessionStorage };
 //# sourceMappingURL=index.js.map
