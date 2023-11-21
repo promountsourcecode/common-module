@@ -634,7 +634,37 @@ export const Table = (prop) => {
     setReasonIdDelete(obj);
     prop.selectCheckbox(checked, obj, selectedItemsArray);
   };
+  const onReset = async () => {
+    let id;
+    setModal(false);
+    if (language === 'en') id = 1;
+    else if (language === 'hi') id = 2;
+    else id = 3;
+    var gridData = await axios.get(`api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
+    dispatch(
+      getColumns({
+        gridId: gridId,
+        id: id,
+        menuItemId: menuItemId,
+      })
+    ).then(async (res: any) => {
+      setColumn(res.payload.data.data);
+      const pageData = {
+        first: lazyState.first,
+        rows: parseInt(res.payload.data.data[0].gridPageSize),
+        page: lazyState.page,
+        sortField: lazyState.sortField,
+        sortOrder: lazyState.sortOrder,
+      };
+      setlazyState(pageData);
+      setfilter(res.payload.data.data[0].filterEnable);
 
+      await prepareRowAction(res.payload.data.data);
+      await prop.onPageChange(pageData);
+      setData(prop.data);
+
+    });
+  };
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center">
@@ -732,6 +762,7 @@ export const Table = (prop) => {
           >
             <FontAwesomeIcon icon="cogs" />
           </Button>
+           
           <SplitButton
             tooltip="Export"
             tooltipOptions={{ position: "top" }}
@@ -749,8 +780,10 @@ export const Table = (prop) => {
           gridData={apiGridData}
           filter={filter}
           columns={column}
+          menuItemId={menuItemId}
           onClose={closeSettingModal}
           onSetting={settingChanges}
+          onReset={onReset}
         />
       )}
 
@@ -841,7 +874,7 @@ export const Table = (prop) => {
                       if (e.type === "Action") {
                         return (
                           <Column
-                            style={{ width: "20px" }}
+                            style={{ width: "15px" }}
                             header={e.header}
                             body={(data2) => (
                               <>
@@ -871,8 +904,8 @@ export const Table = (prop) => {
                                       {button.visible == true && (
                                         <Button
                                           tooltip={button.label}
+                                          style={{ marginLeft: '15px' }}
                                           tooltipOptions={{ position: "top" }}
-                                          style={{marginLeft:'1rem'}}
                                           className={
                                             button.className + " gridIcon"
                                           }
