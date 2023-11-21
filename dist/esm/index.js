@@ -9,19 +9,22 @@ import { Dropdown } from 'primereact/dropdown';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faRepeat } from '@fortawesome/free-solid-svg-icons';
-import { Translate as Translate$1, getControlValidationObj as getControlValidationObj$1, Setting as Setting$1 } from '@promountsourcecode/common_module';
+import { Translate as Translate$1, AskReason as AskReason$1, setMsgLangKeyInSessionStorage as setMsgLangKeyInSessionStorage$1, getControlValidationObj as getControlValidationObj$1, Setting as Setting$1 } from '@promountsourcecode/common_module';
 import { useNavigate } from 'react-router-dom';
 import { SplitButton } from 'primereact/splitbutton';
 import { confirmDialog } from 'primereact/confirmdialog';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import ExportSetting$1 from 'app/shared/export-column';
 import { Paginator } from 'primereact/paginator';
+import { useAppDispatch } from 'app/config/store';
 import { RadioButton } from 'primereact/radiobutton';
+import 'lodash';
+import { getColumns } from 'app/entities/level/level.reducer';
 import { classNames } from 'primereact/utils';
 import { useForm, Controller } from 'react-hook-form';
 import { Button as Button$1 } from 'reactstrap';
 import { InputTextarea } from 'primereact/inputtextarea';
-import 'lodash';
 import { TreeTable } from 'primereact/treetable';
 import moment from 'moment';
 
@@ -310,6 +313,610 @@ const Translate = (prop) => {
             React.createElement("span", { className: "reqsign" }, "*"))) : ("")) : lableFlag == true ? (React.createElement("span", null, ":")) : ("")) : ("")));
 };
 
+const Table = prop => {
+    const menuItemId = sessionStorage.getItem('menuItemId');
+    useState(sessionStorage.getItem('id'));
+    const dt = useRef();
+    const dispatch = useAppDispatch();
+    const [reasonFlag, setReasonFlag] = useState(false);
+    const [data, setData] = useState();
+    const [column, setColumn] = useState();
+    useState([]);
+    const [exportCol, setExportCol] = useState([]);
+    const [filter, setfilter] = useState(prop.toggleFilter);
+    const [filters, setfilters] = useState(prop.filters);
+    /* pagination code */
+    const [totalRecords, setTotalRecords] = useState(prop.totalRecords);
+    const [lazyState, setlazyState] = useState(prop.pagination);
+    const [gridId, setGridId] = useState(prop.gridId);
+    const [apiGridData, setApiGridData] = useState([]);
+    const [modal, setModal] = useState(false);
+    const [modalExport, setModalExport] = useState(false);
+    useState(null);
+    const [exportType, setExportType] = useState();
+    useState([]);
+    const [globalFilterValue, setGlobalFilterValue] = useState('');
+    const [deleteHeader, setdeleteHeader] = useState(React.createElement(Translate$1, { contentKey: "global.deleteConfirm" }));
+    const [deletemsg, setdeletemsg] = useState(React.createElement(Translate$1, { contentKey: "home.deleteMsg" }));
+    const [ifShowHeader, setifShowHeader] = useState(false);
+    const [ifHideHeader, setifHideHeader] = useState(true);
+    const [language, setlanguage] = useState(sessionStorage.getItem('Language'));
+    const [redioFilter, setRedioFilter] = useState('Active');
+    const [redioFilterPublish, setRedioFilterPublish] = useState('');
+    const [errorMessage, setErrorMessage] = useState(React.createElement(Translate$1, { contentKey: "home.notFound" }));
+    const [Searchplaceholder, setSearchPlaceholder] = useState('Keyword Search');
+    useState(prop.reasonAskOnCheck ? prop.reasonAskOnCheck : false);
+    const [itemsAction, setitemsAction] = useState([]);
+    const [buttonAction, setButtonAction] = useState([]);
+    const [selectedItem, setSelectedItem] = useState();
+    useState(prop.hideActionbtn ? prop.hideActionbtn : false);
+    const [rowReorder, setrowReorder] = useState(prop.rowReorder ? prop.rowReorder : false);
+    const [actionId, setActionId] = useState();
+    const [editObject, setEditObject] = useState([]);
+    useEffect(() => {
+        setlazyState(lazyState);
+    }, [lazyState]);
+    const paginatorTemplate = {
+        layout: 'RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport ',
+        RowsPerPageDropdown: options => {
+            const dropdownOptions = [
+                { label: 5, value: 5 },
+                { label: 10, value: 10 },
+                { label: 20, value: 20 },
+                { label: 50, value: 50 },
+                { label: 100, value: 100 },
+                { label: 200, value: 200 },
+                { label: 500, value: 500 },
+            ];
+            return (React.createElement(React.Fragment, null,
+                React.createElement(Dropdown, { value: options.value, scrollHeight: '270px', options: dropdownOptions, onChange: options.onChange })));
+        },
+        CurrentPageReport: options => {
+            return (React.createElement("span", { className: "", style: {
+                    color: 'var(--text-color)',
+                    fontSize: '14px',
+                    userSelect: 'none',
+                    marginLeft: 'auto',
+                    textAlign: 'center',
+                } },
+                options.first,
+                " - ",
+                options.last,
+                " of ",
+                options.totalRecords));
+        },
+    };
+    const getActionBtn = (id, object) => {
+        setActionId(id);
+        setEditObject(object);
+    };
+    useEffect(() => {
+        const compareJsonjs = document.createElement('script');
+        compareJsonjs.src = 'https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js';
+        compareJsonjs.async = true;
+        document.body.appendChild(compareJsonjs);
+    }, []);
+    const getGridData = () => __awaiter(void 0, void 0, void 0, function* () {
+        let id;
+        if (language === 'en')
+            id = 1;
+        else if (language === 'hi')
+            id = 2;
+        else
+            id = 3;
+        const gridData = yield axios.get(`api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
+        (yield gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
+        const pageData = {
+            first: lazyState.first,
+            rows: yield parseInt(gridData.data.data[0].gridPageSize),
+            page: lazyState.page,
+            sortField: lazyState.sortField,
+            sortOrder: lazyState.sortOrder,
+        };
+        setlazyState(pageData);
+        setfilter(gridData.data.data[0].filterEnable);
+        yield prepareRowAction(gridData.data.data);
+    });
+    useEffect(() => {
+        column == undefined ? setColumn(prop.column) : '';
+    }, [prop.column]);
+    useEffect(() => {
+        setActionId(actionId);
+        setEditObject(editObject);
+        prepareRowAction(column);
+    }, [actionId, editObject]);
+    useEffect(() => {
+        setTotalRecords(prop.totalRecords);
+    }, [prop.totalRecords]);
+    useEffect(() => {
+        setlazyState(prop.pagination);
+    }, [prop.pagination]);
+    useEffect(() => {
+        setData(prop.data);
+        // prop.data.length > 0 ? setErrorMessage(true) : setErrorMessage(false);
+        // setitemsAction(prop.actionFlag);
+    }, [prop.data]);
+    const labelbtnFlag = {
+        yes: React.createElement(Translate$1, { contentKey: "yes" }),
+        no: React.createElement(Translate$1, { contentKey: "no" }),
+        edit: React.createElement(Translate$1, { contentKey: "edit" }),
+        delete: React.createElement(Translate$1, { contentKey: "delete" }),
+        keySearch: React.createElement(Translate$1, { contentKey: "keywordSearch" }),
+        hierarchy: React.createElement(Translate$1, { contentKey: "hierarchy" }),
+        export: React.createElement(Translate$1, { contentKey: "export" }),
+        activeradio: React.createElement(Translate$1, { contentKey: "activeradio" }),
+        allradio: React.createElement(Translate$1, { contentKey: "allradio" }),
+        inactiveradio: React.createElement(Translate$1, { contentKey: "inactiveradio" }),
+    };
+    const prepareRowAction = (actionArr) => {
+        let tmpRowAction = [];
+        if (actionArr) {
+            for (let i = 0; i < actionArr.length; i++) {
+                if (actionArr[i]['type'] == 'Action') {
+                    let actinObj = actionArr[i].actionJson;
+                    if (actinObj) {
+                        for (let j = 0; j < actinObj.length; j++) {
+                            let item = {
+                                className: actinObj[j]['className'] != null && actinObj[j]['className'] != '' ? actinObj[j]['className'] : 'icon',
+                                label: React.createElement(Translate$1, { contentKey: actinObj[j]['label'] }),
+                                icon: actinObj[j]['icon'],
+                                id: actinObj[j]['id'],
+                                visible: actinObj[j]['visible'],
+                                askReason: actinObj[j]['askReason'],
+                                command: () => {
+                                    actinObj[j]['id'] == 'Delete'
+                                        ? deleteConfirmOnAction(actionId, actinObj[j]['askReason'], editObject)
+                                        : eval(prop[actinObj[j].command](actionId, gridId, actinObj[j]['askReason'], editObject));
+                                },
+                            };
+                            tmpRowAction.push(item);
+                            setitemsAction(tmpRowAction);
+                        }
+                    }
+                }
+                if (actionArr[i]['type'] == 'Button') {
+                    let butonObj = actionArr[i].actionJson;
+                    setButtonAction(butonObj);
+                }
+            }
+        }
+    };
+    useEffect(() => {
+        setSelectedItem(prop.sendSelectedItem ? prop.sendSelectedItem : '');
+        setSelectCheckboxRc(prop.sendSelectedItem);
+    }, [prop.sendSelectedItem]);
+    useEffect(() => {
+        getGridData();
+        setRedioFilterPublish('All');
+        if (!redioFilter) {
+            setRedioFilter('Active');
+        }
+        if (gridId === 'dmsClientID' || gridId === 'dmsParameterID' || gridId === 'ParameterCategoriesID') {
+            setifShowHeader(true);
+        }
+        if (gridId === 'documentWorkspaceID') {
+            setifHideHeader(false);
+        }
+        setSearchPlaceholder(String(React.createElement(Translate$1, { contentKey: "export" })));
+    }, []);
+    const toggle = e => {
+        setExportType(e);
+        setModalExport(true);
+    };
+    const edit = id => {
+        prop.onEdit(id);
+    };
+    const items = [
+        {
+            label: 'CSV',
+            icon: 'fa-solid fa-file-csv',
+            command: () => toggle('CSV'),
+        },
+        {
+            label: 'Excel',
+            icon: 'fa-solid fa-file-excel',
+            command: () => toggle('EXCEL'),
+        },
+        {
+            label: 'PDF',
+            icon: 'fa-solid fa-file-pdf',
+            command: () => toggle('PDF'),
+        },
+        {
+            label: 'Json',
+            icon: 'fa-solid fa-file-arrow-down',
+            command: () => exportToJson(),
+        },
+        { label: 'Print', icon: 'fa-solid fa-print' },
+    ];
+    const settingChangesExport = coulmnData => {
+        setModalExport(false);
+        setExportCol(coulmnData);
+        const exportData = data;
+        const headers = [];
+        coulmnData.map(col => {
+            if (col.visible)
+                headers.push(col.field);
+        });
+        const newData = [];
+        exportData.map(element => {
+            const newObj = {};
+            headers.forEach(name => {
+                newObj[name] = element[name];
+            });
+            newData.push(newObj);
+        });
+        switch (exportType) {
+            case 'PDF':
+                exportPdf(newData, headers, coulmnData);
+                break;
+            case 'EXCEL':
+                exportExcel(newData);
+                break;
+            case 'CSV':
+                exportCSV(newData);
+                break;
+        }
+    };
+    const exportToJson = () => {
+        downloadFile({
+            body: JSON.stringify(data),
+            fileName: 'users.json',
+            fileType: 'text/json',
+        });
+    };
+    const downloadFile = ({ body, fileName, fileType }) => {
+        const blob = new Blob([body], { type: fileType });
+        const a = document.createElement('a');
+        a.download = fileName;
+        a.href = window.URL.createObjectURL(blob);
+        const clickEvt = new MouseEvent('click', {
+            view: window,
+            bubbles: true,
+            cancelable: true,
+        });
+        a.dispatchEvent(clickEvt);
+        a.remove();
+    };
+    const convertToCSV = objArray => {
+        const array = typeof objArray !== 'object' ? JSON.parse(objArray) : objArray;
+        let str = '';
+        for (let i = 0; i < array.length; i++) {
+            let line = '';
+            // eslint-disable-next-line guard-for-in
+            for (const index in array[i]) {
+                if (line !== '')
+                    line += ',';
+                line += array[i][index];
+            }
+            str += line + '\r\n';
+        }
+        return str;
+    };
+    const exportCSV = (newData, headers) => {
+        // Convert Object to JSON
+        const jsonObject = JSON.stringify(newData);
+        const csv = convertToCSV(jsonObject);
+        const exportedFilenmae = 'report' + '.csv' ;
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        if (link.download !== undefined) {
+            // feature detection
+            // Browsers that support HTML5 download attribute
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', exportedFilenmae);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    };
+    const exportPdf = (newData, headers, coulmnData) => {
+        const headerss = coulmnData.map(col => {
+            if (col.visible)
+                headers.push({ title: col.header, dataKey: col.field });
+        });
+        const unit = 'pt';
+        const size = 'A4';
+        const orientation = 'portrait';
+        const doc = new jsPDF(orientation, unit, size);
+        const title = 'Report';
+        const content = {
+            startY: 50,
+            head: headerss,
+            body: newData,
+        };
+        doc.text(title, 40, 40);
+        autoTable(doc, content);
+        doc.save('Task.pdf');
+    };
+    const exportExcel = newData => {
+        import('xlsx').then(xlsx => {
+            const worksheet = xlsx.utils.json_to_sheet(newData);
+            const workbook = { Sheets: { data: worksheet }, SheetNames: ['data'] };
+            const excelBuffer = xlsx.write(workbook, {
+                bookType: 'xlsx',
+                type: 'array',
+            });
+            saveAsExcelFile(excelBuffer, 'products');
+        });
+    };
+    const saveAsExcelFile = (buffer, fileName) => {
+        import('file-saver').then(module => {
+            if (module && module.default) {
+                const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+                const EXCEL_EXTENSION = '.xlsx';
+                const dataa = new Blob([buffer], {
+                    type: EXCEL_TYPE,
+                });
+                module.default.saveAs(dataa, fileName + '_export_' + new Date().getTime() + EXCEL_EXTENSION);
+            }
+        });
+    };
+    const settingChanges = (coulmnData, filterToggle, pagesize) => {
+        setModal(false);
+        setColumn(coulmnData);
+        setfilter(filterToggle);
+        const pageData = {
+            first: 0,
+            rows: parseInt(pagesize.size),
+            page: 0,
+            sortField: lazyState.sortField,
+            sortOrder: lazyState.sortOrder,
+        };
+        setlazyState(pageData);
+        prop.onPageChange(pageData);
+    };
+    const onReset = () => __awaiter(void 0, void 0, void 0, function* () {
+        let id;
+        setModal(false);
+        if (language === 'en')
+            id = 1;
+        else if (language === 'hi')
+            id = 2;
+        else
+            id = 3;
+        yield axios.get(`api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
+        dispatch(getColumns({
+            gridId: gridId,
+            id: id,
+            menuItemId: menuItemId,
+        })).then((res) => __awaiter(void 0, void 0, void 0, function* () {
+            setColumn(res.payload.data.data);
+            const pageData = {
+                first: lazyState.first,
+                rows: parseInt(res.payload.data.data[0].gridPageSize),
+                page: lazyState.page,
+                sortField: lazyState.sortField,
+                sortOrder: lazyState.sortOrder,
+            };
+            setlazyState(pageData);
+            setfilter(res.payload.data.data[0].filterEnable);
+            yield prepareRowAction(res.payload.data.data);
+            yield prop.onPageChange(pageData);
+            setData(prop.data);
+        }));
+    });
+    const closeSettingModal = () => __awaiter(void 0, void 0, void 0, function* () {
+        let id;
+        if (language === 'en')
+            id = 1;
+        else if (language === 'hi')
+            id = 2;
+        else
+            id = 3;
+        const gridData = yield axios.get(`api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
+        // (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
+        setColumn(gridData.data.data);
+        const pageData = {
+            first: lazyState.first,
+            rows: yield parseInt(gridData.data.data[0].gridPageSize),
+            page: lazyState.page,
+            sortField: lazyState.sortField,
+            sortOrder: lazyState.sortOrder,
+        };
+        setlazyState(pageData);
+        setfilter(gridData.data.data[0].filterEnable);
+        yield prepareRowAction(gridData.data.data);
+        yield setModal(false);
+        setData(prop.data);
+    });
+    const [reasonIdDelete, setReasonIdDelete] = useState();
+    const deleteConfirmOnAction = (id, flag, record) => __awaiter(void 0, void 0, void 0, function* () {
+        setMsgLangKeyInSessionStorage$1(prop.msgLangKey);
+        const idObj = {};
+        idObj['id'] = id;
+        setReasonIdDelete(idObj);
+        confirmDialog({
+            message: deletemsg,
+            header: deleteHeader,
+            icon: 'pi pi-info-circle',
+            acceptClassName: 'p-button-danger',
+            rejectClassName: 'p-button-success',
+            acceptLabel: labelbtnFlag.yes ? labelbtnFlag.yes : 'Yes',
+            rejectLabel: labelbtnFlag.no ? labelbtnFlag.no : 'No',
+            accept: () => __awaiter(void 0, void 0, void 0, function* () {
+                flag == true ? yield setReasonFlag(!reasonFlag) : accept(id, record);
+            }),
+            reject: () => reject(),
+        });
+    });
+    const reject = () => {
+        // toast.warn('You have cancel your delete request.');
+    };
+    const accept = (data, record) => {
+        prop.onDelete(data, record);
+        setReasonFlag(false);
+    };
+    const onGlobalFilterChange = (e) => {
+        const value = e.target.value;
+        const _filters = Object.assign({}, filters);
+        _filters['global'].value = value;
+        setfilters(_filters);
+        setGlobalFilterValue(value);
+        if (gridId === 'dmsParameterID') {
+            prop.onSearch(value);
+        }
+    };
+    const handleCloseForReason = () => {
+        setReasonFlag(!reasonFlag);
+        setData(prop.data);
+        setSelectCheckboxRc(prop.sendSelectedItem);
+    };
+    const redioFilterSelection = name => {
+        setRedioFilter(name);
+        sessionStorage.setItem('FilterStatus', name);
+        prop.onFilterChanges(name, prop.gridId);
+    };
+    const [selectCheckboxRc, setSelectCheckboxRc] = useState([]);
+    useState();
+    const defaultChecked = (fieldName, data1) => {
+        let flag;
+        flag = data1[fieldName] ? typeof data1[fieldName] : undefined;
+        if (flag != undefined) {
+            if (flag == 'boolean') {
+                return data1[fieldName];
+            }
+            else if (flag == 'string' || flag == 'number') {
+                let returnValue;
+                if (flag == 'string') {
+                    returnValue = data1[fieldName] == 'Yes' ? true : false;
+                }
+                return returnValue;
+            }
+            return data1[fieldName];
+        }
+        else {
+            if (selectCheckboxRc != undefined) {
+                for (let i = 0; i < selectCheckboxRc.length; i++) {
+                    if (selectCheckboxRc[i].id == data1.id) {
+                        return true;
+                    }
+                }
+            }
+        }
+    };
+    const radioSelectRecord = (record, fieldName) => {
+        prop.radioEvent(record, fieldName);
+    };
+    const filterColumnGlobal = () => {
+        const globalFilterData = [];
+        if (column) {
+            column.forEach(element => {
+                if (element.visible)
+                    globalFilterData.push(element.field);
+            });
+        }
+        return globalFilterData;
+    };
+    const onSelectCheckBox = (e, obj, fieldName) => {
+        let selectedItemsArray = selectCheckboxRc != undefined ? [...selectCheckboxRc] : [];
+        const checked = e.checked;
+        if (obj[fieldName] != undefined) {
+            obj[fieldName] == e.checked;
+            if (e.checked) {
+                if (selectedItemsArray.length == 0) {
+                    selectedItemsArray.push(obj);
+                }
+                else {
+                    selectedItemsArray.push(obj);
+                    // for (let i = 0; i < selectedItemsArray.length; i++) {
+                    //   if (obj.id != selectedItemsArray[i].id || selectedItemsArray.legth == 0) {
+                    //   }
+                    // }
+                }
+            }
+            else {
+                selectedItemsArray.splice(selectedItemsArray.indexOf(obj), 1);
+            }
+        }
+        else {
+            checked == true ? selectedItemsArray.push(obj) : selectedItemsArray.splice(selectedItemsArray.indexOf(obj), 1);
+        }
+        setSelectCheckboxRc(selectedItemsArray);
+        setReasonIdDelete(obj);
+        prop.selectCheckbox(checked, obj, selectedItemsArray);
+    };
+    return (React.createElement("div", null,
+        React.createElement("div", { className: "d-flex justify-content-between align-items-center" },
+            React.createElement("div", { className: "d-flex globlFilter" }, filter && (React.createElement("span", { className: "p-input-icon-left" },
+                React.createElement("i", { className: "pi pi-search" }),
+                React.createElement(InputText, { value: globalFilterValue, onChange: e => onGlobalFilterChange(e) })))),
+            React.createElement("div", { className: "d-flex flex-wrap" },
+                ifShowHeader && (React.createElement(Button, { onClick: () => edit(''), className: "btn btn-primary btnStyle", "data-cy": "entityCreateButton" },
+                    React.createElement(FontAwesomeIcon, { icon: "plus" }),
+                    "Add")),
+                prop.statusFilter === true && (React.createElement("span", { className: "d-flex justify-content-center m-r-15 statusFilter" },
+                    React.createElement("span", { style: { marginLeft: '10px' }, className: "d-flex align-items-center" },
+                        React.createElement(RadioButton, { inputId: gridId + 'gridActive', name: "filter", value: "Active", onChange: e => redioFilterSelection(e.value), checked: redioFilter === 'Active' }),
+                        React.createElement("label", { htmlFor: gridId + 'gridActive', style: { marginBottom: 0 } }, labelbtnFlag.activeradio ? labelbtnFlag.activeradio : 'Active')),
+                    React.createElement("span", { style: { marginLeft: '10px' }, className: "d-flex align-items-center" },
+                        React.createElement(RadioButton, { inputId: gridId + 'gridInactive', name: "filter", value: "Inactive", onChange: e => redioFilterSelection(e.value), checked: redioFilter === 'Inactive' }),
+                        React.createElement("label", { htmlFor: gridId + 'gridInactive', style: { marginBottom: 0 } }, labelbtnFlag.inactiveradio ? labelbtnFlag.inactiveradio : 'Inactive')),
+                    React.createElement("span", { style: { marginLeft: '10px' }, className: "d-flex align-items-center" },
+                        React.createElement(RadioButton, { inputId: gridId + 'All', name: "filter", value: "All", onChange: e => redioFilterSelection(e.value), checked: redioFilter === 'All' }),
+                        React.createElement("label", { htmlFor: gridId + 'All', style: { marginBottom: 0 } }, labelbtnFlag.allradio ? labelbtnFlag.allradio : 'All')))),
+                React.createElement(Button, { color: "secondary", className: "iconBtn", onClick: () => {
+                        setModal(!modal);
+                    }, tooltip: "Setting", tooltipOptions: { position: 'top' } },
+                    React.createElement(FontAwesomeIcon, { icon: "cogs" })),
+                React.createElement(SplitButton, { tooltip: "Export", tooltipOptions: { position: 'top' }, label: labelbtnFlag.export ? labelbtnFlag.export : 'Export', className: "tableExportMenu", model: items }))),
+        modal && (React.createElement(Setting, { show: modal, gridId: gridId, gridData: apiGridData, filter: filter, columns: column, menuItemId: menuItemId, onClose: closeSettingModal, onSetting: settingChanges, onReset: onReset })),
+        modalExport && React.createElement(ExportSetting$1, { show: modalExport, columns: column, onSetting: settingChangesExport }),
+        React.createElement("div", { className: "dataTable" },
+            React.createElement(React.Fragment, null,
+                React.createElement(React.Fragment, null,
+                    React.createElement(DataTable, { ref: dt, emptyMessage: errorMessage, sortMode: "multiple", value: data, globalFilterFields: filterColumnGlobal(), filters: filters, 
+                        // header={header}
+                        filterDisplay: filter ? 'row' : 'menu', scrollable: true, scrollHeight: "400px", id: gridId, selectionMode: "single", selection: selectedItem, onSelectionChange: e => {
+                            setSelectedItem(e.value);
+                            prop.onSelect ? prop.onSelect(e.value) : {};
+                        }, responsiveLayout: "scroll", onRowReorder: (e) => prop.onAddReorderRow(e.value, gridId), reorderableRows: true, removableSort: true },
+                        rowReorder && React.createElement(Column, { rowReorder: true, style: { minWidth: '3rem' } }),
+                        column &&
+                            column.map((e, i) => {
+                                if (e.visible) {
+                                    if (e.type === 'Radio') {
+                                        return (React.createElement(Column, { header: e.header, body: data2 => (React.createElement(React.Fragment, null,
+                                                React.createElement(RadioButton, { inputId: data2, name: data2.id, value: e.field, onChange: x => radioSelectRecord(data2, e.field), checked: data2[e.field] === true }))) }));
+                                    }
+                                    if (e.type === 'CheckBox') {
+                                        return (React.createElement(Column, { header: e.header, body: data2 => (React.createElement(React.Fragment, null,
+                                                React.createElement(Checkbox, { key: Math.random(), name: data2.id, value: e.field, onChange: x => {
+                                                        onSelectCheckBox(x, data2, e.field);
+                                                    }, checked: defaultChecked(e.field, data2) }))) }));
+                                    }
+                                    if (e.type === 'Action') {
+                                        return (React.createElement(Column, { style: { width: '15px' }, header: e.header, body: data2 => (React.createElement(React.Fragment, null,
+                                                React.createElement(SplitButton, { icon: "fa-solid fa-ellipsis", className: "tableActionMenu", model: itemsAction, onFocus: () => getActionBtn(data2.id, data2) }))) }));
+                                        //  <Column header="Field Name" body={rowData => <span>Hello</span>} />;
+                                    }
+                                    if (e.type === 'Button') {
+                                        return (React.createElement(Column, { header: e.header, body: data2 => (React.createElement(React.Fragment, null, buttonAction.length > 0 &&
+                                                buttonAction.map(button => (React.createElement(React.Fragment, null, button.visible == true && (React.createElement(Button, { style: { marginLeft: '15px' }, tooltip: button.label, tooltipOptions: { position: 'top' }, className: button.className + ' gridIcon', onClick: () => button['id'] == 'Delete'
+                                                        ? deleteConfirmOnAction(data2.id, button['askReason'], data2)
+                                                        : eval(prop[buttonAction[0].command](data2.id, gridId, true, editObject)) },
+                                                    React.createElement("i", { className: button.icon })))))))) }));
+                                    }
+                                    // if (data[e.field] != '') {
+                                    //   return <Button>Delete</Button>;
+                                    // }
+                                    // if (data && data.length > 0) {
+                                    return React.createElement(Column, { key: i, columnKey: e.field, field: e.field, header: e.header, style: { width: e.width }, sortable: true });
+                                    // }
+                                    /* <Column>
+                                          <div dangerouslySetInnerHTML={{ __html: htmlString }}></div>
+                                        </Column> */
+                                }
+                            })),
+                    React.createElement(Paginator, { template: paginatorTemplate, rows: lazyState === null || lazyState === void 0 ? void 0 : lazyState.rows, first: lazyState === null || lazyState === void 0 ? void 0 : lazyState.first, onPageChange: e => {
+                            setlazyState(e);
+                            prop.onPageChange(e);
+                        }, pageLinkSize: 3, totalRecords: totalRecords, className: "justify-content-end" })),
+                reasonFlag && (React.createElement(AskReason$1, { data: reasonIdDelete, deleteObject: editObject, action: "delete", visible: reasonFlag, saveWithReason: accept, onClose: handleCloseForReason }))))));
+};
+
 class ExportSetting extends Component {
     constructor(props) {
         super(props);
@@ -553,599 +1160,6 @@ function breadCrumbsFlag() {
         sessionStorage.setItem('breadCrumbsFlag', res.data.configurationValue);
     });
 }
-
-const Table = (prop) => {
-    const menuItemId = sessionStorage.getItem("menuItemId");
-    useState(sessionStorage.getItem("id"));
-    const dt = useRef();
-    const [reasonFlag, setReasonFlag] = useState(false);
-    const [data, setData] = useState();
-    const [column, setColumn] = useState();
-    useState([]);
-    const [exportCol, setExportCol] = useState([]);
-    const [filter, setfilter] = useState(prop.toggleFilter);
-    const [filters, setfilters] = useState(prop.filters);
-    /* pagination code */
-    const [totalRecords, setTotalRecords] = useState(prop.totalRecords);
-    const [lazyState, setlazyState] = useState(prop.pagination);
-    const [gridId, setGridId] = useState(prop.gridId);
-    const [apiGridData, setApiGridData] = useState([]);
-    const [modal, setModal] = useState(false);
-    const [modalExport, setModalExport] = useState(false);
-    useState(null);
-    const [exportType, setExportType] = useState();
-    useState([]);
-    const [globalFilterValue, setGlobalFilterValue] = useState("");
-    const [deleteHeader, setdeleteHeader] = useState(React.createElement(Translate, { contentKey: "global.deleteConfirm" }));
-    const [deletemsg, setdeletemsg] = useState(React.createElement(Translate, { contentKey: "home.deleteMsg" }));
-    const [ifShowHeader, setifShowHeader] = useState(false);
-    const [ifHideHeader, setifHideHeader] = useState(true);
-    const [language, setlanguage] = useState(sessionStorage.getItem("Language"));
-    const [redioFilter, setRedioFilter] = useState("Active");
-    const [redioFilterPublish, setRedioFilterPublish] = useState("");
-    useState(true);
-    const [Searchplaceholder, setSearchPlaceholder] = useState("Keyword Search");
-    useState(prop.reasonAskOnCheck ? prop.reasonAskOnCheck : false);
-    const [itemsAction, setitemsAction] = useState([]);
-    const [buttonAction, setButtonAction] = useState([]);
-    const [selectedItem, setSelectedItem] = useState();
-    useState(prop.hideActionbtn ? prop.hideActionbtn : false);
-    const [rowReorder, setrowReorder] = useState(prop.rowReorder ? prop.rowReorder : false);
-    const [actionId, setActionId] = useState();
-    const [editObject, setEditObject] = useState([]);
-    useEffect(() => {
-        setlazyState(lazyState);
-    }, [lazyState]);
-    const paginatorTemplate = {
-        layout: "RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport ",
-        RowsPerPageDropdown: (options) => {
-            const dropdownOptions = [
-                { label: 5, value: 5 },
-                { label: 10, value: 10 },
-                { label: 20, value: 20 },
-                { label: 50, value: 50 },
-                { label: 100, value: 100 },
-                { label: 200, value: 200 },
-                { label: 500, value: 500 },
-            ];
-            return (React.createElement(React.Fragment, null,
-                React.createElement(Dropdown, { value: options.value, scrollHeight: "270px", options: dropdownOptions, onChange: options.onChange })));
-        },
-        CurrentPageReport: (options) => {
-            return (React.createElement("span", { className: "", style: {
-                    color: "var(--text-color)",
-                    fontSize: "14px",
-                    userSelect: "none",
-                    marginLeft: "auto",
-                    textAlign: "center",
-                } },
-                options.first,
-                " - ",
-                options.last,
-                " of ",
-                options.totalRecords));
-        },
-    };
-    const getActionBtn = (id, object) => {
-        setActionId(id);
-        setEditObject(object);
-    };
-    useEffect(() => {
-        const compareJsonjs = document.createElement("script");
-        compareJsonjs.src =
-            "https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js";
-        compareJsonjs.async = true;
-        document.body.appendChild(compareJsonjs);
-    }, []);
-    const getGridData = () => __awaiter(void 0, void 0, void 0, function* () {
-        let id;
-        if (language === "en")
-            id = 1;
-        else if (language === "hi")
-            id = 2;
-        else
-            id = 3;
-        const gridData = yield axios.get(`api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
-        (yield gridData.data.data.length) > 0
-            ? setColumn(gridData.data.data)
-            : setColumn(prop.column);
-        const pageData = {
-            first: lazyState.first,
-            rows: parseInt(gridData.data.data[0].gridPageSize),
-            page: lazyState.page,
-            sortField: lazyState.sortField,
-            sortOrder: lazyState.sortOrder,
-        };
-        setlazyState(pageData);
-        setfilter(gridData.data.data[0].filterEnable);
-        yield prepareRowAction(gridData.data.data);
-    });
-    useEffect(() => {
-        column == undefined ? setColumn(prop.column) : "";
-    }, [prop.column]);
-    useEffect(() => {
-        setActionId(actionId);
-        setEditObject(editObject);
-        prepareRowAction(column);
-    }, [actionId, editObject]);
-    useEffect(() => {
-        setTotalRecords(prop.totalRecords);
-    }, [prop.totalRecords]);
-    useEffect(() => {
-        setlazyState(prop.pagination);
-    }, [prop.pagination]);
-    useEffect(() => {
-        setData(prop.data);
-        // setitemsAction(prop.actionFlag);
-    }, [prop.data]);
-    const labelbtnFlag = {
-        yes: React.createElement(Translate, { contentKey: "yes" }),
-        no: React.createElement(Translate, { contentKey: "no" }),
-        edit: React.createElement(Translate, { contentKey: "edit" }),
-        delete: React.createElement(Translate, { contentKey: "delete" }),
-        keySearch: React.createElement(Translate, { contentKey: "keywordSearch" }),
-        hierarchy: React.createElement(Translate, { contentKey: "hierarchy" }),
-        export: React.createElement(Translate, { contentKey: "export" }),
-        activeradio: React.createElement(Translate, { contentKey: "activeradio" }),
-        allradio: React.createElement(Translate, { contentKey: "allradio" }),
-        inactiveradio: React.createElement(Translate, { contentKey: "inactiveradio" }),
-    };
-    const prepareRowAction = (actionArr) => {
-        let tmpRowAction = [];
-        if (actionArr) {
-            for (let i = 0; i < actionArr.length; i++) {
-                if (actionArr[i]["type"] == "Action") {
-                    let actinObj = actionArr[i].actionJson;
-                    if (actinObj) {
-                        for (let j = 0; j < actinObj.length; j++) {
-                            let item = {
-                                className: actinObj[j]["className"] != null &&
-                                    actinObj[j]["className"] != ""
-                                    ? actinObj[j]["className"]
-                                    : "icon",
-                                label: (React.createElement(Translate, { contentKey: actinObj[j]["label"] })),
-                                icon: actinObj[j]["icon"],
-                                id: actinObj[j]["id"],
-                                visible: actinObj[j]["visible"],
-                                askReason: actinObj[j]["askReason"],
-                                command: () => {
-                                    actinObj[j]["id"] == "Delete"
-                                        ? deleteConfirmOnAction(actionId, actinObj[j]["askReason"], editObject)
-                                        : eval(prop[actinObj[j].command](actionId, gridId, actinObj[j]["askReason"], editObject));
-                                },
-                            };
-                            tmpRowAction.push(item);
-                            setitemsAction(tmpRowAction);
-                        }
-                    }
-                }
-                if (actionArr[i]["type"] == "Button") {
-                    let butonObj = actionArr[i].actionJson;
-                    setButtonAction(butonObj);
-                }
-            }
-        }
-    };
-    useEffect(() => {
-        setSelectedItem(prop.sendSelectedItem ? prop.sendSelectedItem : "");
-        setSelectCheckboxRc(prop.sendSelectedItem);
-    }, [prop.sendSelectedItem]);
-    useEffect(() => {
-        getGridData();
-        setRedioFilterPublish("All");
-        if (!redioFilter) {
-            setRedioFilter("Active");
-        }
-        if (gridId === "dmsClientID" ||
-            gridId === "dmsParameterID" ||
-            gridId === "ParameterCategoriesID") {
-            setifShowHeader(true);
-        }
-        if (gridId === "documentWorkspaceID") {
-            setifHideHeader(false);
-        }
-        setSearchPlaceholder(String(React.createElement(Translate, { contentKey: "export" })));
-    }, []);
-    const toggle = (e) => {
-        setExportType(e);
-        setModalExport(true);
-    };
-    const edit = (id) => {
-        prop.onEdit(id);
-    };
-    const items = [
-        {
-            label: "CSV",
-            icon: "fa-solid fa-file-csv",
-            command: () => toggle("CSV"),
-        },
-        {
-            label: "Excel",
-            icon: "fa-solid fa-file-excel",
-            command: () => toggle("EXCEL"),
-        },
-        {
-            label: "PDF",
-            icon: "fa-solid fa-file-pdf",
-            command: () => toggle("PDF"),
-        },
-        {
-            label: "Json",
-            icon: "fa-solid fa-file-arrow-down",
-            command: () => exportToJson(),
-        },
-        { label: "Print", icon: "fa-solid fa-print" },
-    ];
-    const settingChanges = (coulmnData, filterToggle, pagesize) => {
-        setModal(false);
-        setColumn(coulmnData);
-        setfilter(filterToggle);
-        const pageData = {
-            first: 0,
-            rows: parseInt(pagesize.size),
-            page: 0,
-            sortField: lazyState.sortField,
-            sortOrder: lazyState.sortOrder,
-        };
-        setlazyState(pageData);
-        prop.onPageChange(pageData);
-    };
-    const settingChangesExport = (coulmnData) => {
-        setModalExport(false);
-        setExportCol(coulmnData);
-        const exportData = data;
-        const headers = [];
-        coulmnData.map((col) => {
-            if (col.visible)
-                headers.push(col.field);
-        });
-        const newData = [];
-        exportData.map((element) => {
-            const newObj = {};
-            headers.forEach((name) => {
-                newObj[name] = element[name];
-            });
-            newData.push(newObj);
-        });
-        switch (exportType) {
-            case "PDF":
-                exportPdf(newData, headers, coulmnData);
-                break;
-            case "EXCEL":
-                exportExcel(newData);
-                break;
-            case "CSV":
-                exportCSV(newData);
-                break;
-        }
-    };
-    const exportToJson = () => {
-        downloadFile({
-            body: JSON.stringify(data),
-            fileName: "users.json",
-            fileType: "text/json",
-        });
-    };
-    const downloadFile = ({ body, fileName, fileType }) => {
-        const blob = new Blob([body], { type: fileType });
-        const a = document.createElement("a");
-        a.download = fileName;
-        a.href = window.URL.createObjectURL(blob);
-        const clickEvt = new MouseEvent("click", {
-            view: window,
-            bubbles: true,
-            cancelable: true,
-        });
-        a.dispatchEvent(clickEvt);
-        a.remove();
-    };
-    const convertToCSV = (objArray) => {
-        const array = typeof objArray !== "object" ? JSON.parse(objArray) : objArray;
-        let str = "";
-        for (let i = 0; i < array.length; i++) {
-            let line = "";
-            // eslint-disable-next-line guard-for-in
-            for (const index in array[i]) {
-                if (line !== "")
-                    line += ",";
-                line += array[i][index];
-            }
-            str += line + "\r\n";
-        }
-        return str;
-    };
-    const exportCSV = (newData, headers) => {
-        // Convert Object to JSON
-        const jsonObject = JSON.stringify(newData);
-        const csv = convertToCSV(jsonObject);
-        const exportedFilenmae = "report" + ".csv" ;
-        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-        const link = document.createElement("a");
-        if (link.download !== undefined) {
-            // feature detection
-            // Browsers that support HTML5 download attribute
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", exportedFilenmae);
-            link.style.visibility = "hidden";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    };
-    const exportPdf = (newData, headers, coulmnData) => {
-        const headerss = coulmnData.map((col) => {
-            if (col.visible)
-                headers.push({ title: col.header, dataKey: col.field });
-        });
-        const unit = "pt";
-        const size = "A4";
-        const orientation = "portrait";
-        const doc = new jsPDF(orientation, unit, size);
-        const title = "Report";
-        const content = {
-            startY: 50,
-            head: headerss,
-            body: newData,
-        };
-        doc.text(title, 40, 40);
-        autoTable(doc, content);
-        doc.save("Task.pdf");
-    };
-    const exportExcel = (newData) => {
-        import('xlsx').then((xlsx) => {
-            const worksheet = xlsx.utils.json_to_sheet(newData);
-            const workbook = { Sheets: { data: worksheet }, SheetNames: ["data"] };
-            const excelBuffer = xlsx.write(workbook, {
-                bookType: "xlsx",
-                type: "array",
-            });
-            saveAsExcelFile(excelBuffer, "products");
-        });
-    };
-    const saveAsExcelFile = (buffer, fileName) => {
-        import('file-saver').then((module) => {
-            if (module && module.default) {
-                const EXCEL_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
-                const EXCEL_EXTENSION = ".xlsx";
-                const dataa = new Blob([buffer], {
-                    type: EXCEL_TYPE,
-                });
-                module.default.saveAs(dataa, fileName + "_export_" + new Date().getTime() + EXCEL_EXTENSION);
-            }
-        });
-    };
-    const closeSettingModal = () => {
-        setModal(false);
-    };
-    const [reasonIdDelete, setReasonIdDelete] = useState();
-    const deleteConfirmOnAction = (id, flag, record) => __awaiter(void 0, void 0, void 0, function* () {
-        setMsgLangKeyInSessionStorage(prop.msgLangKey);
-        const idObj = {};
-        idObj["id"] = id;
-        setReasonIdDelete(idObj);
-        confirmDialog({
-            message: deletemsg,
-            header: deleteHeader,
-            icon: "pi pi-info-circle",
-            acceptClassName: "p-button-danger",
-            rejectClassName: "p-button-success",
-            acceptLabel: labelbtnFlag.yes ? labelbtnFlag.yes : "Yes",
-            rejectLabel: labelbtnFlag.no ? labelbtnFlag.no : "No",
-            accept: () => __awaiter(void 0, void 0, void 0, function* () {
-                flag == true ? yield setReasonFlag(!reasonFlag) : accept(id, record);
-            }),
-            reject: () => reject(),
-        });
-    });
-    const reject = () => {
-        // toast.warn('You have cancel your delete request.');
-    };
-    const accept = (data, record) => {
-        prop.onDelete(data, record);
-        setReasonFlag(false);
-    };
-    const onGlobalFilterChange = (e) => {
-        const value = e.target.value;
-        const _filters = Object.assign({}, filters);
-        _filters["global"].value = value;
-        setfilters(_filters);
-        setGlobalFilterValue(value);
-        if (gridId === "dmsParameterID") {
-            prop.onSearch(value);
-        }
-    };
-    const handleCloseForReason = () => {
-        setReasonFlag(!reasonFlag);
-        setData(prop.data);
-        setSelectCheckboxRc(prop.sendSelectedItem);
-    };
-    const redioFilterSelection = (name) => {
-        setRedioFilter(name);
-        sessionStorage.setItem("FilterStatus", name);
-        prop.onFilterChanges(name, prop.gridId);
-    };
-    const [selectCheckboxRc, setSelectCheckboxRc] = useState([]);
-    useState();
-    const defaultChecked = (fieldName, data1) => {
-        let flag;
-        flag = data1[fieldName] ? typeof data1[fieldName] : undefined;
-        if (flag != undefined) {
-            if (flag == "boolean") {
-                return data1[fieldName];
-            }
-            else if (flag == "string" || flag == "number") {
-                let returnValue;
-                if (flag == "string") {
-                    returnValue = data1[fieldName] == "Yes" ? true : false;
-                }
-                return returnValue;
-            }
-            return data1[fieldName];
-        }
-        else {
-            if (selectCheckboxRc != undefined) {
-                for (let i = 0; i < selectCheckboxRc.length; i++) {
-                    if (selectCheckboxRc[i].id == data1.id) {
-                        return true;
-                    }
-                }
-            }
-        }
-    };
-    const radioSelectRecord = (record, fieldName) => {
-        prop.radioEvent(record, fieldName);
-    };
-    const filterColumnGlobal = () => {
-        const globalFilterData = [];
-        if (column) {
-            column.forEach((element) => {
-                if (element.visible)
-                    globalFilterData.push(element.field);
-            });
-        }
-        return globalFilterData;
-    };
-    const onSelectCheckBox = (e, obj, fieldName) => {
-        let selectedItemsArray = selectCheckboxRc != undefined ? [...selectCheckboxRc] : [];
-        const checked = e.checked;
-        if (obj[fieldName] != undefined) {
-            obj[fieldName] == e.checked;
-            if (e.checked) {
-                if (selectedItemsArray.length == 0) {
-                    selectedItemsArray.push(obj);
-                }
-                else {
-                    selectedItemsArray.push(obj);
-                    // for (let i = 0; i < selectedItemsArray.length; i++) {
-                    //   if (obj.id != selectedItemsArray[i].id || selectedItemsArray.legth == 0) {
-                    //   }
-                    // }
-                }
-            }
-            else {
-                selectedItemsArray.splice(selectedItemsArray.indexOf(obj), 1);
-            }
-        }
-        else {
-            checked == true
-                ? selectedItemsArray.push(obj)
-                : selectedItemsArray.splice(selectedItemsArray.indexOf(obj), 1);
-        }
-        setSelectCheckboxRc(selectedItemsArray);
-        setReasonIdDelete(obj);
-        prop.selectCheckbox(checked, obj, selectedItemsArray);
-    };
-    const onReset = () => __awaiter(void 0, void 0, void 0, function* () {
-        let id;
-        setModal(false);
-        if (language === 'en')
-            id = 1;
-        else if (language === 'hi')
-            id = 2;
-        else
-            id = 3;
-        yield axios.get(`api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
-        dispatch(getColumns({
-            gridId: gridId,
-            id: id,
-            menuItemId: menuItemId,
-        })).then((res) => __awaiter(void 0, void 0, void 0, function* () {
-            setColumn(res.payload.data.data);
-            const pageData = {
-                first: lazyState.first,
-                rows: parseInt(res.payload.data.data[0].gridPageSize),
-                page: lazyState.page,
-                sortField: lazyState.sortField,
-                sortOrder: lazyState.sortOrder,
-            };
-            setlazyState(pageData);
-            setfilter(res.payload.data.data[0].filterEnable);
-            yield prepareRowAction(res.payload.data.data);
-            yield prop.onPageChange(pageData);
-            setData(prop.data);
-        }));
-    });
-    return (React.createElement("div", null,
-        React.createElement("div", { className: "d-flex justify-content-between align-items-center" },
-            React.createElement("div", { className: "d-flex globlFilter" }, filter && (React.createElement("span", { className: "p-input-icon-left" },
-                React.createElement("i", { className: "pi pi-search" }),
-                React.createElement(InputText, { value: globalFilterValue, onChange: (e) => onGlobalFilterChange(e) })))),
-            React.createElement("div", { className: "d-flex flex-wrap" },
-                ifShowHeader && (React.createElement(Button, { onClick: () => edit(""), className: "btn btn-primary btnStyle", "data-cy": "entityCreateButton" },
-                    React.createElement(FontAwesomeIcon, { icon: "plus" }),
-                    "Add")),
-                prop.statusFilter === true && (React.createElement("span", { className: "d-flex justify-content-center m-r-15 statusFilter" },
-                    React.createElement("span", { style: { marginLeft: "10px" }, className: "d-flex align-items-center" },
-                        React.createElement(RadioButton, { inputId: gridId + "gridActive", name: "filter", value: "Active", onChange: (e) => redioFilterSelection(e.value), checked: redioFilter === "Active" }),
-                        React.createElement("label", { htmlFor: gridId + "gridActive", style: { marginBottom: 0 } }, labelbtnFlag.activeradio
-                            ? labelbtnFlag.activeradio
-                            : "Active")),
-                    React.createElement("span", { style: { marginLeft: "10px" }, className: "d-flex align-items-center" },
-                        React.createElement(RadioButton, { inputId: gridId + "gridInactive", name: "filter", value: "Inactive", onChange: (e) => redioFilterSelection(e.value), checked: redioFilter === "Inactive" }),
-                        React.createElement("label", { htmlFor: gridId + "gridInactive", style: { marginBottom: 0 } }, labelbtnFlag.inactiveradio
-                            ? labelbtnFlag.inactiveradio
-                            : "Inactive")),
-                    React.createElement("span", { style: { marginLeft: "10px" }, className: "d-flex align-items-center" },
-                        React.createElement(RadioButton, { inputId: gridId + "All", name: "filter", value: "All", onChange: (e) => redioFilterSelection(e.value), checked: redioFilter === "All" }),
-                        React.createElement("label", { htmlFor: gridId + "All", style: { marginBottom: 0 } }, labelbtnFlag.allradio ? labelbtnFlag.allradio : "All")))),
-                React.createElement(Button, { color: "secondary", className: "iconBtn", onClick: () => {
-                        setModal(!modal);
-                    }, tooltip: "Setting", tooltipOptions: { position: "top" } },
-                    React.createElement(FontAwesomeIcon, { icon: "cogs" })),
-                React.createElement(SplitButton, { tooltip: "Export", tooltipOptions: { position: "top" }, label: labelbtnFlag.export ? labelbtnFlag.export : "Export", className: "tableExportMenu", model: items }))),
-        modal && (React.createElement(Setting, { show: modal, gridId: gridId, gridData: apiGridData, filter: filter, columns: column, menuItemId: menuItemId, onClose: closeSettingModal, onSetting: settingChanges, onReset: onReset })),
-        modalExport && (React.createElement(ExportSetting, { show: modalExport, columns: column, onSetting: settingChangesExport })),
-        React.createElement("div", { className: "dataTable" },
-            React.createElement(React.Fragment, null,
-                data && data.length > 0 ? (React.createElement(React.Fragment, null,
-                    React.createElement(DataTable, { ref: dt, sortMode: "multiple", value: data, globalFilterFields: filterColumnGlobal(), filters: filters, 
-                        // header={header}
-                        filterDisplay: filter ? "row" : "menu", scrollable: true, scrollHeight: "400px", id: gridId, selectionMode: "single", selection: selectedItem, onSelectionChange: (e) => {
-                            setSelectedItem(e.value);
-                            prop.onSelect ? prop.onSelect(e.value) : {};
-                        }, responsiveLayout: "scroll", onRowReorder: (e) => prop.onAddReorderRow(e.value, gridId), reorderableRows: true, removableSort: true },
-                        rowReorder && (React.createElement(Column, { rowReorder: true, style: { minWidth: "3rem" } })),
-                        column &&
-                            column.map((e, i) => {
-                                if (e.visible) {
-                                    if (e.type === "Radio") {
-                                        return (React.createElement(Column, { header: e.header, body: (data2) => (React.createElement(React.Fragment, null,
-                                                React.createElement(RadioButton, { inputId: data2, name: data2.id, value: e.field, onChange: (x) => radioSelectRecord(data2, e.field), checked: data2[e.field] === true }))) }));
-                                    }
-                                    if (e.type === "CheckBox") {
-                                        return (React.createElement(Column, { header: e.header, body: (data2) => (React.createElement(React.Fragment, null,
-                                                React.createElement(Checkbox, { key: Math.random(), name: data2.id, value: e.field, onChange: (x) => {
-                                                        onSelectCheckBox(x, data2, e.field);
-                                                    }, checked: defaultChecked(e.field, data2) }))) }));
-                                    }
-                                    if (e.type === "Action") {
-                                        return (React.createElement(Column, { style: { width: "15px" }, header: e.header, body: (data2) => (React.createElement(React.Fragment, null,
-                                                React.createElement(SplitButton, { icon: "fa-solid fa-ellipsis", className: "tableActionMenu", model: itemsAction, onFocus: () => getActionBtn(data2.id, data2) }))) }));
-                                        //  <Column header="Field Name" body={rowData => <span>Hello</span>} />;
-                                    }
-                                    if (e.type === "Button") {
-                                        return (React.createElement(Column, { header: e.header, style: { width: "20px" }, body: (data2) => (React.createElement(React.Fragment, null, buttonAction.length > 0 &&
-                                                buttonAction.map((button) => (React.createElement(React.Fragment, null, button.visible == true && (React.createElement(Button, { tooltip: button.label, style: { marginLeft: '15px' }, tooltipOptions: { position: "top" }, className: button.className + " gridIcon", onClick: () => button["id"] == "Delete"
-                                                        ? deleteConfirmOnAction(data2.id, button["askReason"], data2)
-                                                        : eval(prop[buttonAction[0].command](data2.id, gridId, true, editObject)) },
-                                                    React.createElement("i", { className: button.icon })))))))) }));
-                                    }
-                                    // if (data[e.field] != '') {
-                                    //   return <Button>Delete</Button>;
-                                    // }
-                                    return (React.createElement(Column, { key: i, columnKey: e.field, field: e.field, header: e.header, style: { width: e.width }, sortable: true }));
-                                    /* <Column>
-                                        <div dangerouslySetInnerHTML={{ __html: htmlString }}></div>
-                                      </Column> */
-                                }
-                            })),
-                    React.createElement(Paginator, { template: paginatorTemplate, rows: lazyState === null || lazyState === void 0 ? void 0 : lazyState.rows, first: lazyState === null || lazyState === void 0 ? void 0 : lazyState.first, onPageChange: (e) => {
-                            setlazyState(e);
-                            prop.onPageChange(e);
-                        }, pageLinkSize: 3, totalRecords: totalRecords, className: "justify-content-end" }))) : (React.createElement("div", { className: "alert alert-warning" }, "No records found")),
-                reasonFlag && (React.createElement(AskReason, { data: reasonIdDelete, deleteObject: editObject, action: "delete", visible: reasonFlag, saveWithReason: accept, onClose: handleCloseForReason }))))));
-};
 
 const Treetable = (prop) => {
     const dt = useRef();

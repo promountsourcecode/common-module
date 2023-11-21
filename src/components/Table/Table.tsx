@@ -9,7 +9,6 @@ import { getSortState } from 'react-jhipster';
 // import { ITEMS_PER_PAGE } from '../constants/index';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import Setting from './setting';
 import ExportSetting from 'app/shared/export-column';
 import axios from 'axios';
 import { Paginator } from 'primereact/paginator';
@@ -37,6 +36,7 @@ import { OverlayPanel } from 'primereact/overlaypanel';
 import _ from 'lodash';
 import { boolean, object } from 'yup';
 import { getColumns } from 'app/entities/level/level.reducer';
+import Setting from '../Setting/Setting';
 export const Table = prop => {
   const menuItemId = sessionStorage.getItem('menuItemId');
   const [userId, setUserId] = useState(sessionStorage.getItem('id'));
