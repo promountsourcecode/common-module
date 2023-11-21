@@ -13,6 +13,7 @@ var dropdown = require('primereact/dropdown');
 var axios = require('axios');
 var reactFontawesome = require('@fortawesome/react-fontawesome');
 var freeSolidSvgIcons = require('@fortawesome/free-solid-svg-icons');
+var reactRouterDom = require('react-router-dom');
 var splitbutton = require('primereact/splitbutton');
 var confirmdialog = require('primereact/confirmdialog');
 var jsPDF = require('jspdf');
@@ -92,7 +93,7 @@ const Translate = (prop) => {
     const [lableFlag, setLableFlag] = React.useState(false);
     const [finalValue, setFinalValue] = React.useState();
     React.useState(sessionStorage.getItem("menuItemId"));
-    const navigate = useNavigate();
+    const navigate = reactRouterDom.useNavigate();
     React.useEffect(() => {
         fetchData();
     }, [""]);
