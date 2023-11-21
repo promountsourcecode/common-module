@@ -19,6 +19,8 @@ interface ModalInputProps {
   gridId: string;
   gridData: any;
   onClose: any;
+  onReset: any;
+  menuItemId:any;
 }
 
 class Setting extends Component<ModalInputProps> {
