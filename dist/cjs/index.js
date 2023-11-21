@@ -92,33 +92,36 @@ const Translate = (prop) => {
     const [lableFlag, setLableFlag] = React.useState(false);
     const [finalValue, setFinalValue] = React.useState();
     React.useState(sessionStorage.getItem("menuItemId"));
+    const navigate = useNavigate();
     React.useEffect(() => {
         fetchData();
     }, [""]);
     const fetchData = () => {
         const languageDataLocal = JSON.parse(sessionStorage.getItem("LanguageData"));
+        if (languageDataLocal == undefined) {
+            navigate("/logout");
+        }
+        console.log("props", prop.contentKey, languageDataLocal["translations"][selectLanguage][prop.contentKey]);
         if (languageDataLocal["translations"][selectLanguage][prop.contentKey] !=
             undefined)
             setFinalValue(languageDataLocal["translations"][selectLanguage][prop.contentKey]["text"]);
         setIsMandatory(languageDataLocal["translations"][selectLanguage][prop.contentKey]);
-        if (languageDataLocal["translations"][selectLanguage][prop.contentKey]["type"] != undefined) {
-            const obj = languageDataLocal["translations"][selectLanguage][prop.contentKey]["type"];
-            if (obj == "Textarea" ||
-                obj == "CheckBox" ||
-                obj == "Radio" ||
-                obj == "Text Field" ||
-                obj == "ComboBox") {
-                setLableFlag(true);
-            }
-            else {
-                setLableFlag(false);
-            }
+        // if (languageDataLocal['translations'][selectLanguage][prop.contentKey]['type'] != undefined) {
+        console.log("prop", languageDataLocal["translations"][selectLanguage][prop.contentKey], prop.contentKey);
+        const obj = languageDataLocal["translations"][selectLanguage][prop.contentKey]["type"]
+            ? languageDataLocal["translations"][selectLanguage][prop.contentKey]["type"]
+            : "";
+        if (obj == "Textarea" ||
+            obj == "CheckBox" ||
+            obj == "Radio" ||
+            obj == "Text Field" ||
+            obj == "ComboBox") {
+            setLableFlag(true);
         }
-        // languageData.map(e => {
-        //   if (e.key === prop.contentKey) {
-        //     setFinalValue(e.value);
-        //   }
-        // });console.log(finalValue + element);
+        else {
+            setLableFlag(false);
+        }
+        // }
     };
     return (React__default["default"].createElement(React__default["default"].Fragment, null,
         isMandatory != undefined ? React__default["default"].createElement("span", null,
@@ -1073,6 +1076,36 @@ const Table = (prop) => {
         setReasonIdDelete(obj);
         prop.selectCheckbox(checked, obj, selectedItemsArray);
     };
+    const onReset = () => __awaiter(void 0, void 0, void 0, function* () {
+        let id;
+        setModal(false);
+        if (language === 'en')
+            id = 1;
+        else if (language === 'hi')
+            id = 2;
+        else
+            id = 3;
+        yield axios__default["default"].get(`api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
+        dispatch(getColumns({
+            gridId: gridId,
+            id: id,
+            menuItemId: menuItemId,
+        })).then((res) => __awaiter(void 0, void 0, void 0, function* () {
+            setColumn(res.payload.data.data);
+            const pageData = {
+                first: lazyState.first,
+                rows: parseInt(res.payload.data.data[0].gridPageSize),
+                page: lazyState.page,
+                sortField: lazyState.sortField,
+                sortOrder: lazyState.sortOrder,
+            };
+            setlazyState(pageData);
+            setfilter(res.payload.data.data[0].filterEnable);
+            yield prepareRowAction(res.payload.data.data);
+            yield prop.onPageChange(pageData);
+            setData(prop.data);
+        }));
+    });
     return (React__default["default"].createElement("div", null,
         React__default["default"].createElement("div", { className: "d-flex justify-content-between align-items-center" },
             React__default["default"].createElement("div", { className: "d-flex globlFilter" }, filter && (React__default["default"].createElement("span", { className: "p-input-icon-left" },
@@ -1101,7 +1134,7 @@ const Table = (prop) => {
                     }, tooltip: "Setting", tooltipOptions: { position: "top" } },
                     React__default["default"].createElement(reactFontawesome.FontAwesomeIcon, { icon: "cogs" })),
                 React__default["default"].createElement(splitbutton.SplitButton, { tooltip: "Export", tooltipOptions: { position: "top" }, label: labelbtnFlag.export ? labelbtnFlag.export : "Export", className: "tableExportMenu", model: items }))),
-        modal && (React__default["default"].createElement(Setting, { show: modal, gridId: gridId, gridData: apiGridData, filter: filter, columns: column$1, onClose: closeSettingModal, onSetting: settingChanges })),
+        modal && (React__default["default"].createElement(Setting, { show: modal, gridId: gridId, gridData: apiGridData, filter: filter, columns: column$1, menuItemId: menuItemId, onClose: closeSettingModal, onSetting: settingChanges, onReset: onReset })),
         modalExport && (React__default["default"].createElement(ExportSetting, { show: modalExport, columns: column$1, onSetting: settingChangesExport })),
         React__default["default"].createElement("div", { className: "dataTable" },
             React__default["default"].createElement(React__default["default"].Fragment, null,
@@ -1127,13 +1160,13 @@ const Table = (prop) => {
                                                     }, checked: defaultChecked(e.field, data2) }))) }));
                                     }
                                     if (e.type === "Action") {
-                                        return (React__default["default"].createElement(column.Column, { style: { width: "20px" }, header: e.header, body: (data2) => (React__default["default"].createElement(React__default["default"].Fragment, null,
+                                        return (React__default["default"].createElement(column.Column, { style: { width: "15px" }, header: e.header, body: (data2) => (React__default["default"].createElement(React__default["default"].Fragment, null,
                                                 React__default["default"].createElement(splitbutton.SplitButton, { icon: "fa-solid fa-ellipsis", className: "tableActionMenu", model: itemsAction, onFocus: () => getActionBtn(data2.id, data2) }))) }));
                                         //  <Column header="Field Name" body={rowData => <span>Hello</span>} />;
                                     }
                                     if (e.type === "Button") {
                                         return (React__default["default"].createElement(column.Column, { header: e.header, style: { width: "20px" }, body: (data2) => (React__default["default"].createElement(React__default["default"].Fragment, null, buttonAction.length > 0 &&
-                                                buttonAction.map((button$1) => (React__default["default"].createElement(React__default["default"].Fragment, null, button$1.visible == true && (React__default["default"].createElement(button.Button, { tooltip: button$1.label, tooltipOptions: { position: "top" }, style: { marginLeft: '1rem' }, className: button$1.className + " gridIcon", onClick: () => button$1["id"] == "Delete"
+                                                buttonAction.map((button$1) => (React__default["default"].createElement(React__default["default"].Fragment, null, button$1.visible == true && (React__default["default"].createElement(button.Button, { tooltip: button$1.label, style: { marginLeft: '15px' }, tooltipOptions: { position: "top" }, className: button$1.className + " gridIcon", onClick: () => button$1["id"] == "Delete"
                                                         ? deleteConfirmOnAction(data2.id, button$1["askReason"], data2)
                                                         : eval(prop[buttonAction[0].command](data2.id, gridId, true, editObject)) },
                                                     React__default["default"].createElement("i", { className: button$1.icon })))))))) }));

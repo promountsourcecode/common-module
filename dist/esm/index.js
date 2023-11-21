@@ -62,33 +62,36 @@ const Translate = (prop) => {
     const [lableFlag, setLableFlag] = useState(false);
     const [finalValue, setFinalValue] = useState();
     useState(sessionStorage.getItem("menuItemId"));
+    const navigate = useNavigate();
     useEffect(() => {
         fetchData();
     }, [""]);
     const fetchData = () => {
         const languageDataLocal = JSON.parse(sessionStorage.getItem("LanguageData"));
+        if (languageDataLocal == undefined) {
+            navigate("/logout");
+        }
+        console.log("props", prop.contentKey, languageDataLocal["translations"][selectLanguage][prop.contentKey]);
         if (languageDataLocal["translations"][selectLanguage][prop.contentKey] !=
             undefined)
             setFinalValue(languageDataLocal["translations"][selectLanguage][prop.contentKey]["text"]);
         setIsMandatory(languageDataLocal["translations"][selectLanguage][prop.contentKey]);
-        if (languageDataLocal["translations"][selectLanguage][prop.contentKey]["type"] != undefined) {
-            const obj = languageDataLocal["translations"][selectLanguage][prop.contentKey]["type"];
-            if (obj == "Textarea" ||
-                obj == "CheckBox" ||
-                obj == "Radio" ||
-                obj == "Text Field" ||
-                obj == "ComboBox") {
-                setLableFlag(true);
-            }
-            else {
-                setLableFlag(false);
-            }
+        // if (languageDataLocal['translations'][selectLanguage][prop.contentKey]['type'] != undefined) {
+        console.log("prop", languageDataLocal["translations"][selectLanguage][prop.contentKey], prop.contentKey);
+        const obj = languageDataLocal["translations"][selectLanguage][prop.contentKey]["type"]
+            ? languageDataLocal["translations"][selectLanguage][prop.contentKey]["type"]
+            : "";
+        if (obj == "Textarea" ||
+            obj == "CheckBox" ||
+            obj == "Radio" ||
+            obj == "Text Field" ||
+            obj == "ComboBox") {
+            setLableFlag(true);
         }
-        // languageData.map(e => {
-        //   if (e.key === prop.contentKey) {
-        //     setFinalValue(e.value);
-        //   }
-        // });console.log(finalValue + element);
+        else {
+            setLableFlag(false);
+        }
+        // }
     };
     return (React.createElement(React.Fragment, null,
         isMandatory != undefined ? React.createElement("span", null,
@@ -1043,6 +1046,36 @@ const Table = (prop) => {
         setReasonIdDelete(obj);
         prop.selectCheckbox(checked, obj, selectedItemsArray);
     };
+    const onReset = () => __awaiter(void 0, void 0, void 0, function* () {
+        let id;
+        setModal(false);
+        if (language === 'en')
+            id = 1;
+        else if (language === 'hi')
+            id = 2;
+        else
+            id = 3;
+        yield axios.get(`api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
+        dispatch(getColumns({
+            gridId: gridId,
+            id: id,
+            menuItemId: menuItemId,
+        })).then((res) => __awaiter(void 0, void 0, void 0, function* () {
+            setColumn(res.payload.data.data);
+            const pageData = {
+                first: lazyState.first,
+                rows: parseInt(res.payload.data.data[0].gridPageSize),
+                page: lazyState.page,
+                sortField: lazyState.sortField,
+                sortOrder: lazyState.sortOrder,
+            };
+            setlazyState(pageData);
+            setfilter(res.payload.data.data[0].filterEnable);
+            yield prepareRowAction(res.payload.data.data);
+            yield prop.onPageChange(pageData);
+            setData(prop.data);
+        }));
+    });
     return (React.createElement("div", null,
         React.createElement("div", { className: "d-flex justify-content-between align-items-center" },
             React.createElement("div", { className: "d-flex globlFilter" }, filter && (React.createElement("span", { className: "p-input-icon-left" },
@@ -1071,7 +1104,7 @@ const Table = (prop) => {
                     }, tooltip: "Setting", tooltipOptions: { position: "top" } },
                     React.createElement(FontAwesomeIcon, { icon: "cogs" })),
                 React.createElement(SplitButton, { tooltip: "Export", tooltipOptions: { position: "top" }, label: labelbtnFlag.export ? labelbtnFlag.export : "Export", className: "tableExportMenu", model: items }))),
-        modal && (React.createElement(Setting, { show: modal, gridId: gridId, gridData: apiGridData, filter: filter, columns: column, onClose: closeSettingModal, onSetting: settingChanges })),
+        modal && (React.createElement(Setting, { show: modal, gridId: gridId, gridData: apiGridData, filter: filter, columns: column, menuItemId: menuItemId, onClose: closeSettingModal, onSetting: settingChanges, onReset: onReset })),
         modalExport && (React.createElement(ExportSetting, { show: modalExport, columns: column, onSetting: settingChangesExport })),
         React.createElement("div", { className: "dataTable" },
             React.createElement(React.Fragment, null,
@@ -1097,13 +1130,13 @@ const Table = (prop) => {
                                                     }, checked: defaultChecked(e.field, data2) }))) }));
                                     }
                                     if (e.type === "Action") {
-                                        return (React.createElement(Column, { style: { width: "20px" }, header: e.header, body: (data2) => (React.createElement(React.Fragment, null,
+                                        return (React.createElement(Column, { style: { width: "15px" }, header: e.header, body: (data2) => (React.createElement(React.Fragment, null,
                                                 React.createElement(SplitButton, { icon: "fa-solid fa-ellipsis", className: "tableActionMenu", model: itemsAction, onFocus: () => getActionBtn(data2.id, data2) }))) }));
                                         //  <Column header="Field Name" body={rowData => <span>Hello</span>} />;
                                     }
                                     if (e.type === "Button") {
                                         return (React.createElement(Column, { header: e.header, style: { width: "20px" }, body: (data2) => (React.createElement(React.Fragment, null, buttonAction.length > 0 &&
-                                                buttonAction.map((button) => (React.createElement(React.Fragment, null, button.visible == true && (React.createElement(Button, { tooltip: button.label, tooltipOptions: { position: "top" }, style: { marginLeft: '1rem' }, className: button.className + " gridIcon", onClick: () => button["id"] == "Delete"
+                                                buttonAction.map((button) => (React.createElement(React.Fragment, null, button.visible == true && (React.createElement(Button, { tooltip: button.label, style: { marginLeft: '15px' }, tooltipOptions: { position: "top" }, className: button.className + " gridIcon", onClick: () => button["id"] == "Delete"
                                                         ? deleteConfirmOnAction(data2.id, button["askReason"], data2)
                                                         : eval(prop[buttonAction[0].command](data2.id, gridId, true, editObject)) },
                                                     React.createElement("i", { className: button.icon })))))))) }));

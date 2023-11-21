@@ -8,6 +8,8 @@ interface ModalInputProps$1 {
     gridId: string;
     gridData: any;
     onClose: any;
+    onReset: any;
+    menuItemId: any;
 }
 declare class Setting extends Component<ModalInputProps$1> {
     tableColumns: any;
