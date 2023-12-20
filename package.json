@@ -1,6 +1,6 @@
 {
   "name": "@promountsourcecode/common_module",
-  "version": "2.3.3",
+  "version": "2.3.6",
   "description": "shared model for diffrent projects",
   "repository": {
     "type": "git",
@@ -28,5 +28,8 @@
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
+  },
+  "dependencies": {
+    "@promountsourcecode/common_module": "^2.3.4"
   }
 }

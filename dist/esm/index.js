@@ -9,7 +9,6 @@ import { Dropdown } from 'primereact/dropdown';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faRepeat } from '@fortawesome/free-solid-svg-icons';
-import { Translate as Translate$1, AskReason as AskReason$1, setMsgLangKeyInSessionStorage as setMsgLangKeyInSessionStorage$1, getControlValidationObj as getControlValidationObj$1, Setting as Setting$1 } from '@promountsourcecode/common_module';
 import { useNavigate } from 'react-router-dom';
 import { SplitButton } from 'primereact/splitbutton';
 import { confirmDialog } from 'primereact/confirmdialog';
@@ -43,6 +42,36 @@ OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ***************************************************************************** */
 
+function __awaiter$1(thisArg, _arguments, P, generator) {
+  function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+  return new (P || (P = Promise))(function (resolve, reject) {
+      function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+      function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+      function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+      step((generator = generator.apply(thisArg, _arguments || [])).next());
+  });
+}
+
+typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
+  var e = new Error(message);
+  return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+};
+
+/******************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */
+
 function __awaiter(thisArg, _arguments, P, generator) {
   function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
   return new (P || (P = Promise))(function (resolve, reject) {
@@ -58,7 +87,7 @@ typeof SuppressedError === "function" ? SuppressedError : function (error, suppr
   return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
 };
 
-class Setting extends Component {
+class Setting$1 extends Component {
     constructor(props) {
         var _a, _b, _c, _d;
         super(props);
@@ -264,6 +293,372 @@ class Setting extends Component {
     }
 }
 
+const Translate$1 = (prop) => {
+    const [selectLanguage, setSelectLanguage] = useState(sessionStorage.getItem("Language"));
+    useState();
+    const [isMandatory, setIsMandatory] = useState([]);
+    useState();
+    const [lableFlag, setLableFlag] = useState(false);
+    const [finalValue, setFinalValue] = useState();
+    useState(sessionStorage.getItem("menuItemId"));
+    const navigate = useNavigate();
+    useEffect(() => {
+        fetchData();
+    }, [""]);
+    const fetchData = () => {
+        const languageDataLocal = JSON.parse(sessionStorage.getItem("LanguageData"));
+        if (languageDataLocal == undefined) {
+            navigate("/logout");
+        }
+        console.log("props", prop.contentKey, languageDataLocal["translations"][selectLanguage][prop.contentKey]);
+        if (languageDataLocal["translations"][selectLanguage][prop.contentKey] !=
+            undefined)
+            setFinalValue(languageDataLocal["translations"][selectLanguage][prop.contentKey]["text"]);
+        setIsMandatory(languageDataLocal["translations"][selectLanguage][prop.contentKey]);
+        // if (languageDataLocal['translations'][selectLanguage][prop.contentKey]['type'] != undefined) {
+        console.log("prop", languageDataLocal["translations"][selectLanguage][prop.contentKey], prop.contentKey);
+        const obj = languageDataLocal["translations"][selectLanguage][prop.contentKey]["type"]
+            ? languageDataLocal["translations"][selectLanguage][prop.contentKey]["type"]
+            : "";
+        if (obj == "Textarea" ||
+            obj == "CheckBox" ||
+            obj == "Radio" ||
+            obj == "Text Field" ||
+            obj == "ComboBox") {
+            setLableFlag(true);
+        }
+        else {
+            setLableFlag(false);
+        }
+        // }
+    };
+    return (React.createElement(React.Fragment, null,
+        isMandatory != undefined ? React.createElement("span", null,
+            isMandatory.text,
+            " ") : "",
+        isMandatory != undefined ? (isMandatory.mandatory === true ? (lableFlag == true ? (React.createElement(React.Fragment, null,
+            " ",
+            React.createElement("span", null, ":"),
+            React.createElement("span", { className: "reqsign" }, "*"))) : ("")) : lableFlag == true ? (React.createElement("span", null, ":")) : ("")) : ("")));
+};
+
+const AskReason$1 = (prop) => {
+    const [dataForm, setData] = useState(prop.data);
+    useState("");
+    const [visible, setVisible] = useState(prop.visible);
+    const [action, setAction] = useState(prop.action);
+    const closeModal = () => {
+        setVisible(false);
+        prop.onClose();
+    };
+    useEffect(() => {
+        console.log(prop);
+    });
+    const defaultValues = Object.assign(Object.assign({}, dataForm), { reasonForChange: "" });
+    const getFormErrorMessage = (name) => {
+        return errors[name] ? (React.createElement("small", { className: "p-error" }, errors[name].message)) : (React.createElement("small", { className: "p-error" }, "\u00A0"));
+    };
+    const onSubmit = (data) => {
+        if (prop.passwordFlag) {
+            {
+                data.reasonForChange = data.reasonForChange;
+                const entity = Object.assign(Object.assign({}, data), { reasonForChange: data.reasonForChange });
+                prop.saveWithReason(entity, prop.deleteObject);
+                prop.onClose();
+            }
+        }
+        else {
+            data.reasonForChange = data.reasonForChange;
+            const entity = Object.assign(Object.assign({}, data), { reasonForChange: data.reasonForChange });
+            prop.saveWithReason(entity, prop.deleteObject);
+            prop.onClose();
+        }
+    };
+    const { control, formState: { errors }, handleSubmit, getValues, reset, } = useForm({ defaultValues });
+    return (React.createElement(React.Fragment, null,
+        React.createElement(Dialog, { header: React.createElement(Translate$1, { contentKey: "reasonForConfirmation" }), id: prop.id, visible: visible, onHide: closeModal, style: { width: "30vw" } },
+            React.createElement("form", { onSubmit: handleSubmit(onSubmit) },
+                React.createElement("div", { className: "modal-content", style: { overflow: "auto !important" } },
+                    React.createElement("div", { className: "container-fluid" },
+                        React.createElement("div", { className: "row form-group" },
+                            React.createElement(Controller, { name: "reasonForChange", control: control, rules: getControlValidationObj$1("reason"), render: ({ field, fieldState }) => (React.createElement(React.Fragment, null,
+                                    React.createElement("label", { className: "form-label" },
+                                        React.createElement(Translate$1, { contentKey: "reason" })),
+                                    React.createElement(InputTextarea, { id: field.name, value: field.value, className: classNames("form-control", {
+                                            "p-invalid": fieldState.error,
+                                        }), onChange: (e) => field.onChange(e.target.value), rows: 3, cols: 30 }),
+                                    getFormErrorMessage(field.name))) })),
+                        prop.passwordFlag && (React.createElement("div", { className: "row form-group" },
+                            React.createElement(Controller, { name: "password", control: control, rules: getControlValidationObj$1("password.global"), render: ({ field, fieldState }) => (React.createElement(React.Fragment, null,
+                                    React.createElement("label", { className: "form-label" },
+                                        React.createElement(Translate$1, { contentKey: "password.global" })),
+                                    React.createElement(InputText, { id: field.name, value: field.value, className: classNames("form-control", {
+                                            "p-invalid": fieldState.error,
+                                        }), onChange: (e) => field.onChange(e.target.value) }),
+                                    getFormErrorMessage(field.name))) }))),
+                        React.createElement("div", { className: "p-dialog-footer " },
+                            React.createElement(Button$1, { label: "Submit", id: "askReason", type: "submit", color: action == "delete" ? "danger" : "primary", className: "btnStyle", icon: "pi pi-check" },
+                                action == "delete" ? (React.createElement(FontAwesomeIcon, { icon: "times" })) : (React.createElement(FontAwesomeIcon, { icon: "save" })),
+                                action == "delete" ? (React.createElement(Translate$1, { contentKey: "delete" })) : (React.createElement(Translate$1, { contentKey: "home.save" }))))))))));
+};
+
+// const dataSC1: any = JSON.parse(sessionStorage.getItem('LanguageData'));
+// const dataSc = dataSC1 ? dataSC1.translations[2].validations.validateDetails : '';
+sessionStorage.getItem("Language");
+// let screenDataSc1 = JSON.parse(sessionStorage.getItem('LanguageData'));
+sessionStorage.getItem("LanguageData")
+    ? JSON.parse(sessionStorage.getItem("LanguageData"))["translations"]
+    : "";
+function setMsgLangKeyInSessionStorage$1(key) {
+    sessionStorage.setItem("msgLangKey", key);
+}
+function getControlValidationObj$1(field) {
+    let language = sessionStorage.getItem("Language");
+    let screenDataSc1 = sessionStorage.getItem("LanguageData")
+        ? JSON.parse(sessionStorage.getItem("LanguageData"))["translations"]
+        : "";
+    const lngobj = screenDataSc1[language];
+    const obj = lngobj[field];
+    const ruleObj = {};
+    if (obj.mandatory != null) {
+        ruleObj["required"] = {};
+        ruleObj["required"]["value"] = obj.mandatory;
+        if (obj.isRequiredMessage != null && obj.isRequiredMessage !== "") {
+            ruleObj["required"]["message"] = obj.isRequiredMessage;
+        }
+    }
+    if (obj.minvalue != null && obj.minvalue !== "") {
+        ruleObj["minLength"] = {};
+        ruleObj["minLength"]["value"] = Number(obj.minvalue);
+        //message = getErrorMessageForMinLength(screenDataSc, field);
+        // if (message != null && message != '') {
+        ruleObj["minLength"]["message"] = obj.minLengthMessage;
+        // }
+    }
+    // let maxLength: any = getMaxLength(screenDataSc, field);
+    if (obj.maxvalue != null && obj.maxvalue !== "") {
+        ruleObj["maxLength"] = {};
+        ruleObj["maxLength"]["value"] = obj.maxvalue;
+        ruleObj["maxLength"]["message"] = obj.maxLengthMessage;
+    }
+    // let pattern: any = getRegex(screenDataSc, field);
+    if (obj.validationRegex != null && obj.validationRegex !== "") {
+        ruleObj["pattern"] = {};
+        ruleObj["pattern"]["value"] = RegExp(obj.validationRegex);
+        //message = getErrorMessageForRegex(screenDataSc, field);
+        // if (message != null && message != '') {
+        ruleObj["pattern"]["message"] = obj.regexPatternMessage;
+        // }
+    }
+    return ruleObj;
+}
+
+class Setting extends Component {
+    constructor(props) {
+        var _a, _b, _c, _d;
+        super(props);
+        this.state = {
+            visible: this.props.show,
+            columns: this.props.columns,
+            filter: (_b = (_a = this.props) === null || _a === void 0 ? void 0 : _a.columns[0]) === null || _b === void 0 ? void 0 : _b.filterEnable,
+            gridData: this.props.gridData,
+            prop: this.props,
+            pageSize: [{ size: '10' }, { size: '20' }, { size: '50' }, { size: '100' }, { size: '200' }, { size: '500' }],
+            language: sessionStorage.getItem('Language'),
+            selectedPageSize: {
+                size: (_d = (_c = this.props) === null || _c === void 0 ? void 0 : _c.columns[0]) === null || _d === void 0 ? void 0 : _d.gridPageSize,
+            },
+        };
+        this.toggle = e => {
+            e.preventDefault();
+            this.setState({ visible: !this.state.visible });
+        };
+        this.checkboxChange = (event, index) => {
+            const data = this.tableColumns;
+            data[index].visible = event.checked;
+            this.setState({ columns: data });
+        };
+        this.footerContent = () => {
+            return (React.createElement("div", null,
+                React.createElement(Button, { label: "Apply", icon: "pi pi-check", onClick: () => this.handleChange(), autoFocus: true }),
+                React.createElement(Button, { label: "Reset", onClick: () => this.resetSettings() }),
+                React.createElement(Button, { label: "Cancel", icon: "pi pi-times", onClick: () => {
+                        this.handleCancel();
+                    }, className: "p-button-text" })));
+        };
+        if (this.state.gridData.length === 0) {
+            this.tableColumns = this.state.columns;
+            console.log('this.props?.columns[0]?.gridPageSize', this.state.selectedPageSize, this.state.filter);
+        }
+        else {
+            this.tableColumns = this.state.gridData;
+            console.log('this.props?.columns[0]?.gridPageSize', this.state.selectedPageSize, this.state.filter);
+        }
+        //  const [language, setlanguage] = useState(sessionStorage.getItem('Language'));
+    }
+    getcolumns() {
+        return __awaiter$1(this, void 0, void 0, function* () {
+            let data = [];
+            this.props.columns.forEach(column => {
+                column['gridPageSize'] = this.state.selectedPageSize.size;
+                column['filterEnable'] = this.state.filter;
+            });
+            const entity = {
+                gridId: this.state.prop.gridId,
+                gridSettingDetailText: JSON.stringify(this.props.columns),
+                menuItemId: sessionStorage.getItem('menuItemId'),
+                userMasterId: 1,
+                hierarchyLevelId: 352,
+                languageId: 1,
+            };
+            data = yield axios.put('api/grid-user-settings/saveUpdateData', entity);
+            const dataJson = JSON.parse(data.data.gridSettingDetailText);
+            // if(dataJson.length == 0 ){
+            //   this.tableColumns= this.state.columns
+            // }
+            // else{
+            this.tableColumns = dataJson;
+            // }
+        });
+    }
+    componentDidMount() {
+        // this.getcolumns();
+    }
+    //const coldata: any = [];
+    setSelectedPageSize(e) {
+        return __awaiter$1(this, void 0, void 0, function* () {
+            console.log('e', e);
+            this.setState({
+                selectedPageSize: e,
+            });
+            //this.coldata = e;
+        });
+    }
+    handleChange() {
+        this.getTabelHeaderData();
+        this.props.onSetting(this.tableColumns, this.state.filter, this.state.selectedPageSize);
+    }
+    handleCancel() {
+        this.setState({
+            visible: false,
+            colums: this.props.columns,
+        });
+        this.props.onClose();
+    }
+    resetSettings() {
+        this.resetFromServer();
+        this.props.onReset();
+    }
+    resetFromServer() {
+        return __awaiter$1(this, void 0, void 0, function* () {
+            let id;
+            if (this.state.language === 'en')
+                id = 1;
+            else if (this.state.language === 'hi')
+                id = 2;
+            else
+                id = 3;
+            yield axios.delete(`/api/grid-user-settings/deleteByUserIdAndHierarchyIdAndGridIdAndMenuItemId?userMasterId=${1}&languageId=${id}&gridId=${this.state.prop.gridId}`);
+        });
+    }
+    getTabelHeaderData() {
+        return __awaiter$1(this, void 0, void 0, function* () {
+            let data1 = [];
+            let id;
+            if (this.state.language === 'en')
+                id = 1;
+            else if (this.state.language === 'hi')
+                id = 2;
+            else
+                id = 3;
+            this.props.columns.forEach(column => {
+                column['gridPageSize'] = this.state.selectedPageSize.size;
+                column['filterEnable'] = this.state.filter;
+            });
+            const entity = {
+                gridId: String(this.props.gridId),
+                gridSettingDetailText: JSON.stringify(this.state.columns),
+                menuItemId: sessionStorage.getItem('menuItemId'),
+                userMasterId: 1,
+                hierarchyLevelId: 1,
+                languageId: id,
+            };
+            data1 = yield axios.put('api/grid-user-settings/saveUpdateData', entity, {
+                headers: { menuItemId: this.props.gridId },
+            });
+            JSON.parse(data1.data.gridSettingDetailText);
+        });
+    }
+    render() {
+        const cellEditor = options => {
+            return textEditor(options);
+        };
+        const textEditor = options => {
+            return React.createElement(InputText, { type: "text", value: options.value, onChange: e => options.editorCallback(e.target.value) });
+        };
+        const onCellEditComplete = e => {
+            const { rowData, newValue, field, originalEvent: event } = e;
+            switch (field) {
+                case 'quantity':
+                default:
+                    if (newValue.trim().length > 0)
+                        rowData[field] = newValue;
+                    else
+                        event.preventDefault();
+                    break;
+            }
+        };
+        const rowReorder = e => {
+            // this.tableColumns = null;
+            // this.tableColumns = e.value;
+            if (this.state.gridData.length === 0) {
+                this.setState({ columns: e.value });
+                this.tableColumns = this.state.columns;
+            }
+            else {
+                this.setState({ gridData: e.value });
+                this.tableColumns = this.state.gridData;
+            }
+        };
+        return (React.createElement(Dialog, { header: "Settings", 
+            //footer={this.footerContent}
+            visible: this.state.visible, style: { width: '80vw' }, onHide: () => {
+                this.handleCancel();
+            }, draggable: false, resizable: false, maximizable: true },
+            React.createElement("div", null,
+                React.createElement("div", { className: "modal-content" },
+                    React.createElement("div", { className: "row" },
+                        React.createElement("div", { className: "col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-xs-12" },
+                            React.createElement("div", { className: "d-flex justify-content-left align-items-left" },
+                                React.createElement("label", { className: "form-label" }, "Filter: "),
+                                React.createElement(Checkbox, { style: { marginLeft: '10px' }, onChange: event => this.setState({ filter: !this.state.filter }), checked: this.state.filter })),
+                            ' '),
+                        React.createElement("div", { className: "col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-xs-12 " },
+                            React.createElement("div", { className: "d-flex justify-content-end align-items-center" },
+                                React.createElement("label", { className: "form-label", style: { marginRight: '10px' } }, "Page Size:"),
+                                React.createElement(Dropdown, { value: this.state.selectedPageSize, onChange: e => this.setSelectedPageSize(e.value), options: this.state.pageSize, optionLabel: "size", placeholder: "Select a Page Size" })))),
+                    React.createElement("div", { className: "tableWrap", style: { marginTop: '10px' } },
+                        React.createElement(DataTable, { value: this.tableColumns, reorderableRows: true, onRowReorder: e => rowReorder(e), responsiveLayout: "scroll", rows: this.tableColumns.length, scrollable: true },
+                            React.createElement(Column, { rowReorder: true, style: { width: '3rem' } }),
+                            React.createElement(Column, { field: "header", header: "Columns", editor: options => cellEditor(options), onCellEditComplete: onCellEditComplete }),
+                            React.createElement(Column, { field: "width", header: "Width", editor: options => cellEditor(options), onCellEditComplete: onCellEditComplete }),
+                            React.createElement(Column, { header: "Display", body: (data, props) => (React.createElement("div", null,
+                                    React.createElement(Checkbox, { onChange: event => this.checkboxChange(event, props.rowIndex), checked: data.visible }))) })))),
+                React.createElement("div", { className: "p-dialog-footer" },
+                    React.createElement(Button, { className: "btnStyle btn btn-success", onClick: () => this.handleChange(), autoFocus: true },
+                        React.createElement(FontAwesomeIcon, { icon: faCheck }),
+                        " ",
+                        React.createElement(Translate$1, { contentKey: "home.apply" })),
+                    React.createElement(Button, { className: "btnStyle btn btn-info", onClick: () => this.resetSettings() },
+                        React.createElement(FontAwesomeIcon, { icon: faRepeat }),
+                        " ",
+                        React.createElement(Translate$1, { contentKey: "home.reset" })),
+                    React.createElement(Button, { className: "btnStyle btn btn-danger", onClick: () => this.handleCancel() },
+                        React.createElement(FontAwesomeIcon, { icon: "times" }),
+                        React.createElement(Translate$1, { contentKey: "home.close" }))))));
+    }
+}
+
 const Translate = (prop) => {
     const [selectLanguage, setSelectLanguage] = useState(sessionStorage.getItem("Language"));
     useState();
@@ -372,8 +767,8 @@ const Table = prop => {
                 React.createElement(Dropdown, { value: options.value, scrollHeight: '270px', options: dropdownOptions, onChange: options.onChange })));
         },
         CurrentPageReport: options => {
-            return (React.createElement("span", { className: "", style: {
-                    color: 'var(--text-color)',
+            return (React.createElement("span", { className: "totalPages", style: {
+                    // color: 'var(--text-color)',
                     fontSize: '14px',
                     userSelect: 'none',
                     marginLeft: 'auto',
@@ -396,7 +791,7 @@ const Table = prop => {
         compareJsonjs.async = true;
         document.body.appendChild(compareJsonjs);
     }, []);
-    const getGridData = () => __awaiter(void 0, void 0, void 0, function* () {
+    const getGridData = () => __awaiter$1(void 0, void 0, void 0, function* () {
         let id;
         if (language === 'en')
             id = 1;
@@ -506,29 +901,6 @@ const Table = prop => {
     const edit = id => {
         prop.onEdit(id);
     };
-    const items = [
-        {
-            label: 'CSV',
-            icon: 'fa-solid fa-file-csv',
-            command: () => toggle('CSV'),
-        },
-        {
-            label: 'Excel',
-            icon: 'fa-solid fa-file-excel',
-            command: () => toggle('EXCEL'),
-        },
-        {
-            label: 'PDF',
-            icon: 'fa-solid fa-file-pdf',
-            command: () => toggle('PDF'),
-        },
-        {
-            label: 'Json',
-            icon: 'fa-solid fa-file-arrow-down',
-            command: () => exportToJson(),
-        },
-        { label: 'Print', icon: 'fa-solid fa-print' },
-    ];
     const settingChangesExport = coulmnData => {
         setModalExport(false);
         setExportCol(coulmnData);
@@ -668,7 +1040,7 @@ const Table = prop => {
         setlazyState(pageData);
         prop.onPageChange(pageData);
     };
-    const onReset = () => __awaiter(void 0, void 0, void 0, function* () {
+    const onReset = () => __awaiter$1(void 0, void 0, void 0, function* () {
         let id;
         setModal(false);
         if (language === 'en')
@@ -682,7 +1054,7 @@ const Table = prop => {
             gridId: gridId,
             id: id,
             menuItemId: menuItemId,
-        })).then((res) => __awaiter(void 0, void 0, void 0, function* () {
+        })).then((res) => __awaiter$1(void 0, void 0, void 0, function* () {
             setColumn(res.payload.data.data);
             const pageData = {
                 first: lazyState.first,
@@ -698,7 +1070,7 @@ const Table = prop => {
             setData(prop.data);
         }));
     });
-    const closeSettingModal = () => __awaiter(void 0, void 0, void 0, function* () {
+    const closeSettingModal = () => __awaiter$1(void 0, void 0, void 0, function* () {
         let id;
         if (language === 'en')
             id = 1;
@@ -723,7 +1095,7 @@ const Table = prop => {
         setData(prop.data);
     });
     const [reasonIdDelete, setReasonIdDelete] = useState();
-    const deleteConfirmOnAction = (id, flag, record) => __awaiter(void 0, void 0, void 0, function* () {
+    const deleteConfirmOnAction = (id, flag, record) => __awaiter$1(void 0, void 0, void 0, function* () {
         setMsgLangKeyInSessionStorage$1(prop.msgLangKey);
         const idObj = {};
         idObj['id'] = id;
@@ -736,7 +1108,7 @@ const Table = prop => {
             rejectClassName: 'p-button-success',
             acceptLabel: labelbtnFlag.yes ? labelbtnFlag.yes : 'Yes',
             rejectLabel: labelbtnFlag.no ? labelbtnFlag.no : 'No',
-            accept: () => __awaiter(void 0, void 0, void 0, function* () {
+            accept: () => __awaiter$1(void 0, void 0, void 0, function* () {
                 flag == true ? yield setReasonFlag(!reasonFlag) : accept(id, record);
             }),
             reject: () => reject(),
@@ -861,7 +1233,33 @@ const Table = prop => {
                         setModal(!modal);
                     }, tooltip: "Setting", tooltipOptions: { position: 'top' } },
                     React.createElement(FontAwesomeIcon, { icon: "cogs" })),
-                React.createElement(SplitButton, { tooltip: "Export", tooltipOptions: { position: 'top' }, label: labelbtnFlag.export ? labelbtnFlag.export : 'Export', className: "tableExportMenu", model: items }))),
+                React.createElement("button", { className: "btn btn-outline-secondary dropdown-toggle", type: "button", "data-bs-toggle": "dropdown", "aria-expanded": "false", style: { border: 'none', background: 'white', boxShadow: 'none' } }, labelbtnFlag.export ? labelbtnFlag.export : 'Export'),
+                React.createElement("ul", { className: "dropdown-menu", style: {} },
+                    React.createElement("li", null,
+                        " ",
+                        React.createElement("a", { className: "dropdown-item", onClick: () => toggle('CSV') },
+                            React.createElement("i", { className: "fa-solid fa-file-csv", style: { color: '#1d7dc8' } }),
+                            " CSV")),
+                    React.createElement("li", null,
+                        " ",
+                        React.createElement("a", { className: "dropdown-item", onClick: () => toggle('EXCEL') },
+                            React.createElement("i", { className: "fa-solid fa-file-excel", style: { color: '#1c6c42' } }),
+                            "  Excel")),
+                    React.createElement("li", null,
+                        " ",
+                        React.createElement("a", { className: "dropdown-item", onClick: () => toggle('PDF') },
+                            React.createElement("i", { className: "fa-solid fa-file-pdf", style: { color: '#f72015' } }),
+                            "  PDF")),
+                    React.createElement("li", null,
+                        " ",
+                        React.createElement("a", { className: "dropdown-item", onClick: () => exportToJson() },
+                            React.createElement("i", { className: "fa-solid fa-file-arrow-down", style: { color: '#53d1e5' } }),
+                            "  Json")),
+                    React.createElement("li", null,
+                        " ",
+                        React.createElement("a", { className: "dropdown-item" },
+                            React.createElement("i", { className: "fa-solid fa-print", style: { color: '#f08080' } }),
+                            "  Print"))))),
         modal && (React.createElement(Setting, { show: modal, gridId: gridId, gridData: apiGridData, filter: filter, columns: column, menuItemId: menuItemId, onClose: closeSettingModal, onSetting: settingChanges, onReset: onReset })),
         modalExport && React.createElement(ExportSetting$1, { show: modalExport, columns: column, onSetting: settingChangesExport }),
         React.createElement("div", { className: "dataTable" },
@@ -888,7 +1286,7 @@ const Table = prop => {
                                                     }, checked: defaultChecked(e.field, data2) }))) }));
                                     }
                                     if (e.type === 'Action') {
-                                        return (React.createElement(Column, { style: { width: '15px' }, header: e.header, body: data2 => (React.createElement(React.Fragment, null,
+                                        return (React.createElement(Column, { style: { width: '100px' }, header: e.header, body: data2 => (React.createElement(React.Fragment, null,
                                                 React.createElement(SplitButton, { icon: "fa-solid fa-ellipsis", className: "tableActionMenu", model: itemsAction, onFocus: () => getActionBtn(data2.id, data2) }))) }));
                                         //  <Column header="Field Name" body={rowData => <span>Hello</span>} />;
                                     }
@@ -903,7 +1301,7 @@ const Table = prop => {
                                     //   return <Button>Delete</Button>;
                                     // }
                                     // if (data && data.length > 0) {
-                                    return React.createElement(Column, { key: i, columnKey: e.field, field: e.field, header: e.header, style: { width: e.width }, sortable: true });
+                                    return React.createElement(Column, { key: i, columnKey: e.field, field: e.field, header: e.header, sortable: true });
                                     // }
                                     /* <Column>
                                           <div dangerouslySetInnerHTML={{ __html: htmlString }}></div>
@@ -1062,7 +1460,7 @@ sessionStorage.getItem("LanguageData")
     ? JSON.parse(sessionStorage.getItem("LanguageData"))["translations"]
     : "";
 function screenConfigration(menuItemId) {
-    return __awaiter(this, void 0, void 0, function* () {
+    return __awaiter$1(this, void 0, void 0, function* () {
         // setLanguageAPIData(getDataSC.data.languageDetails);
         const getDataSC = yield axios.get(`/api/screen-configurations/getAllScreenConfigurationsAndScreenControlValidations/${menuItemId}/${sessionStorage.getItem("lastSyncTime")
             ? sessionStorage.getItem("lastSyncTime")
@@ -1186,7 +1584,7 @@ const Treetable = (prop) => {
     const [deleteHeader, setdeleteHeader] = useState(React.createElement(Translate$1, { contentKey: "global.deleteConfirm" }));
     const [deletemsg, setdeletemsg] = useState(React.createElement(Translate$1, { contentKey: "home.deleteMsg" }));
     const [updatedJson, setUpdatedJson] = useState();
-    const getGridData = () => __awaiter(void 0, void 0, void 0, function* () {
+    const getGridData = () => __awaiter$1(void 0, void 0, void 0, function* () {
         let id;
         if (language === "en")
             id = 1;
@@ -1404,7 +1802,7 @@ const Treetable = (prop) => {
     const [buttonAction, setButtonAction] = useState([]);
     const [reasonIdDelete, setReasonIdDelete] = useState();
     const [reasonFlag, setReasonFlag] = useState(false);
-    const deleteConfirmOnAction = (id, flag, record) => __awaiter(void 0, void 0, void 0, function* () {
+    const deleteConfirmOnAction = (id, flag, record) => __awaiter$1(void 0, void 0, void 0, function* () {
         setMsgLangKeyInSessionStorage(prop.msgLangKey);
         const idObj = {};
         idObj["id"] = id;
@@ -1417,7 +1815,7 @@ const Treetable = (prop) => {
             rejectClassName: "p-button-success",
             acceptLabel: labelbtnFlag.yes ? labelbtnFlag.yes : "Yes",
             rejectLabel: labelbtnFlag.no ? labelbtnFlag.no : "No",
-            accept: () => __awaiter(void 0, void 0, void 0, function* () {
+            accept: () => __awaiter$1(void 0, void 0, void 0, function* () {
                 flag == true ? yield setReasonFlag(!reasonFlag) : accept(id, record);
             }),
             reject: () => reject(),
@@ -1432,7 +1830,7 @@ const Treetable = (prop) => {
     };
     useState();
     useState();
-    const onEditorValueChange = (options, value) => __awaiter(void 0, void 0, void 0, function* () {
+    const onEditorValueChange = (options, value) => __awaiter$1(void 0, void 0, void 0, function* () {
         const newNodes = JSON.parse(JSON.stringify(nodes));
         let indexs = options.rowIndex;
         let typeValue = typeof options.rowIndex;
@@ -1772,7 +2170,7 @@ const varForDisplayDate = "DisplayDateAndTime";
 const VarFordisplayeDate = "DisplayDate";
 const getDateFormat = () => {
     const dateSetFormate = "services/gateway/api/getGlobalDateSystemConfigurations";
-    axios.get(dateSetFormate).then((res) => __awaiter(void 0, void 0, void 0, function* () {
+    axios.get(dateSetFormate).then((res) => __awaiter$1(void 0, void 0, void 0, function* () {
         for (let i = 0; i < res.data.length; i++) {
             if (res.data[i].configurationName == "front_end_datetime_display_format") {
                 sessionStorage.setItem(varForDisplayDate, res.data[i].configurationValue);

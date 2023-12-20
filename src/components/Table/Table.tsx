@@ -107,9 +107,9 @@ export const Table = prop => {
     CurrentPageReport: options => {
       return (
         <span
-          className=""
+          className="totalPages"
           style={{
-            color: 'var(--text-color)',
+            // color: 'var(--text-color)',
             fontSize: '14px',
             userSelect: 'none',
             marginLeft: 'auto',
@@ -712,13 +712,29 @@ export const Table = prop => {
           >
             <FontAwesomeIcon icon="cogs" />
           </Button>
-          <SplitButton
+          {/* <SplitButton
             tooltip="Export"
             tooltipOptions={{ position: 'top' }}
             label={labelbtnFlag.export ? labelbtnFlag.export : 'Export'}
             className="tableExportMenu"
             model={items}
-          />
+          /> */}
+          <button
+            className="btn btn-outline-secondary dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            style={{ border: 'none', background: 'white', boxShadow: 'none' }}
+          >
+            {labelbtnFlag.export ? labelbtnFlag.export : 'Export'}
+          </button>
+          <ul className="dropdown-menu" style={{}}>
+            <li> <a className="dropdown-item" onClick={() => toggle('CSV')}><i className="fa-solid fa-file-csv" style={{ color: '#1d7dc8' }}></i> CSV</a></li>
+            <li> <a className="dropdown-item" onClick={() => toggle('EXCEL')}><i className="fa-solid fa-file-excel" style={{ color: '#1c6c42' }}></i>  Excel</a></li>
+            <li> <a className="dropdown-item" onClick={() => toggle('PDF')}><i className="fa-solid fa-file-pdf" style={{ color: '#f72015' }}></i>  PDF</a></li>
+            <li> <a className="dropdown-item" onClick={() => exportToJson()}><i className="fa-solid fa-file-arrow-down" style={{ color: '#53d1e5' }}></i>  Json</a></li>
+            <li> <a className="dropdown-item" ><i className="fa-solid fa-print" style={{ color: '#f08080' }}></i>  Print</a></li>
+          </ul>
         </div>
       </div>
 
@@ -810,7 +826,7 @@ export const Table = prop => {
                     if (e.type === 'Action') {
                       return (
                         <Column
-                          style={{ width: '15px' }}
+                          style={{ width: '100px' }}
                           header={e.header}
                           body={data2 => (
                             <>
@@ -863,7 +879,7 @@ export const Table = prop => {
                     //   return <Button>Delete</Button>;
                     // }
                     // if (data && data.length > 0) {
-                    return <Column key={i} columnKey={e.field} field={e.field} header={e.header} style={{ width: e.width }} sortable />;
+                    return <Column key={i} columnKey={e.field} field={e.field} header={e.header} sortable />;
                     // }
                     /* <Column>
                           <div dangerouslySetInnerHTML={{ __html: htmlString }}></div>
