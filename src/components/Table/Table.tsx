@@ -114,6 +114,7 @@ export const Table = prop => {
             userSelect: 'none',
             marginLeft: 'auto',
             textAlign: 'center',
+            color:'#4338CA'
           }}
         >
           {options.first} - {options.last} of {options.totalRecords}
