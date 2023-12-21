@@ -724,7 +724,7 @@ export const Table = prop => {
             type="button"
             data-bs-toggle="dropdown"
             aria-expanded="false"
-            style={{ border: 'none', background: 'white', boxShadow: 'none' }}
+            style={{ border: 'none', background: 'white', boxShadow: 'none',color:'#1565c0' }}
           >
             {labelbtnFlag.export ? labelbtnFlag.export : 'Export'}
           </button>
