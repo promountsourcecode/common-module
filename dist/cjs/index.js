@@ -118,6 +118,121 @@ typeof SuppressedError === "function" ? SuppressedError : function (error, suppr
   return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
 };
 
+typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
+  var e = new Error(message);
+  return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+};
+
+typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
+  var e = new Error(message);
+  return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+};
+
+// const dataSC1: any = JSON.parse(sessionStorage.getItem('LanguageData'));
+// const dataSc = dataSC1 ? dataSC1.translations[2].validations.validateDetails : '';
+sessionStorage.getItem("Language");
+// let screenDataSc1 = JSON.parse(sessionStorage.getItem('LanguageData'));
+sessionStorage.getItem("LanguageData")
+    ? JSON.parse(sessionStorage.getItem("LanguageData"))["translations"]
+    : "";
+
+const Translate$2 = (prop) => {
+    const [selectLanguage, setSelectLanguage] = React.useState(sessionStorage.getItem("Language"));
+    React.useState();
+    const [isMandatory, setIsMandatory] = React.useState([]);
+    React.useState();
+    const [lableFlag, setLableFlag] = React.useState(false);
+    const [finalValue, setFinalValue] = React.useState();
+    React.useState(sessionStorage.getItem("menuItemId"));
+    const navigate = reactRouterDom.useNavigate();
+    React.useEffect(() => {
+        fetchData();
+    }, [""]);
+    const fetchData = () => {
+        const languageDataLocal = JSON.parse(sessionStorage.getItem("LanguageData"));
+        if (languageDataLocal == undefined) {
+            navigate("/logout");
+        }
+        console.log("props", prop.contentKey, languageDataLocal["translations"][selectLanguage][prop.contentKey]);
+        if (languageDataLocal["translations"][selectLanguage][prop.contentKey] !=
+            undefined)
+            setFinalValue(languageDataLocal["translations"][selectLanguage][prop.contentKey]["text"]);
+        setIsMandatory(languageDataLocal["translations"][selectLanguage][prop.contentKey]);
+        // if (languageDataLocal['translations'][selectLanguage][prop.contentKey]['type'] != undefined) {
+        console.log("prop", languageDataLocal["translations"][selectLanguage][prop.contentKey], prop.contentKey);
+        const obj = languageDataLocal["translations"][selectLanguage][prop.contentKey]["type"]
+            ? languageDataLocal["translations"][selectLanguage][prop.contentKey]["type"]
+            : "";
+        if (obj == "Textarea" ||
+            obj == "CheckBox" ||
+            obj == "Radio" ||
+            obj == "Text Field" ||
+            obj == "ComboBox") {
+            setLableFlag(true);
+        }
+        else {
+            setLableFlag(false);
+        }
+        // }
+    };
+    return (React__default["default"].createElement(React__default["default"].Fragment, null,
+        isMandatory != undefined ? React__default["default"].createElement("span", null,
+            isMandatory.text,
+            " ") : "",
+        isMandatory != undefined ? (isMandatory.mandatory === true ? (lableFlag == true ? (React__default["default"].createElement(React__default["default"].Fragment, null,
+            " ",
+            React__default["default"].createElement("span", null, ":"),
+            React__default["default"].createElement("span", { className: "reqsign" }, "*"))) : ("")) : lableFlag == true ? (React__default["default"].createElement("span", null, ":")) : ("")) : ("")));
+};
+
+// const dataSC1: any = JSON.parse(sessionStorage.getItem('LanguageData'));
+// const dataSc = dataSC1 ? dataSC1.translations[2].validations.validateDetails : '';
+sessionStorage.getItem("Language");
+// let screenDataSc1 = JSON.parse(sessionStorage.getItem('LanguageData'));
+sessionStorage.getItem("LanguageData")
+    ? JSON.parse(sessionStorage.getItem("LanguageData"))["translations"]
+    : "";
+function getControlValidationObj$2(field) {
+    let language = sessionStorage.getItem("Language");
+    let screenDataSc1 = sessionStorage.getItem("LanguageData")
+        ? JSON.parse(sessionStorage.getItem("LanguageData"))["translations"]
+        : "";
+    const lngobj = screenDataSc1[language];
+    const obj = lngobj[field];
+    const ruleObj = {};
+    if (obj.mandatory != null) {
+        ruleObj["required"] = {};
+        ruleObj["required"]["value"] = obj.mandatory;
+        if (obj.isRequiredMessage != null && obj.isRequiredMessage !== "") {
+            ruleObj["required"]["message"] = obj.isRequiredMessage;
+        }
+    }
+    if (obj.minvalue != null && obj.minvalue !== "") {
+        ruleObj["minLength"] = {};
+        ruleObj["minLength"]["value"] = Number(obj.minvalue);
+        //message = getErrorMessageForMinLength(screenDataSc, field);
+        // if (message != null && message != '') {
+        ruleObj["minLength"]["message"] = obj.minLengthMessage;
+        // }
+    }
+    // let maxLength: any = getMaxLength(screenDataSc, field);
+    if (obj.maxvalue != null && obj.maxvalue !== "") {
+        ruleObj["maxLength"] = {};
+        ruleObj["maxLength"]["value"] = obj.maxvalue;
+        ruleObj["maxLength"]["message"] = obj.maxLengthMessage;
+    }
+    // let pattern: any = getRegex(screenDataSc, field);
+    if (obj.validationRegex != null && obj.validationRegex !== "") {
+        ruleObj["pattern"] = {};
+        ruleObj["pattern"]["value"] = RegExp(obj.validationRegex);
+        //message = getErrorMessageForRegex(screenDataSc, field);
+        // if (message != null && message != '') {
+        ruleObj["pattern"]["message"] = obj.regexPatternMessage;
+        // }
+    }
+    return ruleObj;
+}
+
 class Setting$1 extends React.Component {
     constructor(props) {
         var _a, _b, _c, _d;
@@ -313,14 +428,14 @@ class Setting$1 extends React.Component {
                     React__default["default"].createElement(button.Button, { className: "btnStyle btn btn-success", onClick: () => this.handleChange(), autoFocus: true },
                         React__default["default"].createElement(reactFontawesome.FontAwesomeIcon, { icon: freeSolidSvgIcons.faCheck }),
                         " ",
-                        React__default["default"].createElement(Translate$1, { contentKey: "home.apply" })),
+                        React__default["default"].createElement(Translate$2, { contentKey: "home.apply" })),
                     React__default["default"].createElement(button.Button, { className: "btnStyle btn btn-info", onClick: () => this.resetSettings() },
                         React__default["default"].createElement(reactFontawesome.FontAwesomeIcon, { icon: freeSolidSvgIcons.faRepeat }),
                         " ",
-                        React__default["default"].createElement(Translate$1, { contentKey: "home.reset" })),
+                        React__default["default"].createElement(Translate$2, { contentKey: "home.reset" })),
                     React__default["default"].createElement(button.Button, { className: "btnStyle btn btn-danger", onClick: () => this.handleCancel() },
                         React__default["default"].createElement(reactFontawesome.FontAwesomeIcon, { icon: "times" }),
-                        React__default["default"].createElement(Translate$1, { contentKey: "home.close" }))))));
+                        React__default["default"].createElement(Translate$2, { contentKey: "home.close" }))))));
     }
 }
 
@@ -412,7 +527,7 @@ const AskReason$1 = (prop) => {
                 React__default["default"].createElement("div", { className: "modal-content", style: { overflow: "auto !important" } },
                     React__default["default"].createElement("div", { className: "container-fluid" },
                         React__default["default"].createElement("div", { className: "row form-group" },
-                            React__default["default"].createElement(reactHookForm.Controller, { name: "reasonForChange", control: control, rules: getControlValidationObj$1("reason"), render: ({ field, fieldState }) => (React__default["default"].createElement(React__default["default"].Fragment, null,
+                            React__default["default"].createElement(reactHookForm.Controller, { name: "reasonForChange", control: control, rules: getControlValidationObj$2("reason"), render: ({ field, fieldState }) => (React__default["default"].createElement(React__default["default"].Fragment, null,
                                     React__default["default"].createElement("label", { className: "form-label" },
                                         React__default["default"].createElement(Translate$1, { contentKey: "reason" })),
                                     React__default["default"].createElement(inputtextarea.InputTextarea, { id: field.name, value: field.value, className: utils.classNames("form-control", {
@@ -420,7 +535,7 @@ const AskReason$1 = (prop) => {
                                         }), onChange: (e) => field.onChange(e.target.value), rows: 3, cols: 30 }),
                                     getFormErrorMessage(field.name))) })),
                         prop.passwordFlag && (React__default["default"].createElement("div", { className: "row form-group" },
-                            React__default["default"].createElement(reactHookForm.Controller, { name: "password", control: control, rules: getControlValidationObj$1("password.global"), render: ({ field, fieldState }) => (React__default["default"].createElement(React__default["default"].Fragment, null,
+                            React__default["default"].createElement(reactHookForm.Controller, { name: "password", control: control, rules: getControlValidationObj$2("password.global"), render: ({ field, fieldState }) => (React__default["default"].createElement(React__default["default"].Fragment, null,
                                     React__default["default"].createElement("label", { className: "form-label" },
                                         React__default["default"].createElement(Translate$1, { contentKey: "password.global" })),
                                     React__default["default"].createElement(inputtext.InputText, { id: field.name, value: field.value, className: utils.classNames("form-control", {
@@ -804,6 +919,7 @@ const Table = prop => {
                     userSelect: 'none',
                     marginLeft: 'auto',
                     textAlign: 'center',
+                    color: '#4338CA'
                 } },
                 options.first,
                 " - ",
@@ -1264,7 +1380,7 @@ const Table = prop => {
                         setModal(!modal);
                     }, tooltip: "Setting", tooltipOptions: { position: 'top' } },
                     React__default["default"].createElement(reactFontawesome.FontAwesomeIcon, { icon: "cogs" })),
-                React__default["default"].createElement("button", { className: "btn btn-outline-secondary dropdown-toggle", type: "button", "data-bs-toggle": "dropdown", "aria-expanded": "false", style: { border: 'none', background: 'white', boxShadow: 'none' } }, labelbtnFlag.export ? labelbtnFlag.export : 'Export'),
+                React__default["default"].createElement("button", { className: "btn btn-outline-secondary dropdown-toggle", type: "button", "data-bs-toggle": "dropdown", "aria-expanded": "false", style: { border: 'none', background: 'white', boxShadow: 'none', color: '#1565c0' } }, labelbtnFlag.export ? labelbtnFlag.export : 'Export'),
                 React__default["default"].createElement("ul", { className: "dropdown-menu", style: {} },
                     React__default["default"].createElement("li", null,
                         " ",

@@ -201,7 +201,7 @@ export const Table = prop => {
             for (let j = 0; j < actinObj.length; j++) {
               let item = {
                 className: actinObj[j]['className'] != null && actinObj[j]['className'] != '' ? actinObj[j]['className'] : 'icon',
-                label: <Translate contentKey={actinObj[j]['label']}></Translate>,
+                label: <span style={{color:"#1565c0"}}><Translate contentKey={actinObj[j]['label']}></Translate></span>,
                 icon: actinObj[j]['icon'],
                 id: actinObj[j]['id'],
                 visible: actinObj[j]['visible'],
