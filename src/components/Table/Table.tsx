@@ -9,6 +9,7 @@ import { getSortState } from 'react-jhipster';
 // import { ITEMS_PER_PAGE } from '../constants/index';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import {Setting} from '@promountsourcecode/common_module';
 import ExportSetting from 'app/shared/export-column';
 import axios from 'axios';
 import { Paginator } from 'primereact/paginator';
@@ -36,7 +37,6 @@ import { OverlayPanel } from 'primereact/overlaypanel';
 import _ from 'lodash';
 import { boolean, object } from 'yup';
 import { getColumns } from 'app/entities/level/level.reducer';
-import Setting from '../Setting/Setting';
 export const Table = prop => {
   const menuItemId = sessionStorage.getItem('menuItemId');
   const [userId, setUserId] = useState(sessionStorage.getItem('id'));
@@ -109,12 +109,11 @@ export const Table = prop => {
         <span
           className="totalPages"
           style={{
-            // color: 'var(--text-color)',
+            //color: 'var(--text-color)',
             fontSize: '14px',
             userSelect: 'none',
             marginLeft: 'auto',
             textAlign: 'center',
-            color:'#4338CA'
           }}
         >
           {options.first} - {options.last} of {options.totalRecords}
@@ -143,13 +142,13 @@ export const Table = prop => {
     (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
     const pageData = {
       first: lazyState.first,
-      rows: await parseInt(gridData.data.data[0].gridPageSize),
+      rows: (gridData.data.data.length) > 0 ? parseInt(gridData.data.data[0].gridPageSize) : 10,
       page: lazyState.page,
       sortField: lazyState.sortField,
       sortOrder: lazyState.sortOrder,
     };
     setlazyState(pageData);
-    setfilter(gridData.data.data[0].filterEnable);
+    setfilter((gridData.data.data.length) > 0 ?  gridData.data.data[0].filterEnable : false);
 
     await prepareRowAction(gridData.data.data);
   };
@@ -248,9 +247,10 @@ export const Table = prop => {
 
     setSearchPlaceholder(String(<Translate contentKey="export"></Translate>));
   }, []);
+  const [label, setLabel] = useState('Default Label');
   const toggle = e => {
     setExportType(e);
-    setModalExport(true);
+    setModalExport(!modalExport)
   };
 
   const edit = id => {
@@ -370,22 +370,37 @@ export const Table = prop => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    }
+    } 
   };
+
+  
   const exportPdf = (newData, headers, coulmnData) => {
-    const headerss = coulmnData.map(col => {
-      if (col.visible) headers.push({ title: col.header, dataKey: col.field });
-    });
+
+    // let headerss = coulmnData.map(col => {
+    //   if (col.visible) headers.push({ title: col.header, dataKey: col.field });
+    // });
+    var out = [];
+    for (var i = 0; i < coulmnData.length; i++) {
+      //if (acoulmnData[i] == 1) a.push(5);
+      if(coulmnData[i].field === headers[i]){
+        out.push(coulmnData[i].header)
+      }
+  }
+    
+    //var headerss = Object.keys(headers[0]);
     const unit = 'pt';
     const size = 'A4';
     const orientation = 'portrait';
     const doc = new jsPDF(orientation, unit, size);
-    const title = 'Report';
+    const title = prop.title.concat(' Report');
+
+    var data = newData.map(obj => headers.map(header => obj[header]));
+
 
     const content = {
       startY: 50,
-      head: headerss,
-      body: newData,
+      head: [out],
+      body: data,
     };
 
     doc.text(title, 40, 40);
@@ -416,20 +431,26 @@ export const Table = prop => {
       }
     });
   };
-  const settingChanges = (coulmnData, filterToggle, pagesize) => {
+  // const settingChanges = (coulmnData, filterToggle, pagesize) => {
+  //   setModal(false);
+  //   setColumn(coulmnData);
+  //   setfilter(filterToggle);
+  //   const pageData = {
+  //     first: 0,
+  //     rows: parseInt(pagesize.size),
+  //     page: 0,
+  //     sortField: lazyState.sortField,
+  //     sortOrder: lazyState.sortOrder,
+  //   };
+
+  //   setlazyState(pageData);
+  //   prop.onPageChange(pageData);
+  // };
+
+  const settingChanges = (coulmnData, filterToggle) => {
     setModal(false);
     setColumn(coulmnData);
     setfilter(filterToggle);
-    const pageData = {
-      first: 0,
-      rows: parseInt(pagesize.size),
-      page: 0,
-      sortField: lazyState.sortField,
-      sortOrder: lazyState.sortOrder,
-    };
-
-    setlazyState(pageData);
-    prop.onPageChange(pageData);
   };
 
   const onReset = async () => {
@@ -642,6 +663,11 @@ export const Table = prop => {
     prop.selectCheckbox(checked, obj, selectedItemsArray);
   };
 
+  const exportClose = () =>{
+    setModalExport(false)
+
+  }
+
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center">
@@ -720,24 +746,29 @@ export const Table = prop => {
             className="tableExportMenu"
             model={items}
           /> */}
-          <button
-            className="btn btn-outline-secondary dropdown-toggle"
-            type="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-            style={{ border: 'none', background: 'white', boxShadow: 'none',color:'#1565c0' }}
-          >
-            {labelbtnFlag.export ? labelbtnFlag.export : 'Export'}
-          </button>
-          <ul className="dropdown-menu" style={{}}>
-            <li> <a className="dropdown-item" onClick={() => toggle('CSV')}><i className="fa-solid fa-file-csv" style={{ color: '#1d7dc8' }}></i> CSV</a></li>
-            <li> <a className="dropdown-item" onClick={() => toggle('EXCEL')}><i className="fa-solid fa-file-excel" style={{ color: '#1c6c42' }}></i>  Excel</a></li>
-            <li> <a className="dropdown-item" onClick={() => toggle('PDF')}><i className="fa-solid fa-file-pdf" style={{ color: '#f72015' }}></i>  PDF</a></li>
-            <li> <a className="dropdown-item" onClick={() => exportToJson()}><i className="fa-solid fa-file-arrow-down" style={{ color: '#53d1e5' }}></i>  Json</a></li>
-            <li> <a className="dropdown-item" ><i className="fa-solid fa-print" style={{ color: '#f08080' }}></i>  Print</a></li>
-          </ul>
+
+
+          {/* <div className="input-group"> */}
+            <button
+              className="btn btn-outline-secondary dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+              style={{ border: 'none',background:'white',boxShadow:'none',color:'#1565c0' }}
+            >  
+              {labelbtnFlag.export ? labelbtnFlag.export : 'Export'}
+            </button>
+            <ul className="dropdown-menu" style={{}}>
+              {/* <li> <a className="dropdown-item" onClick={() => toggle('CSV')}><i className="fa-solid fa-file-csv" style={{color:'#1d7dc8'}}></i> CSV</a></li> */}
+              <li> <a className="dropdown-item" onClick={() => toggle('EXCEL')}><i className="fa-solid fa-file-excel" style={{color:'#1c6c42'}}></i>  Excel</a></li>
+              <li> <a className="dropdown-item" onClick={() => toggle('PDF')}><i className="fa-solid fa-file-pdf" style={{color:'#f72015'}}></i>  PDF</a></li>
+              {/* <li> <a className="dropdown-item" onClick={() => exportToJson()}><i className="fa-solid fa-file-arrow-down" style={{color:'#53d1e5'}}></i>  Json</a></li> */}
+              {/* <li> <a className="dropdown-item" ><i className="fa-solid fa-print" style={{color:'#f08080'}}></i>  Print</a></li> */}
+            </ul>
+          {/* </div> */}
         </div>
       </div>
+
 
       {modal && (
         <Setting
@@ -753,9 +784,9 @@ export const Table = prop => {
         />
       )}
 
-      {modalExport && <ExportSetting show={modalExport} columns={column} onSetting={settingChangesExport} />}
+      {modalExport && <ExportSetting show={modalExport} columns={column} onSetting={settingChangesExport} onClose={exportClose} />}
 
-      <div className="dataTable">
+      <div className="dataTable" id='tablePdf'>
         <>
           <>
             <DataTable
@@ -834,6 +865,7 @@ export const Table = prop => {
                               <SplitButton
                                 icon="fa-solid fa-ellipsis"
                                 className="tableActionMenu"
+                               // style={{ color:'red' }}
                                 model={itemsAction}
                                 onFocus={() => getActionBtn(data2.id, data2)}
                               />
@@ -847,7 +879,7 @@ export const Table = prop => {
                     if (e.type === 'Button') {
                       return (
                         <Column
-                          header={e.header}
+                          header="Action"
                           body={data2 => (
                             <>
                               {buttonAction.length > 0 &&
@@ -880,7 +912,7 @@ export const Table = prop => {
                     //   return <Button>Delete</Button>;
                     // }
                     // if (data && data.length > 0) {
-                    return <Column key={i} columnKey={e.field} field={e.field} header={e.header} sortable />;
+                    return <Column key={i} columnKey={e.field} field={e.field} header={e.header}  sortable />;
                     // }
                     /* <Column>
                           <div dangerouslySetInnerHTML={{ __html: htmlString }}></div>
@@ -890,8 +922,8 @@ export const Table = prop => {
             </DataTable>
             <Paginator
               template={paginatorTemplate}
-              rows={lazyState?.rows}
-              first={lazyState?.first}
+              rows={lazyState.rows}
+              first={lazyState.first}
               onPageChange={e => {
                 setlazyState(e);
                 prop.onPageChange(e);

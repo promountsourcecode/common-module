@@ -50,6 +50,7 @@ interface ModalInputProps {
     show: boolean;
     onSetting: any;
     columns: any;
+    onClose: any;
 }
 declare class ExportSetting extends Component<ModalInputProps> {
     state: {

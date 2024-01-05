@@ -1,8 +1,9 @@
-import { Component } from "react";
+import { Component } from 'react';
 interface ModalInputProps {
     show: boolean;
     onSetting: any;
     columns: any;
+    onClose: any;
 }
 declare class ExportSetting extends Component<ModalInputProps> {
     state: {

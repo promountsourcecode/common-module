@@ -43,6 +43,8 @@ class Setting extends Component<ModalInputProps> {
 
   constructor(props) {
     super(props);
+    console.log("props",props);
+    
     if (this.state.gridData.length === 0) {
       this.tableColumns = this.state.columns;
       console.log('this.props?.columns[0]?.gridPageSize', this.state.selectedPageSize, this.state.filter);
@@ -214,7 +216,7 @@ class Setting extends Component<ModalInputProps> {
 
     return (
       <Dialog
-        header="Settings"
+        header={<Translate contentKey="setting.label"></Translate>}
         //footer={this.footerContent}
         visible={this.state.visible}
         style={{ width: '80vw' }}
@@ -231,7 +233,7 @@ class Setting extends Component<ModalInputProps> {
               <div className="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-xs-12">
                 {/* <h4> */}
                 <div className="d-flex justify-content-left align-items-left">
-                  <label className="form-label">Filter: </label>
+                  <label className="form-label"><Translate contentKey="setting.filters"></Translate> </label>
                   <Checkbox
                     style={{ marginLeft: '10px' }}
                     onChange={event => this.setState({ filter: !this.state.filter })}
@@ -243,7 +245,7 @@ class Setting extends Component<ModalInputProps> {
               <div className="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-xs-12 ">
                 <div className="d-flex justify-content-end align-items-center">
                   <label className="form-label" style={{ marginRight: '10px' }}>
-                    Page Size:
+                   <Translate contentKey="setting.pageSize"></Translate>
                   </label>
                   <Dropdown
                     value={this.state.selectedPageSize}
@@ -266,10 +268,10 @@ class Setting extends Component<ModalInputProps> {
               >
                 {/* <Column header="ID" body={props => <div>{props.rowIndex}</div>}></Column> */}
                 <Column rowReorder style={{ width: '3rem' }} />
-                <Column field="header" header="Columns" editor={options => cellEditor(options)} onCellEditComplete={onCellEditComplete} />
-                <Column field="width" header="Width" editor={options => cellEditor(options)} onCellEditComplete={onCellEditComplete} />
+                <Column field="header" header={<Translate contentKey="setting.grid.colomn"></Translate>} editor={options => cellEditor(options)} onCellEditComplete={onCellEditComplete} />
+                <Column field="width" header={<Translate contentKey="setting.grid.width"></Translate>} editor={options => cellEditor(options)} onCellEditComplete={onCellEditComplete} />
                 <Column
-                  header="Display"
+                  header={<Translate contentKey="setting.grid.display"></Translate>}
                   body={(data, props) => (
                     <div>
                       <Checkbox onChange={event => this.checkboxChange(event, props.rowIndex)} checked={data.visible}></Checkbox>
