@@ -9,7 +9,7 @@ import { getSortState } from 'react-jhipster';
 // import { ITEMS_PER_PAGE } from '../constants/index';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import {Setting} from '@promountsourcecode/common_module';
+import Setting from './setting';
 import ExportSetting from 'app/shared/export-column';
 import axios from 'axios';
 import { Paginator } from 'primereact/paginator';
@@ -148,7 +148,7 @@ export const Table = prop => {
       sortOrder: lazyState.sortOrder,
     };
     setlazyState(pageData);
-    setfilter((gridData.data.data.length) > 0 ?  gridData.data.data[0].filterEnable : false);
+    setfilter((gridData.data.data.length) > 0 ? gridData.data.data[0].filterEnable : false);
 
     await prepareRowAction(gridData.data.data);
   };
@@ -200,7 +200,7 @@ export const Table = prop => {
             for (let j = 0; j < actinObj.length; j++) {
               let item = {
                 className: actinObj[j]['className'] != null && actinObj[j]['className'] != '' ? actinObj[j]['className'] : 'icon',
-                label: <span style={{color:"#1565c0"}}><Translate contentKey={actinObj[j]['label']}></Translate></span>,
+                label: <span style={{ color: "#1565c0" }}><Translate contentKey={actinObj[j]['label']}></Translate></span>,
                 icon: actinObj[j]['icon'],
                 id: actinObj[j]['id'],
                 visible: actinObj[j]['visible'],
@@ -298,13 +298,24 @@ export const Table = prop => {
       });
       newData.push(newObj);
       newObj;
-    });
+    });   
+
+    const newDataExcel = [];
+    exportData.map(element => {
+      const newObj = {};
+      headers.forEach(name => {
+        newObj[name.toUpperCase()] = element[name];
+      });
+      newDataExcel.push(newObj);
+      newObj;
+    });   
+
     switch (exportType) {
       case 'PDF':
         exportPdf(newData, headers, coulmnData);
         break;
       case 'EXCEL':
-        exportExcel(newData);
+        exportExcel(newDataExcel);
         break;
       case 'CSV':
         exportCSV(newData, headers);
@@ -349,6 +360,8 @@ export const Table = prop => {
 
     return str;
   };
+
+
   const exportCSV = (newData, headers) => {
     // Convert Object to JSON
     const jsonObject = JSON.stringify(newData);
@@ -370,42 +383,31 @@ export const Table = prop => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    } 
+    }
   };
 
-  
-  const exportPdf = (newData, headers, coulmnData) => {
 
-    // let headerss = coulmnData.map(col => {
-    //   if (col.visible) headers.push({ title: col.header, dataKey: col.field });
-    // });
+  const exportPdf = (newData, headers, coulmnData) => {
     var out = [];
     for (var i = 0; i < coulmnData.length; i++) {
-      //if (acoulmnData[i] == 1) a.push(5);
-      if(coulmnData[i].field === headers[i]){
+      if (coulmnData[i].field === headers[i]) {
         out.push(coulmnData[i].header)
       }
-  }
-    
-    //var headerss = Object.keys(headers[0]);
+    }
     const unit = 'pt';
     const size = 'A4';
     const orientation = 'portrait';
     const doc = new jsPDF(orientation, unit, size);
     const title = prop.title.concat(' Report');
-
     var data = newData.map(obj => headers.map(header => obj[header]));
-
-
     const content = {
       startY: 50,
       head: [out],
       body: data,
     };
-
     doc.text(title, 40, 40);
     autoTable(doc, content);
-    doc.save('Task.pdf');
+    doc.save(prop.title.concat(' Report.pdf'));
   };
 
   const exportExcel = newData => {
@@ -416,7 +418,7 @@ export const Table = prop => {
         bookType: 'xlsx',
         type: 'array',
       });
-      saveAsExcelFile(excelBuffer, 'products');
+      saveAsExcelFile(excelBuffer, prop.title);
     });
   };
   const saveAsExcelFile = (buffer, fileName) => {
@@ -427,25 +429,10 @@ export const Table = prop => {
         const dataa = new Blob([buffer], {
           type: EXCEL_TYPE,
         });
-        module.default.saveAs(dataa, fileName + '_export_' + new Date().getTime() + EXCEL_EXTENSION);
+        module.default.saveAs(dataa, fileName + EXCEL_EXTENSION);
       }
     });
   };
-  // const settingChanges = (coulmnData, filterToggle, pagesize) => {
-  //   setModal(false);
-  //   setColumn(coulmnData);
-  //   setfilter(filterToggle);
-  //   const pageData = {
-  //     first: 0,
-  //     rows: parseInt(pagesize.size),
-  //     page: 0,
-  //     sortField: lazyState.sortField,
-  //     sortOrder: lazyState.sortOrder,
-  //   };
-
-  //   setlazyState(pageData);
-  //   prop.onPageChange(pageData);
-  // };
 
   const settingChanges = (coulmnData, filterToggle) => {
     setModal(false);
@@ -468,19 +455,20 @@ export const Table = prop => {
       })
     ).then(async (res: any) => {
       setColumn(res.payload.data.data);
+      // setColumn(gridData.data.data)
       const pageData = {
         first: lazyState.first,
-        rows: parseInt(res.payload.data.data[0].gridPageSize),
+        rows: await parseInt(res.payload.data.data[0].gridPageSize),
         page: lazyState.page,
         sortField: lazyState.sortField,
         sortOrder: lazyState.sortOrder,
       };
       setlazyState(pageData);
       setfilter(res.payload.data.data[0].filterEnable);
-
       await prepareRowAction(res.payload.data.data);
       await prop.onPageChange(pageData);
       setData(prop.data);
+      closeSettingModal();
 
     });
   };
@@ -503,15 +491,12 @@ export const Table = prop => {
     };
     setlazyState(pageData);
     setfilter(gridData.data.data[0].filterEnable);
-
     await prepareRowAction(gridData.data.data);
-
     await setModal(false);
     setData(prop.data);
   };
 
   const [reasonIdDelete, setReasonIdDelete] = useState<any>();
-
   const deleteConfirmOnAction = async (id: number, flag: boolean, record: any) => {
     setMsgLangKeyInSessionStorage(prop.msgLangKey);
     const idObj = {};
@@ -663,9 +648,8 @@ export const Table = prop => {
     prop.selectCheckbox(checked, obj, selectedItemsArray);
   };
 
-  const exportClose = () =>{
+  const exportClose = () => {
     setModalExport(false)
-
   }
 
   return (
@@ -731,6 +715,7 @@ export const Table = prop => {
           <Button
             color="secondary"
             className="iconBtn"
+            type='button'
             onClick={() => {
               setModal(!modal);
             }}
@@ -749,22 +734,22 @@ export const Table = prop => {
 
 
           {/* <div className="input-group"> */}
-            <button
-              className="btn btn-outline-secondary dropdown-toggle"
-              type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-              style={{ border: 'none',background:'white',boxShadow:'none',color:'#1565c0' }}
-            >  
-              {labelbtnFlag.export ? labelbtnFlag.export : 'Export'}
-            </button>
-            <ul className="dropdown-menu" style={{}}>
-              {/* <li> <a className="dropdown-item" onClick={() => toggle('CSV')}><i className="fa-solid fa-file-csv" style={{color:'#1d7dc8'}}></i> CSV</a></li> */}
-              <li> <a className="dropdown-item" onClick={() => toggle('EXCEL')}><i className="fa-solid fa-file-excel" style={{color:'#1c6c42'}}></i>  Excel</a></li>
-              <li> <a className="dropdown-item" onClick={() => toggle('PDF')}><i className="fa-solid fa-file-pdf" style={{color:'#f72015'}}></i>  PDF</a></li>
-              {/* <li> <a className="dropdown-item" onClick={() => exportToJson()}><i className="fa-solid fa-file-arrow-down" style={{color:'#53d1e5'}}></i>  Json</a></li> */}
-              {/* <li> <a className="dropdown-item" ><i className="fa-solid fa-print" style={{color:'#f08080'}}></i>  Print</a></li> */}
-            </ul>
+          <button
+            className="btn btn-outline-secondary dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            style={{ border: 'none', background: 'white', boxShadow: 'none', color: '#1565c0' }}
+          >
+            {labelbtnFlag.export ? labelbtnFlag.export : 'Export'}
+          </button>
+          <ul className="dropdown-menu" style={{}}>
+            {/* <li> <a className="dropdown-item" onClick={() => toggle('CSV')}><i className="fa-solid fa-file-csv" style={{color:'#1d7dc8'}}></i> CSV</a></li> */}
+            <li> <a className="dropdown-item" onClick={() => toggle('EXCEL')}><i className="fa-solid fa-file-excel" style={{ color: '#1c6c42' }}></i>  Excel</a></li>
+            <li> <a className="dropdown-item" onClick={() => toggle('PDF')}><i className="fa-solid fa-file-pdf" style={{ color: '#f72015' }}></i>  PDF</a></li>
+            {/* <li> <a className="dropdown-item" onClick={() => exportToJson()}><i className="fa-solid fa-file-arrow-down" style={{color:'#53d1e5'}}></i>  Json</a></li> */}
+            {/* <li> <a className="dropdown-item" ><i className="fa-solid fa-print" style={{color:'#f08080'}}></i>  Print</a></li> */}
+          </ul>
           {/* </div> */}
         </div>
       </div>
@@ -865,7 +850,7 @@ export const Table = prop => {
                               <SplitButton
                                 icon="fa-solid fa-ellipsis"
                                 className="tableActionMenu"
-                               // style={{ color:'red' }}
+                                // style={{ color:'red' }}
                                 model={itemsAction}
                                 onFocus={() => getActionBtn(data2.id, data2)}
                               />
@@ -888,7 +873,7 @@ export const Table = prop => {
                                     {button.visible == true && (
                                       <Button
                                         style={{ marginLeft: '15px' }}
-                                        tooltip={button.label}
+                                        // tooltip={button.label}
                                         tooltipOptions={{ position: 'top' }}
                                         className={button.className + ' gridIcon'}
                                         onClick={() =>
@@ -907,19 +892,10 @@ export const Table = prop => {
                         />
                       );
                     }
-
-                    // if (data[e.field] != '') {
-                    //   return <Button>Delete</Button>;
-                    // }
-                    // if (data && data.length > 0) {
-                    return <Column key={i} columnKey={e.field} field={e.field} header={e.header}  sortable />;
-                    // }
-                    /* <Column>
-                          <div dangerouslySetInnerHTML={{ __html: htmlString }}></div>
-                        </Column> */
+                    return <Column key={i} columnKey={e.field} field={e.field} header={e.header}  style={{width: e.width }} sortable />;
                   }
                 })}
-            </DataTable>
+            </DataTable> 
             <Paginator
               template={paginatorTemplate}
               rows={lazyState.rows}

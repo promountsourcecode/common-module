@@ -43,7 +43,6 @@ class Setting extends Component<ModalInputProps> {
 
   constructor(props) {
     super(props);
-    console.log("props",props);
     
     if (this.state.gridData.length === 0) {
       this.tableColumns = this.state.columns;
@@ -53,11 +52,6 @@ class Setting extends Component<ModalInputProps> {
       console.log('this.props?.columns[0]?.gridPageSize', this.state.selectedPageSize, this.state.filter);
     }
   //  const [language, setlanguage] = useState(sessionStorage.getItem('Language'));
-   
-        
-        
-    
-    
   }
   
   async getcolumns() {
