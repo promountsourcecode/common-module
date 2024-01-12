@@ -557,7 +557,7 @@ export const Table = prop => {
   const htmlString = '<p>This is a <strong>bold</strong> text.</p>';
 
   let arr = [];
-
+   
   const setRecordForChecked = event => {
     if (event.checked) {
       arr.push(event.value);

@@ -109,7 +109,7 @@ class ExportSetting extends Component<ModalInputProps> {
         }}
       >
         <div className="modal-content">
-          <DataTable
+          <DataTable 
             // reorderableRows
             dataKey="id"
             value={this.state.columns}

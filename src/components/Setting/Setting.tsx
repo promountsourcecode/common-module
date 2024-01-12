@@ -258,7 +258,7 @@ class Setting extends Component<ModalInputProps> {
                 onRowReorder={e => rowReorder(e)}
                 responsiveLayout="scroll"
                 rows={this.tableColumns.length}
-                scrollable
+                scrollable 
               >
                 {/* <Column header="ID" body={props => <div>{props.rowIndex}</div>}></Column> */}
                 <Column rowReorder style={{ width: '3rem' }} />
