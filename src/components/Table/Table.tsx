@@ -9,7 +9,7 @@ import { getSortState } from 'react-jhipster';
 // import { ITEMS_PER_PAGE } from '../constants/index';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import Setting from '@promountsourcecode/common_module';
+import {Setting} from '@promountsourcecode/common_module';
 import ExportSetting from 'app/shared/export-column';
 import axios from 'axios';
 import { Paginator } from 'primereact/paginator';
@@ -654,7 +654,7 @@ export const Table = prop => {
 
   return (
     <div>
-      <div className="d-flex justify-content-between align-items-center">
+      <div className="d-flex justify-content-between flex-wrap align-items-center">
         {
           <div className="d-flex globlFilter">
             {filter && (

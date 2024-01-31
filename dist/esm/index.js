@@ -614,7 +614,6 @@ class Setting extends Component {
                         this.handleCancel();
                     }, className: "p-button-text" })));
         };
-        console.log("props", props);
         if (this.state.gridData.length === 0) {
             this.tableColumns = this.state.columns;
             console.log('this.props?.columns[0]?.gridPageSize', this.state.selectedPageSize, this.state.filter);
@@ -1052,12 +1051,20 @@ const Table = prop => {
             });
             newData.push(newObj);
         });
+        const newDataExcel = [];
+        exportData.map(element => {
+            const newObj = {};
+            headers.forEach(name => {
+                newObj[name.toUpperCase()] = element[name];
+            });
+            newDataExcel.push(newObj);
+        });
         switch (exportType) {
             case 'PDF':
                 exportPdf(newData, headers, coulmnData);
                 break;
             case 'EXCEL':
-                exportExcel(newData);
+                exportExcel(newDataExcel);
                 break;
             case 'CSV':
                 exportCSV(newData);
@@ -1099,17 +1106,12 @@ const Table = prop => {
         }
     };
     const exportPdf = (newData, headers, coulmnData) => {
-        // let headerss = coulmnData.map(col => {
-        //   if (col.visible) headers.push({ title: col.header, dataKey: col.field });
-        // });
         var out = [];
         for (var i = 0; i < coulmnData.length; i++) {
-            //if (acoulmnData[i] == 1) a.push(5);
             if (coulmnData[i].field === headers[i]) {
                 out.push(coulmnData[i].header);
             }
         }
-        //var headerss = Object.keys(headers[0]);
         const unit = 'pt';
         const size = 'A4';
         const orientation = 'portrait';
@@ -1123,7 +1125,7 @@ const Table = prop => {
         };
         doc.text(title, 40, 40);
         autoTable(doc, content);
-        doc.save('Task.pdf');
+        doc.save(prop.title.concat(' Report.pdf'));
     };
     const exportExcel = newData => {
         import('xlsx').then(xlsx => {
@@ -1133,7 +1135,7 @@ const Table = prop => {
                 bookType: 'xlsx',
                 type: 'array',
             });
-            saveAsExcelFile(excelBuffer, 'products');
+            saveAsExcelFile(excelBuffer, prop.title);
         });
     };
     const saveAsExcelFile = (buffer, fileName) => {
@@ -1144,24 +1146,10 @@ const Table = prop => {
                 const dataa = new Blob([buffer], {
                     type: EXCEL_TYPE,
                 });
-                module.default.saveAs(dataa, fileName + '_export_' + new Date().getTime() + EXCEL_EXTENSION);
+                module.default.saveAs(dataa, fileName + EXCEL_EXTENSION);
             }
         });
     };
-    // const settingChanges = (coulmnData, filterToggle, pagesize) => {
-    //   setModal(false);
-    //   setColumn(coulmnData);
-    //   setfilter(filterToggle);
-    //   const pageData = {
-    //     first: 0,
-    //     rows: parseInt(pagesize.size),
-    //     page: 0,
-    //     sortField: lazyState.sortField,
-    //     sortOrder: lazyState.sortOrder,
-    //   };
-    //   setlazyState(pageData);
-    //   prop.onPageChange(pageData);
-    // };
     const settingChanges = (coulmnData, filterToggle) => {
         setModal(false);
         setColumn(coulmnData);
@@ -1183,9 +1171,10 @@ const Table = prop => {
             menuItemId: menuItemId,
         })).then((res) => __awaiter(void 0, void 0, void 0, function* () {
             setColumn(res.payload.data.data);
+            // setColumn(gridData.data.data)
             const pageData = {
                 first: lazyState.first,
-                rows: parseInt(res.payload.data.data[0].gridPageSize),
+                rows: yield parseInt(res.payload.data.data[0].gridPageSize),
                 page: lazyState.page,
                 sortField: lazyState.sortField,
                 sortOrder: lazyState.sortOrder,
@@ -1195,6 +1184,7 @@ const Table = prop => {
             yield prepareRowAction(res.payload.data.data);
             yield prop.onPageChange(pageData);
             setData(prop.data);
+            closeSettingModal();
         }));
     });
     const closeSettingModal = () => __awaiter(void 0, void 0, void 0, function* () {
@@ -1341,7 +1331,7 @@ const Table = prop => {
         setModalExport(false);
     };
     return (React.createElement("div", null,
-        React.createElement("div", { className: "d-flex justify-content-between align-items-center" },
+        React.createElement("div", { className: "d-flex justify-content-between flex-wrap align-items-center" },
             React.createElement("div", { className: "d-flex globlFilter" }, filter && (React.createElement("span", { className: "p-input-icon-left" },
                 React.createElement("i", { className: "pi pi-search" }),
                 React.createElement(InputText, { value: globalFilterValue, onChange: e => onGlobalFilterChange(e) })))),
@@ -1359,7 +1349,7 @@ const Table = prop => {
                     React.createElement("span", { style: { marginLeft: '10px' }, className: "d-flex align-items-center" },
                         React.createElement(RadioButton, { inputId: gridId + 'All', name: "filter", value: "All", onChange: e => redioFilterSelection(e.value), checked: redioFilter === 'All' }),
                         React.createElement("label", { htmlFor: gridId + 'All', style: { marginBottom: 0 } }, labelbtnFlag.allradio ? labelbtnFlag.allradio : 'All')))),
-                React.createElement(Button, { color: "secondary", className: "iconBtn", onClick: () => {
+                React.createElement(Button, { color: "secondary", className: "iconBtn", type: 'button', onClick: () => {
                         setModal(!modal);
                     }, tooltip: "Setting", tooltipOptions: { position: 'top' } },
                     React.createElement(FontAwesomeIcon, { icon: "cogs" })),
@@ -1409,20 +1399,14 @@ const Table = prop => {
                                     }
                                     if (e.type === 'Button') {
                                         return (React.createElement(Column, { header: "Action", body: data2 => (React.createElement(React.Fragment, null, buttonAction.length > 0 &&
-                                                buttonAction.map(button => (React.createElement(React.Fragment, null, button.visible == true && (React.createElement(Button, { style: { marginLeft: '15px' }, tooltip: button.label, tooltipOptions: { position: 'top' }, className: button.className + ' gridIcon', onClick: () => button['id'] == 'Delete'
+                                                buttonAction.map(button => (React.createElement(React.Fragment, null, button.visible == true && (React.createElement(Button, { style: { marginLeft: '15px' }, 
+                                                    // tooltip={button.label}
+                                                    tooltipOptions: { position: 'top' }, className: button.className + ' gridIcon', onClick: () => button['id'] == 'Delete'
                                                         ? deleteConfirmOnAction(data2.id, button['askReason'], data2)
                                                         : eval(prop[buttonAction[0].command](data2.id, gridId, true, editObject)) },
                                                     React.createElement("i", { className: button.icon })))))))) }));
                                     }
-                                    // if (data[e.field] != '') {
-                                    //   return <Button>Delete</Button>;
-                                    // }
-                                    // if (data && data.length > 0) {
-                                    return React.createElement(Column, { key: i, columnKey: e.field, field: e.field, header: e.header, sortable: true });
-                                    // }
-                                    /* <Column>
-                                          <div dangerouslySetInnerHTML={{ __html: htmlString }}></div>
-                                        </Column> */
+                                    return React.createElement(Column, { key: i, columnKey: e.field, field: e.field, header: e.header, style: { width: e.width }, sortable: true });
                                 }
                             })),
                     React.createElement(Paginator, { template: paginatorTemplate, rows: lazyState.rows, first: lazyState.first, onPageChange: e => {
@@ -2143,7 +2127,7 @@ const Treetable = (prop) => {
         },
     };
     return (React.createElement("div", null,
-        ifHideHeader && (React.createElement("div", { className: "d-flex justify-content-between align-items-center  " },
+        ifHideHeader && (React.createElement("div", { className: "d-flex justify-content-between flex-wrap align-items-center  " },
             React.createElement("div", { className: "d-flex globlFilter" },
                 React.createElement("span", { className: "p-input-icon-left" },
                     React.createElement("i", { className: "pi pi-search" }),
