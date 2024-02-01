@@ -36,8 +36,8 @@ import { setMsgLangKeyInSessionStorage } from '@promountsourcecode/common_module
 import { OverlayPanel } from 'primereact/overlaypanel';
 import _ from 'lodash';
 import { boolean, object } from 'yup';
-import { getColumns } from 'app/entities/level/level.reducer';
-export const Table = prop => {
+import { getColumns } from 'app/entities/form/form.reducer';
+export const Table = prop => { 
   const menuItemId = sessionStorage.getItem('menuItemId');
   const [userId, setUserId] = useState(sessionStorage.getItem('id'));
   const dt = useRef<any>();
