@@ -19,7 +19,7 @@ import { Paginator } from 'primereact/paginator';
 import { useAppDispatch } from 'app/config/store';
 import { RadioButton } from 'primereact/radiobutton';
 import 'lodash';
-import { getColumns } from 'app/entities/level/level.reducer';
+import { getColumns } from 'app/entities/form/form.reducer';
 import { classNames } from 'primereact/utils';
 import { useForm, Controller } from 'react-hook-form';
 import { Button as Button$1 } from 'reactstrap';
