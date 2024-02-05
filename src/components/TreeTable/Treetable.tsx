@@ -588,7 +588,9 @@ export const Treetable = (prop) => {
     }
     setSelectCheckboxRc(selectedItemsArray);
     setReasonIdDelete(obj);
-    prop.selectCheckbox(checked, obj, selectedItemsArray);
+  //  prop.selectCheckbox(checked, obj, selectedItemsArray);
+    prop.selectCheckbox(checked, obj, selectedItemsArray,fieldName);
+    
   };
 
   /* pagination code */

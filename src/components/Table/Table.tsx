@@ -36,7 +36,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { setMsgLangKeyInSessionStorage } from '@promountsourcecode/common_module';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import _ from 'lodash';
-import { boolean, object } from 'yup';
+import { boolean, object } from 'yup'; 
 import { getColumns } from 'app/entities/form/form.reducer';
 
 export const Table = prop => {
