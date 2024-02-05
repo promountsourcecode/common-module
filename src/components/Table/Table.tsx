@@ -645,9 +645,8 @@ export const Table = prop => {
     }
     setSelectCheckboxRc(selectedItemsArray);
     setReasonIdDelete(obj);
-    prop.selectCheckbox(checked, obj, selectedItemsArray);
+    prop.selectCheckbox(checked, obj, selectedItemsArray,fieldName);
   };
-
   const exportClose = () => {
     setModalExport(false)
   }
@@ -823,21 +822,22 @@ export const Table = prop => {
                     if (e.type === 'CheckBox') {
                       return (
                         <Column
-                          header={e.header}
-                          body={data2 => (
-                            <>
-                              <Checkbox
-                                key={Math.random()}
-                                name={data2.id}
-                                value={e.field}
-                                onChange={x => {
-                                  onSelectCheckBox(x, data2, e.field);
-                                }}
-                                checked={defaultChecked(e.field, data2)}
-                              />
-                            </>
-                          )}
-                        />
+                        header={e.header}
+                        body={data2 => (
+                          <>
+                            <Checkbox
+                              key={Math.random()}
+                              name={data2.id}
+                              value={e.field}
+                              onChange={x => {
+                                onSelectCheckBox(x, data2, e.field);
+                              }}
+                             // checked={defaultChecked(e.field, data2)}
+                              checked={data2[e.field] === true}
+                            />
+                          </>
+                        )}
+                      />
                       );
                     }
                     if (e.type === 'Action') {
