@@ -7,8 +7,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { getSortState } from 'react-jhipster';
 // import { ITEMS_PER_PAGE } from '../constants/index';
+
 import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable'; 
+import autoTable from 'jspdf-autotable';
 import {Setting} from '@promountsourcecode/common_module';
 import ExportSetting from 'app/shared/export-column';
 import axios from 'axios';
@@ -37,7 +38,8 @@ import { OverlayPanel } from 'primereact/overlaypanel';
 import _ from 'lodash';
 import { boolean, object } from 'yup';
 import { getColumns } from 'app/entities/form/form.reducer';
-export const Table = prop => { 
+
+export const Table = prop => {
   const menuItemId = sessionStorage.getItem('menuItemId');
   const [userId, setUserId] = useState(sessionStorage.getItem('id'));
   const dt = useRef<any>();
@@ -142,13 +144,13 @@ export const Table = prop => {
     (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
     const pageData = {
       first: lazyState.first,
-      rows: (gridData.data.data.length) > 0 ? parseInt(gridData.data.data[0].gridPageSize) : 10,
+      rows: gridData.data.data.length > 0 ? parseInt(gridData.data.data[0].gridPageSize) : 10,
       page: lazyState.page,
       sortField: lazyState.sortField,
       sortOrder: lazyState.sortOrder,
     };
     setlazyState(pageData);
-    setfilter((gridData.data.data.length) > 0 ? gridData.data.data[0].filterEnable : false);
+    setfilter(gridData.data.data.length > 0 ? gridData.data.data[0].filterEnable : false);
 
     await prepareRowAction(gridData.data.data);
   };
@@ -173,6 +175,7 @@ export const Table = prop => {
 
   useEffect(() => {
     setData(prop.data);
+    
     // prop.data.length > 0 ? setErrorMessage(true) : setErrorMessage(false);
     // setitemsAction(prop.actionFlag);
   }, [prop.data]);
@@ -200,7 +203,11 @@ export const Table = prop => {
             for (let j = 0; j < actinObj.length; j++) {
               let item = {
                 className: actinObj[j]['className'] != null && actinObj[j]['className'] != '' ? actinObj[j]['className'] : 'icon',
-                label: <span style={{ color: "#1565c0" }}><Translate contentKey={actinObj[j]['label']}></Translate></span>,
+                label: (
+                  <span style={{ color: '#1565c0' }}>
+                    <Translate contentKey={actinObj[j]['label']}></Translate>
+                  </span>
+                ),
                 icon: actinObj[j]['icon'],
                 id: actinObj[j]['id'],
                 visible: actinObj[j]['visible'],
@@ -250,7 +257,7 @@ export const Table = prop => {
   const [label, setLabel] = useState('Default Label');
   const toggle = e => {
     setExportType(e);
-    setModalExport(!modalExport)
+    setModalExport(!modalExport);
   };
 
   const edit = id => {
@@ -281,7 +288,6 @@ export const Table = prop => {
     { label: 'Print', icon: 'fa-solid fa-print' },
   ];
 
-
   const settingChangesExport = coulmnData => {
     setModalExport(false);
     setExportCol(coulmnData);
@@ -298,7 +304,7 @@ export const Table = prop => {
       });
       newData.push(newObj);
       newObj;
-    });   
+    });
 
     const newDataExcel = [];
     exportData.map(element => {
@@ -308,7 +314,7 @@ export const Table = prop => {
       });
       newDataExcel.push(newObj);
       newObj;
-    });   
+    });
 
     switch (exportType) {
       case 'PDF':
@@ -361,7 +367,6 @@ export const Table = prop => {
     return str;
   };
 
-
   const exportCSV = (newData, headers) => {
     // Convert Object to JSON
     const jsonObject = JSON.stringify(newData);
@@ -386,18 +391,18 @@ export const Table = prop => {
     }
   };
 
-
   const exportPdf = (newData, headers, coulmnData) => {
     var out = [];
     for (var i = 0; i < coulmnData.length; i++) {
       if (coulmnData[i].field === headers[i]) {
-        out.push(coulmnData[i].header)
+        out.push(coulmnData[i].header);
       }
     }
     const unit = 'pt';
     const size = 'A4';
     const orientation = 'portrait';
     const doc = new jsPDF(orientation, unit, size);
+
     const title = prop.title.concat(' Report');
     var data = newData.map(obj => headers.map(header => obj[header]));
     const content = {
@@ -469,7 +474,6 @@ export const Table = prop => {
       await prop.onPageChange(pageData);
       setData(prop.data);
       closeSettingModal();
-
     });
   };
 
@@ -481,7 +485,7 @@ export const Table = prop => {
 
     const gridData = await axios.get(`api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
     // (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
-    setColumn(gridData.data.data)
+    setColumn(gridData.data.data);
     const pageData = {
       first: lazyState.first,
       rows: await parseInt(gridData.data.data[0].gridPageSize),
@@ -557,7 +561,7 @@ export const Table = prop => {
   const htmlString = '<p>This is a <strong>bold</strong> text.</p>';
 
   let arr = [];
-   
+
   const setRecordForChecked = event => {
     if (event.checked) {
       arr.push(event.value);
@@ -577,6 +581,8 @@ export const Table = prop => {
   const [selectCheckboxRc, setSelectCheckboxRc] = useState<any>([]);
   const [selectedCategory, setSelectedCategory] = useState<any>();
   const defaultChecked = (fieldName, data1) => {
+    
+     
     let flag: any;
     flag = data1[fieldName] ? typeof data1[fieldName] : undefined;
     if (flag != undefined) {
@@ -592,7 +598,6 @@ export const Table = prop => {
         }
         return returnValue;
       }
-
       return data1[fieldName];
     } else {
       if (selectCheckboxRc != undefined) {
@@ -647,13 +652,14 @@ export const Table = prop => {
     setReasonIdDelete(obj);
     prop.selectCheckbox(checked, obj, selectedItemsArray,fieldName);
   };
-  const exportClose = () => {
-    setModalExport(false)
-  }
 
+  const exportClose = () => {
+    setModalExport(false);
+  };
+  
   return (
     <div>
-      <div className="d-flex justify-content-between flex-wrap align-items-center">
+      <div className="d-flex justify-content-between align-items-center">
         {
           <div className="d-flex globlFilter">
             {filter && (
@@ -714,7 +720,7 @@ export const Table = prop => {
           <Button
             color="secondary"
             className="iconBtn"
-            type='button'
+            type="button"
             onClick={() => {
               setModal(!modal);
             }}
@@ -731,7 +737,6 @@ export const Table = prop => {
             model={items}
           /> */}
 
-
           {/* <div className="input-group"> */}
           <button
             className="btn btn-outline-secondary dropdown-toggle"
@@ -744,15 +749,24 @@ export const Table = prop => {
           </button>
           <ul className="dropdown-menu" style={{}}>
             {/* <li> <a className="dropdown-item" onClick={() => toggle('CSV')}><i className="fa-solid fa-file-csv" style={{color:'#1d7dc8'}}></i> CSV</a></li> */}
-            <li> <a className="dropdown-item" onClick={() => toggle('EXCEL')}><i className="fa-solid fa-file-excel" style={{ color: '#1c6c42' }}></i>  Excel</a></li>
-            <li> <a className="dropdown-item" onClick={() => toggle('PDF')}><i className="fa-solid fa-file-pdf" style={{ color: '#f72015' }}></i>  PDF</a></li>
+            <li>
+              {' '}
+              <a className="dropdown-item" onClick={() => toggle('EXCEL')}>
+                <i className="fa-solid fa-file-excel" style={{ color: '#1c6c42' }}></i> Excel
+              </a>
+            </li>
+            <li>
+              {' '}
+              <a className="dropdown-item" onClick={() => toggle('PDF')}>
+                <i className="fa-solid fa-file-pdf" style={{ color: '#f72015' }}></i> PDF
+              </a>
+            </li>
             {/* <li> <a className="dropdown-item" onClick={() => exportToJson()}><i className="fa-solid fa-file-arrow-down" style={{color:'#53d1e5'}}></i>  Json</a></li> */}
             {/* <li> <a className="dropdown-item" ><i className="fa-solid fa-print" style={{color:'#f08080'}}></i>  Print</a></li> */}
           </ul>
           {/* </div> */}
         </div>
       </div>
-
 
       {modal && (
         <Setting
@@ -770,7 +784,7 @@ export const Table = prop => {
 
       {modalExport && <ExportSetting show={modalExport} columns={column} onSetting={settingChangesExport} onClose={exportClose} />}
 
-      <div className="dataTable" id='tablePdf'>
+      <div className="dataTable" id="tablePdf">
         <>
           <>
             <DataTable
@@ -795,7 +809,7 @@ export const Table = prop => {
               onRowReorder={(e: any): void => prop.onAddReorderRow(e.value, gridId)}
               reorderableRows
               removableSort
-            >
+            > 
               {rowReorder && <Column rowReorder style={{ minWidth: '3rem' }} />}
               {column &&
                 column.map((e: any, i: any) => {
@@ -822,24 +836,25 @@ export const Table = prop => {
                     if (e.type === 'CheckBox') {
                       return (
                         <Column
-                        header={e.header}
-                        body={data2 => (
-                          <>
-                            <Checkbox
-                              key={Math.random()}
-                              name={data2.id}
-                              value={e.field}
-                              onChange={x => {
-                                onSelectCheckBox(x, data2, e.field);
-                              }}
-                             // checked={defaultChecked(e.field, data2)}
-                              checked={data2[e.field] === true}
-                            />
-                          </>
-                        )}
-                      />
+                          header={e.header}
+                          body={data2 => (
+                            <>
+                              <Checkbox
+                                key={Math.random()}
+                                name={data2.id}
+                                value={e.field}
+                                onChange={x => {
+                                  onSelectCheckBox(x, data2, e.field);
+                                }}
+                               // checked={defaultChecked(e.field, data2)}
+                                checked={data2[e.field] === true}
+                              />
+                            </>
+                          )}
+                        />
                       );
                     }
+
                     if (e.type === 'Action') {
                       return (
                         <Column
@@ -892,10 +907,10 @@ export const Table = prop => {
                         />
                       );
                     }
-                    return <Column key={i} columnKey={e.field} field={e.field} header={e.header}  style={{width: e.width }} sortable />;
+                    return <Column key={i} columnKey={e.field} field={e.field} header={e.header} style={{ width: e.width }} sortable />;
                   }
                 })}
-            </DataTable> 
+            </DataTable>
             <Paginator
               template={paginatorTemplate}
               rows={lazyState.rows}
