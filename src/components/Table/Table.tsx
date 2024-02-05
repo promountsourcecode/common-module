@@ -8,7 +8,7 @@ import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { getSortState } from 'react-jhipster';
 // import { ITEMS_PER_PAGE } from '../constants/index';
 import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import autoTable from 'jspdf-autotable'; 
 import {Setting} from '@promountsourcecode/common_module';
 import ExportSetting from 'app/shared/export-column';
 import axios from 'axios';
