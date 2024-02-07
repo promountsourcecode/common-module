@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { getSortState } from 'react-jhipster';
 // import { ITEMS_PER_PAGE } from '../constants/index';
-
+import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import {Setting} from '@promountsourcecode/common_module';
@@ -16,8 +16,9 @@ import axios from 'axios';
 import { Paginator } from 'primereact/paginator';
 import { Translate } from '@promountsourcecode/common_module';
 import { InputText } from 'primereact/inputtext';
-import { toast } from 'react-toastify'; 
+import { toast } from 'react-toastify';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
+
 import {
   faArrowUp19,
   faBoxArchive,
@@ -38,6 +39,7 @@ import { OverlayPanel } from 'primereact/overlaypanel';
 import _ from 'lodash';
 import { boolean, object } from 'yup';
 import { getColumns } from 'app/entities/form/form.reducer';
+
 
 export const Table = prop => {
   const menuItemId = sessionStorage.getItem('menuItemId');
@@ -175,7 +177,7 @@ export const Table = prop => {
 
   useEffect(() => {
     setData(prop.data);
-    
+
     // prop.data.length > 0 ? setErrorMessage(true) : setErrorMessage(false);
     // setitemsAction(prop.actionFlag);
   }, [prop.data]);
@@ -391,13 +393,16 @@ export const Table = prop => {
     }
   };
 
-  const exportPdf = (newData, headers, coulmnData) => {
-    var out = [];
+  const exportPdf = async (newData, headers, coulmnData) => {
+    var out: any = [];
+
     for (var i = 0; i < coulmnData.length; i++) {
       if (coulmnData[i].field === headers[i]) {
         out.push(coulmnData[i].header);
       }
     }
+   
+    const input = document.getElementById('tablePdf');
     const unit = 'pt';
     const size = 'A4';
     const orientation = 'portrait';
@@ -410,9 +415,13 @@ export const Table = prop => {
       head: [out],
       body: data,
     };
+
     doc.text(title, 40, 40);
     autoTable(doc, content);
     doc.save(prop.title.concat(' Report.pdf'));
+
+    //html2pdf(input);
+
   };
 
   const exportExcel = newData => {
@@ -581,8 +590,8 @@ export const Table = prop => {
   const [selectCheckboxRc, setSelectCheckboxRc] = useState<any>([]);
   const [selectedCategory, setSelectedCategory] = useState<any>();
   const defaultChecked = (fieldName, data1) => {
-    
-     
+
+
     let flag: any;
     flag = data1[fieldName] ? typeof data1[fieldName] : undefined;
     if (flag != undefined) {
@@ -650,13 +659,13 @@ export const Table = prop => {
     }
     setSelectCheckboxRc(selectedItemsArray);
     setReasonIdDelete(obj);
-    prop.selectCheckbox(checked, obj, selectedItemsArray,fieldName);
+    prop.selectCheckbox(checked, obj, selectedItemsArray, fieldName);
   };
 
   const exportClose = () => {
     setModalExport(false);
   };
-  
+
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center">
@@ -809,7 +818,7 @@ export const Table = prop => {
               onRowReorder={(e: any): void => prop.onAddReorderRow(e.value, gridId)}
               reorderableRows
               removableSort
-            > 
+            >
               {rowReorder && <Column rowReorder style={{ minWidth: '3rem' }} />}
               {column &&
                 column.map((e: any, i: any) => {
@@ -846,7 +855,7 @@ export const Table = prop => {
                                 onChange={x => {
                                   onSelectCheckBox(x, data2, e.field);
                                 }}
-                               // checked={defaultChecked(e.field, data2)}
+                                // checked={defaultChecked(e.field, data2)}
                                 checked={data2[e.field] === true}
                               />
                             </>
