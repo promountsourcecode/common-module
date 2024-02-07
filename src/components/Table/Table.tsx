@@ -16,7 +16,7 @@ import axios from 'axios';
 import { Paginator } from 'primereact/paginator';
 import { Translate } from '@promountsourcecode/common_module';
 import { InputText } from 'primereact/inputtext';
-import { toast } from 'react-toastify';
+import { toast } from 'react-toastify'; 
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 
 import {
