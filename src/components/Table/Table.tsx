@@ -11,12 +11,12 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import {Setting} from '@promountsourcecode/common_module';
-import ExportSetting from 'app/shared/export-column'; 
+import ExportSetting from 'app/shared/export-column';
 import axios from 'axios';
 import { Paginator } from 'primereact/paginator';
 import { Translate } from '@promountsourcecode/common_module';
 import { InputText } from 'primereact/inputtext';
-import { toast } from 'react-toastify'; 
+import { toast } from 'react-toastify';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 
 import {
@@ -85,7 +85,9 @@ export const Table = prop => {
 
   const [actionId, setActionId] = useState<number>();
   const [editObject, setEditObject] = useState<any>([]);
-
+  const [maxPageSize, setMaxPageSize] = useState(Number(sessionStorage.getItem('MaxPageSize')));
+  const [defaultPageSize, setDefaultPageSize] = useState(Number(sessionStorage.getItem('DefaultPageSize')));
+  
   useEffect(() => {
     setlazyState(lazyState);
   }, [lazyState]);
@@ -156,6 +158,20 @@ export const Table = prop => {
 
     await prepareRowAction(gridData.data.data);
   };
+
+  const arrForRow = sessionStorage.getItem('RowsPerPage');
+  const [perPage, setPerPage] = useState([]);
+  useEffect(() => {
+    let arr = arrForRow.split(',').map(Number);
+    console.log('arrFor', arr);
+
+    // for (let i = 0; i < arrForRow.length; i++) {
+    //   arr.push(Number(arrForRow[i]));
+    // }
+
+    setPerPage(arr);
+  }, [arrForRow]);
+
 
   useEffect(() => {
     column == undefined ? setColumn(prop.column) : '';
@@ -818,6 +834,9 @@ export const Table = prop => {
               onRowReorder={(e: any): void => prop.onAddReorderRow(e.value, gridId)}
               reorderableRows
               removableSort
+              paginator
+              rows={defaultPageSize}
+              rowsPerPageOptions={perPage}
             >
               {rowReorder && <Column rowReorder style={{ minWidth: '3rem' }} />}
               {column &&
