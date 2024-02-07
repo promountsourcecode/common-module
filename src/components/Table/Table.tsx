@@ -11,7 +11,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import {Setting} from '@promountsourcecode/common_module';
-import ExportSetting from 'app/shared/export-column';
+import ExportSetting from 'app/shared/export-column'; 
 import axios from 'axios';
 import { Paginator } from 'primereact/paginator';
 import { Translate } from '@promountsourcecode/common_module';
