@@ -11,7 +11,7 @@ import { ITEMS_PER_PAGE } from 'app/shared/util/pagination.constants';
 import { useAppDispatch } from 'app/config/store';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import ExportSetting from './export-column';
+import ExportSetting from '../Export-Column';
 import axios from 'axios';
 import { InputText } from 'primereact/inputtext';
 import { TreeTable } from 'primereact/treetable';
