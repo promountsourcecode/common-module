@@ -1121,7 +1121,7 @@ export const Treetable = prop => {
                 />
               )} */}
               </TreeTable>
-              <Paginator
+              {/* <Paginator
                 template={paginatorTemplate}
                 rows={lazyState?.rows}
                 first={lazyState?.first}
@@ -1132,7 +1132,7 @@ export const Treetable = prop => {
                 pageLinkSize={3}
                 totalRecords={totalRecords}
                 className="justify-content-end"
-              />
+              /> */}
             </>
           ) : (
             <div className="alert alert-warning">
@@ -1160,3 +1160,6 @@ export const Treetable = prop => {
     </div>
   );
 };
+
+
+export default Treetable;

@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect, useRef, useCallback } from 'react';
+import React, { Component, useState, useEffect, useRef } from 'react';
 import { Checkbox } from 'primereact/checkbox';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
@@ -14,8 +14,8 @@ import { SplitButton } from 'primereact/splitbutton';
 import { confirmDialog } from 'primereact/confirmdialog';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import ExportSetting$1 from 'app/shared/export-column';
-import { Paginator } from 'primereact/paginator';
+import 'app/shared/export-column';
+import 'primereact/paginator';
 import { useAppDispatch } from 'app/config/store';
 import { RadioButton } from 'primereact/radiobutton';
 import 'lodash';
@@ -26,6 +26,10 @@ import { Button as Button$1 } from 'reactstrap';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { TreeTable } from 'primereact/treetable';
 import moment from 'moment';
+import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
+import { getSortState } from 'react-jhipster';
+import { ITEMS_PER_PAGE } from 'app/shared/util/pagination.constants';
+import { InputSwitch } from 'primereact/inputswitch';
 
 /******************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -839,6 +843,85 @@ const Translate = (prop) => {
             React.createElement("span", { className: "reqsign" }, "*"))) : ("")) : lableFlag == true ? (React.createElement("span", null, ":")) : ("")) : ("")));
 };
 
+class ExportSetting extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            visible: this.props.show,
+            columns: this.props.columns,
+            prop: this.props,
+        };
+        this.toggle = e => {
+            e.preventDefault();
+            this.setState({ visible: !this.state.visible });
+        };
+        this.checkboxChange = (event, index) => {
+            const data = this.state.columns;
+            data[index].visible = event.checked;
+            this.setState({ columns: data });
+        };
+        this.state.columns.map(e => {
+            e.visible = true;
+        });
+    }
+    handleChange() {
+        this.props.onSetting(this.state.columns);
+        this.props.onClose();
+    }
+    handleCancel() {
+        this.setState({
+            visible: false,
+            colums: this.props.columns,
+        });
+    }
+    resetSettings() {
+        this.setState({
+            columns: this.state.columns.map(e => (e.visible = true)),
+        });
+    }
+    render() {
+        const cellEditor = options => {
+            return textEditor(options);
+        };
+        const textEditor = options => {
+            return React.createElement(InputText, { type: "text", value: options.value, onChange: e => options.editorCallback(e.target.value) });
+        };
+        const onCellEditComplete = e => {
+            const { rowData, newValue, field, originalEvent: event } = e;
+            switch (field) {
+                case 'quantity':
+                default:
+                    if (newValue.trim().length > 0)
+                        rowData[field] = newValue;
+                    else
+                        event.preventDefault();
+                    break;
+            }
+        };
+        const footerContent = (React.createElement("div", null,
+            React.createElement(Button, { label: "Export", icon: "pi pi-check", onClick: () => this.handleChange(), autoFocus: true })));
+        return (React.createElement(Dialog, { header: React.createElement(Translate$2, { contentKey: "exports.title" }), footer: footerContent, maximizable: true, visible: this.state.visible, style: { width: '50vw' }, onHide: () => {
+                this.handleCancel();
+            } },
+            React.createElement("div", { className: "modal-content" },
+                React.createElement(DataTable
+                // reorderableRows
+                , { 
+                    // reorderableRows
+                    dataKey: "id", value: this.state.columns, 
+                    // onRowReorder={onRowReorder}
+                    responsiveLayout: "scroll", rows: this.state.columns.length },
+                    React.createElement(Column, { field: "header", header: React.createElement(Translate$2, { contentKey: "setting.grid.colomn" }), editor: options => cellEditor(options), onCellEditComplete: onCellEditComplete }),
+                    React.createElement(Column, { header: React.createElement(Translate$2, { contentKey: "setting.grid.display" }), body: (data, props) => (React.createElement("div", null,
+                            React.createElement(Checkbox, { onChange: event => this.checkboxChange(event, props.rowIndex), checked: data.visible }))) }))),
+            React.createElement("div", { className: "p-dialog-footer" },
+                React.createElement(Button, { className: "btnStyle btn btn-success", onClick: () => this.handleChange(), autoFocus: true },
+                    React.createElement(FontAwesomeIcon, { icon: faCheck }),
+                    " ",
+                    React.createElement(Translate$2, { contentKey: "exports.title" })))));
+    }
+}
+
 const Table = prop => {
     const menuItemId = sessionStorage.getItem('menuItemId');
     useState(sessionStorage.getItem('id'));
@@ -879,39 +962,11 @@ const Table = prop => {
     const [rowReorder, setrowReorder] = useState(prop.rowReorder ? prop.rowReorder : false);
     const [actionId, setActionId] = useState();
     const [editObject, setEditObject] = useState([]);
+    useState(Number(sessionStorage.getItem('MaxPageSize')));
+    const [defaultPageSize, setDefaultPageSize] = useState(Number(sessionStorage.getItem('DefaultPageSize')));
     useEffect(() => {
         setlazyState(lazyState);
     }, [lazyState]);
-    const paginatorTemplate = {
-        layout: 'RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport ',
-        RowsPerPageDropdown: options => {
-            const dropdownOptions = [
-                { label: 5, value: 5 },
-                { label: 10, value: 10 },
-                { label: 20, value: 20 },
-                { label: 50, value: 50 },
-                { label: 100, value: 100 },
-                { label: 200, value: 200 },
-                { label: 500, value: 500 },
-            ];
-            return (React.createElement(React.Fragment, null,
-                React.createElement(Dropdown, { value: options.value, scrollHeight: '270px', options: dropdownOptions, onChange: options.onChange })));
-        },
-        CurrentPageReport: options => {
-            return (React.createElement("span", { className: "totalPages", style: {
-                    //color: 'var(--text-color)',
-                    fontSize: '14px',
-                    userSelect: 'none',
-                    marginLeft: 'auto',
-                    textAlign: 'center',
-                } },
-                options.first,
-                " - ",
-                options.last,
-                " of ",
-                options.totalRecords));
-        },
-    };
     const getActionBtn = (id, object) => {
         setActionId(id);
         setEditObject(object);
@@ -943,6 +998,16 @@ const Table = prop => {
         setfilter(gridData.data.data.length > 0 ? gridData.data.data[0].filterEnable : false);
         yield prepareRowAction(gridData.data.data);
     });
+    const arrForRow = sessionStorage.getItem('RowsPerPage');
+    const [perPage, setPerPage] = useState([]);
+    useEffect(() => {
+        let arr = arrForRow.split(',').map(Number);
+        console.log('arrFor', arr);
+        // for (let i = 0; i < arrForRow.length; i++) {
+        //   arr.push(Number(arrForRow[i]));
+        // }
+        setPerPage(arr);
+    }, [arrForRow]);
     useEffect(() => {
         column == undefined ? setColumn(prop.column) : '';
     }, [prop.column]);
@@ -1342,7 +1407,7 @@ const Table = prop => {
                             React.createElement("i", { className: "fa-solid fa-file-pdf", style: { color: '#f72015' } }),
                             " PDF"))))),
         modal && (React.createElement(Setting$1, { show: modal, gridId: gridId, gridData: apiGridData, filter: filter, columns: column, menuItemId: menuItemId, onClose: closeSettingModal, onSetting: settingChanges, onReset: onReset })),
-        modalExport && React.createElement(ExportSetting$1, { show: modalExport, columns: column, onSetting: settingChangesExport, onClose: exportClose }),
+        modalExport && React.createElement(ExportSetting, { show: modalExport, columns: column, onSetting: settingChangesExport, onClose: exportClose }),
         React.createElement("div", { className: "dataTable", id: "tablePdf" },
             React.createElement(React.Fragment, null,
                 React.createElement(React.Fragment, null,
@@ -1351,7 +1416,7 @@ const Table = prop => {
                         filterDisplay: filter ? 'row' : 'menu', scrollable: true, scrollHeight: "400px", id: gridId, selectionMode: "single", selection: selectedItem, onSelectionChange: e => {
                             setSelectedItem(e.value);
                             prop.onSelect ? prop.onSelect(e.value) : {};
-                        }, responsiveLayout: "scroll", onRowReorder: (e) => prop.onAddReorderRow(e.value, gridId), reorderableRows: true, removableSort: true },
+                        }, responsiveLayout: "scroll", onRowReorder: (e) => prop.onAddReorderRow(e.value, gridId), reorderableRows: true, removableSort: true, paginator: true, rows: defaultPageSize, rowsPerPageOptions: perPage },
                         rowReorder && React.createElement(Column, { rowReorder: true, style: { minWidth: '3rem' } }),
                         column &&
                             column.map((e, i) => {
@@ -1386,92 +1451,9 @@ const Table = prop => {
                                     }
                                     return React.createElement(Column, { key: i, columnKey: e.field, field: e.field, header: e.header, style: { width: e.width }, sortable: true });
                                 }
-                            })),
-                    React.createElement(Paginator, { template: paginatorTemplate, rows: lazyState.rows, first: lazyState.first, onPageChange: e => {
-                            setlazyState(e);
-                            prop.onPageChange(e);
-                        }, pageLinkSize: 3, totalRecords: totalRecords, className: "justify-content-end" })),
+                            }))),
                 reasonFlag && (React.createElement(AskReason$1, { data: reasonIdDelete, deleteObject: editObject, action: "delete", visible: reasonFlag, saveWithReason: accept, onClose: handleCloseForReason }))))));
 };
-
-class ExportSetting extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            visible: this.props.show,
-            columns: this.props.columns,
-            prop: this.props,
-        };
-        this.toggle = e => {
-            e.preventDefault();
-            this.setState({ visible: !this.state.visible });
-        };
-        this.checkboxChange = (event, index) => {
-            const data = this.state.columns;
-            data[index].visible = event.checked;
-            this.setState({ columns: data });
-        };
-        this.state.columns.map(e => {
-            e.visible = true;
-        });
-    }
-    handleChange() {
-        this.props.onSetting(this.state.columns);
-        this.props.onClose();
-    }
-    handleCancel() {
-        this.setState({
-            visible: false,
-            colums: this.props.columns,
-        });
-    }
-    resetSettings() {
-        this.setState({
-            columns: this.state.columns.map(e => (e.visible = true)),
-        });
-    }
-    render() {
-        const cellEditor = options => {
-            return textEditor(options);
-        };
-        const textEditor = options => {
-            return React.createElement(InputText, { type: "text", value: options.value, onChange: e => options.editorCallback(e.target.value) });
-        };
-        const onCellEditComplete = e => {
-            const { rowData, newValue, field, originalEvent: event } = e;
-            switch (field) {
-                case 'quantity':
-                default:
-                    if (newValue.trim().length > 0)
-                        rowData[field] = newValue;
-                    else
-                        event.preventDefault();
-                    break;
-            }
-        };
-        const footerContent = (React.createElement("div", null,
-            React.createElement(Button, { label: "Export", icon: "pi pi-check", onClick: () => this.handleChange(), autoFocus: true })));
-        return (React.createElement(Dialog, { header: React.createElement(Translate$2, { contentKey: "exports.title" }), footer: footerContent, maximizable: true, visible: this.state.visible, style: { width: '50vw' }, onHide: () => {
-                this.handleCancel();
-            } },
-            React.createElement("div", { className: "modal-content" },
-                React.createElement(DataTable
-                // reorderableRows
-                , { 
-                    // reorderableRows
-                    dataKey: "id", value: this.state.columns, 
-                    // onRowReorder={onRowReorder}
-                    responsiveLayout: "scroll", rows: this.state.columns.length },
-                    React.createElement(Column, { field: "header", header: React.createElement(Translate$2, { contentKey: "setting.grid.colomn" }), editor: options => cellEditor(options), onCellEditComplete: onCellEditComplete }),
-                    React.createElement(Column, { header: React.createElement(Translate$2, { contentKey: "setting.grid.display" }), body: (data, props) => (React.createElement("div", null,
-                            React.createElement(Checkbox, { onChange: event => this.checkboxChange(event, props.rowIndex), checked: data.visible }))) }))),
-            React.createElement("div", { className: "p-dialog-footer" },
-                React.createElement(Button, { className: "btnStyle btn btn-success", onClick: () => this.handleChange(), autoFocus: true },
-                    React.createElement(FontAwesomeIcon, { icon: faCheck }),
-                    " ",
-                    React.createElement(Translate$2, { contentKey: "exports.title" })))));
-    }
-}
 
 const AskReason = (prop) => {
     const [dataForm, setData] = useState(prop.data);
@@ -1533,114 +1515,8 @@ const AskReason = (prop) => {
                                 action == "delete" ? (React.createElement(Translate, { contentKey: "delete" })) : (React.createElement(Translate, { contentKey: "home.save" }))))))))));
 };
 
-// const dataSC1: any = JSON.parse(sessionStorage.getItem('LanguageData'));
-// const dataSc = dataSC1 ? dataSC1.translations[2].validations.validateDetails : '';
-sessionStorage.getItem("Language");
-// let screenDataSc1 = JSON.parse(sessionStorage.getItem('LanguageData'));
-sessionStorage.getItem("LanguageData")
-    ? JSON.parse(sessionStorage.getItem("LanguageData"))["translations"]
-    : "";
-function screenConfigration(menuItemId) {
-    return __awaiter(this, void 0, void 0, function* () {
-        // setLanguageAPIData(getDataSC.data.languageDetails);
-        const getDataSC = yield axios.get(`/api/screen-configurations/getAllScreenConfigurationsAndScreenControlValidations/${menuItemId}/${sessionStorage.getItem("lastSyncTime")
-            ? sessionStorage.getItem("lastSyncTime")
-            : 0}`);
-        sessionStorage.setItem("lastSyncTime", getDataSC.data.lastSyncTime);
-        sessionStorage.setItem("LanguageData", JSON.stringify(getDataSC.data));
-    });
-}
-function setMsgLangKeyInSessionStorage(key) {
-    sessionStorage.setItem("msgLangKey", key);
-}
-function getDisplay(field) {
-    let language = sessionStorage.getItem("Language");
-    let screenDataSc1 = sessionStorage.getItem("LanguageData")
-        ? JSON.parse(sessionStorage.getItem("LanguageData"))["translations"]
-        : "";
-    const lngobj = screenDataSc1[language];
-    const obj = lngobj[field];
-    return Boolean(obj.display);
-}
-function getControlValidationObj(field) {
-    let language = sessionStorage.getItem("Language");
-    let screenDataSc1 = sessionStorage.getItem("LanguageData")
-        ? JSON.parse(sessionStorage.getItem("LanguageData"))["translations"]
-        : "";
-    const lngobj = screenDataSc1[language];
-    const obj = lngobj[field];
-    const ruleObj = {};
-    if (obj.mandatory != null) {
-        ruleObj["required"] = {};
-        ruleObj["required"]["value"] = obj.mandatory;
-        if (obj.isRequiredMessage != null && obj.isRequiredMessage !== "") {
-            ruleObj["required"]["message"] = obj.isRequiredMessage;
-        }
-    }
-    if (obj.minvalue != null && obj.minvalue !== "") {
-        ruleObj["minLength"] = {};
-        ruleObj["minLength"]["value"] = Number(obj.minvalue);
-        //message = getErrorMessageForMinLength(screenDataSc, field);
-        // if (message != null && message != '') {
-        ruleObj["minLength"]["message"] = obj.minLengthMessage;
-        // }
-    }
-    // let maxLength: any = getMaxLength(screenDataSc, field);
-    if (obj.maxvalue != null && obj.maxvalue !== "") {
-        ruleObj["maxLength"] = {};
-        ruleObj["maxLength"]["value"] = obj.maxvalue;
-        ruleObj["maxLength"]["message"] = obj.maxLengthMessage;
-    }
-    // let pattern: any = getRegex(screenDataSc, field);
-    if (obj.validationRegex != null && obj.validationRegex !== "") {
-        ruleObj["pattern"] = {};
-        ruleObj["pattern"]["value"] = RegExp(obj.validationRegex);
-        //message = getErrorMessageForRegex(screenDataSc, field);
-        // if (message != null && message != '') {
-        ruleObj["pattern"]["message"] = obj.regexPatternMessage;
-        // }
-    }
-    return ruleObj;
-}
-function isFieldMandatory(field) {
-    let language = sessionStorage.getItem("Language");
-    let screenDataSc1 = sessionStorage.getItem("LanguageData")
-        ? JSON.parse(sessionStorage.getItem("LanguageData"))["translations"]
-        : "";
-    const lngobj = screenDataSc1[language];
-    const obj = lngobj[field];
-    if (obj.mandatory != null) {
-        return obj.mandatory;
-    }
-    else {
-        return false;
-    }
-}
-function checkReasonFlag(field) {
-    let language = sessionStorage.getItem("Language");
-    let screenDataSc1 = sessionStorage.getItem("LanguageData")
-        ? JSON.parse(sessionStorage.getItem("LanguageData"))["translations"]
-        : "";
-    const lngobj = screenDataSc1[language];
-    const obj = lngobj[field]["askForReason"];
-    return obj;
-}
-function checkStatus(statusCode) {
-    if (statusCode == 400 || statusCode == 412 || statusCode == 500) {
-        return false;
-    }
-    else {
-        return true;
-    }
-}
-function breadCrumbsFlag() {
-    const configurationUrl = 'services/gateway/api/getSystemConfigurationByName/breadCrumbs_flag';
-    axios.get(configurationUrl).then((res) => {
-        sessionStorage.setItem('breadCrumbsFlag', res.data.configurationValue);
-    });
-}
-
-const Treetable = (prop) => {
+const Treetable = prop => {
+    const dispatch = useAppDispatch();
     const dt = useRef();
     const [data, setData] = useState();
     const [nodes, setNodes] = useState();
@@ -1655,36 +1531,30 @@ const Treetable = (prop) => {
     const [modalExport, setModalExport] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [exportType, setExportType] = useState();
-    const [globalFilterValue, setGlobalFilterValue] = useState("");
+    const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [ifShowHeader, setifShowHeader] = useState(false);
     const [ifHideHeader, setifHideHeader] = useState(true);
-    const [language, setlanguage] = useState(sessionStorage.getItem("Language"));
-    const [redioFilter, setRedioFilter] = useState(sessionStorage.getItem("FilterStatus"));
+    const [language, setlanguage] = useState(sessionStorage.getItem('Language'));
+    const [redioFilter, setRedioFilter] = useState(sessionStorage.getItem('FilterStatus'));
     useState(prop.reasonAsk ? prop.reasonAsk : false);
-    const menuItemId = sessionStorage.getItem("menuItemId");
+    const menuItemId = sessionStorage.getItem('menuItemId');
     const [deleteHeader, setdeleteHeader] = useState(React.createElement(Translate$2, { contentKey: "global.deleteConfirm" }));
     const [deletemsg, setdeletemsg] = useState(React.createElement(Translate$2, { contentKey: "home.deleteMsg" }));
     const [updatedJson, setUpdatedJson] = useState();
+    useState(Number(sessionStorage.getItem('MaxPageSize')));
+    const [defaultPageSize, setDefaultPageSize] = useState(Number(sessionStorage.getItem('DefaultPageSize')));
+    const finalObject = [];
     const getGridData = () => __awaiter(void 0, void 0, void 0, function* () {
         let id;
-        if (language === "en")
+        if (language === 'en')
             id = 1;
-        else if (language === "hi")
+        else if (language === 'hi')
             id = 2;
         else
             id = 3;
         // const menuItemId = gridId;
         const gridData = yield axios.get(`api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
         yield setColumn(gridData.data.data.length > 0 ? gridData.data.data : prop.column);
-        const pageData = {
-            first: lazyState.first,
-            rows: parseInt(gridData.data.data[0].gridPageSize),
-            page: lazyState.page,
-            sortField: lazyState.sortField,
-            sortOrder: lazyState.sortOrder,
-        };
-        setlazyState(pageData);
-        setfilter(gridData.data.data[0].filterEnable);
         yield prepareRowAction(gridData.data.data);
     });
     useEffect(() => {
@@ -1693,6 +1563,7 @@ const Treetable = (prop) => {
                 return pre;
             else
                 return prop.data;
+            //  prepareRowAction(gridData.data.data);
         });
         setData((pre) => {
             if (!prop.data)
@@ -1704,167 +1575,208 @@ const Treetable = (prop) => {
     useEffect(() => {
         getGridData();
         if (!redioFilter) {
-            setRedioFilter("Active");
+            setRedioFilter('Active');
         }
-        if (gridId === "dmsClientID" ||
-            gridId === "dmsParameterID" ||
-            gridId === "ParameterCategoriesID") {
+        if (gridId === 'dmsClientID' || gridId === 'dmsParameterID' || gridId === 'ParameterCategoriesID') {
             setifShowHeader(true);
         }
-        if (gridId === "documentWorkspaceID") {
+        if (gridId === 'documentWorkspaceID') {
             setifHideHeader(false);
         }
     }, []);
-    const toggle = (e) => {
+    const toggle = e => {
         setExportType(e);
-        setModalExport(true);
+        setModalExport(!modalExport);
     };
+    const arrForRow = sessionStorage.getItem('RowsPerPage');
+    const [perPage, setPerPage] = useState([]);
+    useEffect(() => {
+        let arr = arrForRow.split(',').map(Number);
+        console.log('arrFor', arr);
+        // for (let i = 0; i < arrForRow.length; i++) {
+        //   arr.push(Number(arrForRow[i]));
+        // }
+        setPerPage(arr);
+    }, [arrForRow]);
+    useState(overridePaginationStateWithQueryParams(getSortState(location, ITEMS_PER_PAGE, 'id'), location.search));
     useRef(null);
-    const edit = (id) => {
+    const edit = id => {
         prop.onEdit(id);
     };
     const save = () => {
         prop.saveJson(nodes);
     };
-    const items = [
-        {
-            label: "CSV",
-            icon: "fa-solid fa-file-csv",
-            command: () => toggle("CSV"),
-        },
-        {
-            label: "Excel",
-            icon: "fa-solid fa-file-excel",
-            command: () => toggle("EXCEL"),
-        },
-        {
-            label: "PDF",
-            icon: "fa-solid fa-file-pdf",
-            command: () => toggle("PDF"),
-        },
-        {
-            label: "Json",
-            icon: "fa-solid fa-file-arrow-down",
-            command: () => exportToJson(),
-        },
-        { label: "Print", icon: "fa-solid fa-print" },
-    ];
-    const settingChanges = (coulmnData, filterToggle, pagesize) => {
+    const settingChanges = (coulmnData, filterToggle) => {
         setModal(false);
         setColumn(coulmnData);
         setfilter(filterToggle);
-        const pageData = {
-            first: 0,
-            rows: parseInt(pagesize.size),
-            page: 0,
-            sortField: lazyState.sortField,
-            sortOrder: lazyState.sortOrder,
-        };
-        setlazyState(pageData);
-        prop.onPageChange(pageData);
     };
-    const settingChangesExport = (coulmnData) => {
+    // const settingChangesExport = coulmnData => {
+    //   setModalExport(false);
+    //   setExportCol(coulmnData);
+    //   switch (exportType) {
+    //     case 'PDF':
+    //       exportPdf();
+    //       break;
+    //     case 'EXCEL':
+    //       exportExcel();
+    //       break;
+    //     case 'CSV':
+    //       exportCSV();
+    //       break;
+    //     default:
+    //       break;
+    //   }
+    // };
+    const getDataForPdfXls = data => {
+        if (data.length > 0) {
+            data.forEach(element => {
+                if (element['data']) {
+                    finalObject.push(element['data']);
+                }
+                if (element['children']) {
+                    getDataForPdfXls(element['children']);
+                }
+            });
+        }
+    };
+    const settingChangesExport = coulmnData => {
+        getDataForPdfXls(data);
         setModalExport(false);
         setExportCol(coulmnData);
+        const exportData = data;
+        const headers = [];
+        coulmnData.map(col => {
+            if (col.visible)
+                headers.push(col.field);
+        });
+        const newData = [];
+        console.log('exportData', exportData);
+        exportData.map(element => {
+            const newObj = {};
+            headers.forEach(name => {
+                newObj[name] = element[name];
+            });
+            newData.push(newObj);
+        });
         switch (exportType) {
-            case "PDF":
-                exportPdf();
+            case 'PDF':
+                exportPdf(newData, headers, coulmnData, finalObject);
                 break;
-            case "EXCEL":
-                exportExcel();
+            case 'EXCEL':
+                exportExcel(newData, coulmnData, finalObject);
                 break;
-            case "CSV":
-                exportCSV();
+            case 'CSV':
+                exportCSV(newData);
                 break;
         }
     };
-    const exportToJson = () => {
-        downloadFile({
-            body: JSON.stringify(data),
-            fileName: "users.json",
-            fileType: "text/json",
-        });
-    };
-    const downloadFile = ({ body, fileName, fileType }) => {
-        const blob = new Blob([body], { type: fileType });
-        const a = document.createElement("a");
-        a.download = fileName;
-        a.href = window.URL.createObjectURL(blob);
-        const clickEvt = new MouseEvent("click", {
-            view: window,
-            bubbles: true,
-            cancelable: true,
-        });
-        a.dispatchEvent(clickEvt);
-        a.remove();
-    };
-    const exportColumns = exportCol.map((col) => {
+    exportCol.map(col => {
         if (col.visible)
             ({ title: col.header, dataKey: col.field });
     });
-    const exportCSV = useCallback(() => {
-        dt.current.api.exportDataAsCsv(data);
-    }, []);
-    const exportPdf = () => {
-        const unit = "pt";
-        const size = "A4";
-        const orientation = "portrait";
+    const convertToCSV = objArray => {
+        const array = typeof objArray !== 'object' ? JSON.parse(objArray) : objArray;
+        let str = '';
+        for (let i = 0; i < array.length; i++) {
+            let line = '';
+            // eslint-disable-next-line guard-for-in
+            for (const index in array[i]) {
+                if (line !== '')
+                    line += ',';
+                line += array[i][index];
+            }
+            str += line + '\r\n';
+        }
+        return str;
+    };
+    const exportCSV = (newData, headers) => {
+        // Convert Object to JSON
+        const jsonObject = JSON.stringify(newData);
+        const csv = convertToCSV(jsonObject);
+        const exportedFilenmae = 'report' + '.csv' ;
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        if (link.download !== undefined) {
+            // feature detection
+            // Browsers that support HTML5 download attribute
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', exportedFilenmae);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    };
+    const exportPdf = (newData, headers, coulmnData, data1) => {
+        var out = [];
+        for (var i = 0; i < coulmnData.length; i++) {
+            if (coulmnData[i].field === headers[i]) {
+                out.push(coulmnData[i].header);
+            }
+        }
+        const unit = 'pt';
+        const size = 'A4';
+        const orientation = 'portrait';
         const doc = new jsPDF(orientation, unit, size);
-        const title = "Report";
-        const dataBody = data;
-        const headers = exportColumns;
+        const title = prop.title.concat(' Report');
+        var dataForExport = data1.map(obj => column.map(header => obj[header.field]));
         const content = {
             startY: 50,
-            head: headers,
-            body: dataBody,
+            head: [out],
+            body: dataForExport,
         };
         doc.text(title, 40, 40);
         autoTable(doc, content);
-        doc.save("Task.pdf");
+        doc.save(prop.title.concat(' Report.pdf'));
     };
-    const exportExcel = () => {
-        import('xlsx').then((xlsx) => {
-            const worksheet = xlsx.utils.json_to_sheet(data);
-            const workbook = { Sheets: { data: worksheet }, SheetNames: ["data"] };
+    const exportExcel = (newData, coulmnData, data1) => {
+        var dataForExport = data1.map(obj => column.map(header => obj[header.field]));
+        // console.log("DATA1",data1);
+        // console.log("newData",newData);
+        import('xlsx').then(xlsx => {
+            const worksheet = xlsx.utils.json_to_sheet(dataForExport);
+            const workbook = { Sheets: { data: worksheet }, SheetNames: ['data'] };
             const excelBuffer = xlsx.write(workbook, {
-                bookType: "xlsx",
-                type: "array",
+                bookType: 'xlsx',
+                type: 'array',
             });
-            saveAsExcelFile(excelBuffer, "products");
+            saveAsExcelFile(excelBuffer, prop.title);
         });
     };
     const saveAsExcelFile = (buffer, fileName) => {
-        import('file-saver').then((module) => {
+        import('file-saver').then(module => {
             if (module && module.default) {
-                const EXCEL_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
-                const EXCEL_EXTENSION = ".xlsx";
+                const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+                const EXCEL_EXTENSION = '.xlsx';
                 const dataa = new Blob([buffer], {
                     type: EXCEL_TYPE,
                 });
-                module.default.saveAs(dataa, fileName + "_export_" + new Date().getTime() + EXCEL_EXTENSION);
+                module.default.saveAs(dataa, fileName + EXCEL_EXTENSION);
             }
         });
     };
-    const getSubDocType = (e) => {
+    const getSubDocType = e => {
         setSelectedProduct(e);
         // prop.onSelect(e);
     };
     const onGlobalFilterChange = (e) => {
         const value = e.target.value;
         const _filters = Object.assign({}, filters);
-        _filters["global"].value = value;
+        _filters['global'].value = value;
         setfilters(_filters);
         setGlobalFilterValue(value);
-        if (gridId === "dmsParameterID") {
+        if (gridId === 'dmsParameterID') {
             prop.onSearch(value);
         }
     };
     const closeSettingModal = () => {
         setModal(false);
     };
-    const redioFilterSelection = (name) => {
+    const redioFilterSelection = name => {
         setRedioFilter(name);
-        sessionStorage.setItem("FilterStatus", name);
+        sessionStorage.setItem('FilterStatus', name);
         prop.onFilterChanges(name);
     };
     var labelbtnFlag = {
@@ -1884,18 +1796,18 @@ const Treetable = (prop) => {
     const [reasonIdDelete, setReasonIdDelete] = useState();
     const [reasonFlag, setReasonFlag] = useState(false);
     const deleteConfirmOnAction = (id, flag, record) => __awaiter(void 0, void 0, void 0, function* () {
-        setMsgLangKeyInSessionStorage(prop.msgLangKey);
+        setMsgLangKeyInSessionStorage$1(prop.msgLangKey);
         const idObj = {};
-        idObj["id"] = id;
+        idObj['id'] = id;
         setReasonIdDelete(idObj);
         confirmDialog({
             message: deletemsg,
             header: deleteHeader,
-            icon: "pi pi-info-circle",
-            acceptClassName: "p-button-danger",
-            rejectClassName: "p-button-success",
-            acceptLabel: labelbtnFlag.yes ? labelbtnFlag.yes : "Yes",
-            rejectLabel: labelbtnFlag.no ? labelbtnFlag.no : "No",
+            icon: 'pi pi-info-circle',
+            acceptClassName: 'p-button-danger',
+            rejectClassName: 'p-button-success',
+            acceptLabel: labelbtnFlag.yes ? labelbtnFlag.yes : 'Yes',
+            rejectLabel: labelbtnFlag.no ? labelbtnFlag.no : 'No',
             accept: () => __awaiter(void 0, void 0, void 0, function* () {
                 flag == true ? yield setReasonFlag(!reasonFlag) : accept(id, record);
             }),
@@ -1915,11 +1827,11 @@ const Treetable = (prop) => {
         const newNodes = JSON.parse(JSON.stringify(nodes));
         let indexs = options.rowIndex;
         let typeValue = typeof options.rowIndex;
-        if (typeValue == "string") {
-            indexs = options.rowIndex.split("_");
+        if (typeValue == 'string') {
+            indexs = options.rowIndex.split('_');
         }
         let obj = newNodes;
-        if (typeof indexs == "number") {
+        if (typeof indexs == 'number') {
             obj = obj[indexs];
         }
         else {
@@ -1928,19 +1840,19 @@ const Treetable = (prop) => {
                     obj = obj[parseInt(indexs[idx])];
                 }
                 else {
-                    obj = obj["children"][parseInt(indexs[idx])];
+                    obj = obj['children'][parseInt(indexs[idx])];
                 }
             }
         }
-        obj["data"][options.field] = yield value;
+        obj['data'][options.field] = yield value;
         let finaljson = {};
         yield setNodes(newNodes);
-        finaljson["data"] = [obj];
+        finaljson['data'] = [obj];
         setUpdatedJson(finaljson);
         // makeJsonObject(nodes);
     });
-    const inputTextEditor = (options) => {
-        return (React.createElement(InputText, { type: "text", value: options.rowData[options.field], onChange: (e) => onEditorValueChange(options, e.target.value) }));
+    const inputTextEditor = options => {
+        return React.createElement(InputText, { type: "text", value: options.rowData[options.field], onChange: e => onEditorValueChange(options, e.target.value) });
     };
     const [editObject, setEditObject] = useState([]);
     const getActionBtn = (id, object) => {
@@ -1952,21 +1864,18 @@ const Treetable = (prop) => {
         let tmpRowAction = [];
         if (actionArr) {
             for (let i = 0; i < actionArr.length; i++) {
-                if (actionArr[i]["type"] == "Action") {
+                if (actionArr[i]['type'] == 'Action') {
                     let actinObj = actionArr[i].actionJson;
                     if (actinObj) {
                         for (let j = 0; j < actinObj.length; j++) {
                             let item = {
-                                className: actinObj[j]["className"] != null &&
-                                    actinObj[j]["className"] != ""
-                                    ? actinObj[j]["className"]
-                                    : "icon",
-                                label: (React.createElement(Translate$2, { contentKey: actinObj[j]["label"] })),
-                                icon: actinObj[j]["icon"],
-                                id: actinObj[j]["id"],
-                                visible: actinObj[j]["visible"],
+                                className: actinObj[j]['className'] != null && actinObj[j]['className'] != '' ? actinObj[j]['className'] : 'icon',
+                                label: React.createElement(Translate$2, { contentKey: actinObj[j]['label'] }),
+                                icon: actinObj[j]['icon'],
+                                id: actinObj[j]['id'],
+                                visible: actinObj[j]['visible'],
                                 command: () => {
-                                    actinObj[j]["id"] == "Delete"
+                                    actinObj[j]['id'] == 'Delete'
                                         ? deleteConfirmOnAction(actionId, true, editObject)
                                         : eval(prop[actinObj[j].command](actionId, gridId, actinObj[j].askReason, editObject));
                                 },
@@ -1976,14 +1885,14 @@ const Treetable = (prop) => {
                         setitemsAction(tmpRowAction);
                     }
                 }
-                if (actionArr[i]["type"] == "Button") {
+                if (actionArr[i]['type'] == 'Button') {
                     let butonObj = actionArr[i].actionJson;
                     setButtonAction(butonObj);
                 }
             }
         }
     };
-    const typeEditor = (options) => {
+    const typeEditor = options => {
         return inputTextEditor(options);
     };
     useEffect(() => {
@@ -1996,17 +1905,15 @@ const Treetable = (prop) => {
     }, [actionId]);
     const defaultChecked = (fieldName, data1) => {
         let flag;
-        flag = typeof data1.data[fieldName]
-            ? typeof data1.data[fieldName]
-            : undefined;
+        flag = typeof data1.data[fieldName] ? typeof data1.data[fieldName] : undefined;
         if (flag != undefined) {
-            if (flag == "boolean") {
+            if (flag == 'boolean') {
                 return data1.data[fieldName];
             }
-            else if (flag == "string" || flag == "number") {
+            else if (flag == 'string' || flag == 'number') {
                 let returnValue;
-                if (flag == "string") {
-                    returnValue = data1.data[fieldName] == "Yes" ? true : false;
+                if (flag == 'string') {
+                    returnValue = data1.data[fieldName] == 'Yes' ? true : false;
                 }
                 return returnValue;
             }
@@ -2034,37 +1941,28 @@ const Treetable = (prop) => {
     };
     const [selectedCategory, setSelectedCategory] = useState();
     const [selectCheckboxRc, setSelectCheckboxRc] = useState([]);
-    const onSelectCheckBox = (e, obj, fieldName) => {
-        console.log("e, obj, fieldName", e, obj, fieldName);
+    const onSelectCheckBox = (e, fieldName, obj) => {
+        obj.data[fieldName] = e.target.checked;
         let selectedItemsArray = selectCheckboxRc != undefined ? [...selectCheckboxRc] : [];
-        const checked = e.checked;
-        if (obj[fieldName] != undefined) {
-            obj[fieldName] == e.checked;
-            if (e.checked) {
-                if (selectedItemsArray.length == 0) {
-                    selectedItemsArray.push(obj);
-                }
-                else {
-                    selectedItemsArray.push(obj);
-                    // for (let i = 0; i < selectedItemsArray.length; i++) {
-                    //   if (obj.id != selectedItemsArray[i].id || selectedItemsArray.legth == 0) {
-                    //   }
-                    // }
-                }
+        const checked = e.target.checked;
+        // prop.selectCheckbox(checked, e.value, gridId);
+        if (e.checked) {
+            if (selectedItemsArray.length == 0) {
+                selectedItemsArray.push(obj);
             }
             else {
-                selectedItemsArray.splice(selectedItemsArray.indexOf(obj), 1);
+                for (let i = 0; i < selectCheckboxRc.length; i++) {
+                    if (obj.id != selectCheckboxRc[i].id || selectCheckboxRc.legth == 0) {
+                        selectedItemsArray.push(obj);
+                    }
+                }
             }
         }
-        else {
-            checked == true
-                ? selectedItemsArray.push(obj)
-                : selectedItemsArray.splice(selectedItemsArray.indexOf(obj), 1);
-        }
+        else
+            selectedItemsArray.splice(selectedItemsArray.indexOf(obj), 1);
         setSelectCheckboxRc(selectedItemsArray);
         setReasonIdDelete(obj);
-        //  prop.selectCheckbox(checked, obj, selectedItemsArray);
-        prop.selectCheckbox(checked, obj, selectedItemsArray, fieldName);
+        prop.selectCheckbox(checked, obj, selectedItemsArray);
     };
     /* pagination code */
     const [totalRecords, setTotalRecords] = useState(prop.totalRecords);
@@ -2073,86 +1971,133 @@ const Treetable = (prop) => {
         setTotalRecords(prop.totalRecords);
     }, [prop.totalRecords]);
     useEffect(() => {
-        setlazyState(lazyState);
-    }, [lazyState]);
-    const paginatorTemplate = {
-        layout: "RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport ",
-        RowsPerPageDropdown: (options) => {
-            const dropdownOptions = [
-                { label: 5, value: 5 },
-                { label: 10, value: 10 },
-                { label: 20, value: 20 },
-                { label: 50, value: 50 },
-                { label: 100, value: 100 },
-                { label: 200, value: 200 },
-                { label: 500, value: 500 },
-            ];
-            return (React.createElement(React.Fragment, null,
-                React.createElement(Dropdown, { value: options.value, scrollHeight: "270px", options: dropdownOptions, onChange: options.onChange })));
-        },
-        CurrentPageReport: (options) => {
-            return (React.createElement("span", { className: "", style: {
-                    color: "var(--text-color)",
-                    fontSize: "14px",
-                    userSelect: "none",
-                    marginLeft: "auto",
-                    textAlign: "center",
-                } },
-                options.first,
-                " - ",
-                options.last,
-                " of ",
-                options.totalRecords));
-        },
+        setlazyState(prop.pagination);
+    }, [prop.pagination]);
+    const onReset = () => __awaiter(void 0, void 0, void 0, function* () {
+        let id;
+        setModal(false);
+        if (language === 'en')
+            id = 1;
+        else if (language === 'hi')
+            id = 2;
+        else
+            id = 3;
+        yield axios.get(`api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
+        dispatch(getColumns({
+            gridId: gridId,
+            id: id,
+            menuItemId: menuItemId,
+        })).then((res) => __awaiter(void 0, void 0, void 0, function* () {
+            setColumn(res.payload.data.data);
+            const pageData = {
+                first: lazyState.first,
+                rows: parseInt(res.payload.data.data[0].gridPageSize),
+                page: lazyState.page,
+                sortField: lazyState.sortField,
+                sortOrder: lazyState.sortOrder,
+            };
+            setlazyState(pageData);
+            setfilter(res.payload.data.data[0].filterEnable);
+            yield prepareRowAction(res.payload.data.data);
+            yield prop.onPageChange(pageData);
+            setData(prop.data);
+        }));
+    });
+    const [expandedKeys, setExpandedKeys] = useState(null);
+    const [metaKey, setMetaKey] = useState(false);
+    const toggleApplications = () => {
+        let _expandedKeys = Object.assign({}, expandedKeys);
+        if (metaKey === true) {
+            setExpandedKeys({});
+        }
+        else {
+            for (let node of nodes) {
+                expandNode(node, _expandedKeys);
+            }
+            setExpandedKeys(_expandedKeys);
+        }
+    };
+    const expandNode = (node, _expandedKeys) => {
+        if (node.children && node.children.length) {
+            _expandedKeys[node.key] = true;
+            for (let child of node.children) {
+                expandNode(child, _expandedKeys);
+            }
+        }
+    };
+    const onToggle = event => {
+        // Update the expandedKeys state when a node is expanded/collapsed
+        setExpandedKeys(event.value);
+    };
+    const exportClose = () => {
+        setModalExport(!modalExport);
     };
     return (React.createElement("div", null,
-        ifHideHeader && (React.createElement("div", { className: "d-flex justify-content-between flex-wrap align-items-center  " },
+        ifHideHeader && (React.createElement("div", { className: "d-flex justify-content-between align-items-center  " },
             React.createElement("div", { className: "d-flex globlFilter" },
                 React.createElement("span", { className: "p-input-icon-left" },
                     React.createElement("i", { className: "pi pi-search" }),
-                    React.createElement(InputText, { value: globalFilterValue, onChange: (e) => onGlobalFilterChange(e), placeholder: "Keyword Search" }))),
+                    React.createElement(InputText, { value: globalFilterValue, onChange: e => onGlobalFilterChange(e), placeholder: "Keyword Search" }))),
             React.createElement("div", { className: "d-flex flex-wrap" },
-                ifShowHeader && (React.createElement(Button$1, { onClick: () => edit(""), className: "btn btn-primary btnStyle", "data-cy": "entityCreateButton" },
+                ifShowHeader && (React.createElement(Button$1, { onClick: () => edit(''), className: "btn btn-primary btnStyle", "data-cy": "entityCreateButton" },
                     React.createElement(FontAwesomeIcon, { icon: "plus" }),
                     "Add")),
+                prop.toggleShow === true && (React.createElement(InputSwitch, { className: "d-flex justify-content-center m-r-15 statusFilter", inputId: "input-metakey", style: { height: 23, marginTop: 5 }, checked: metaKey, 
+                    // onChange={(e) => setMetaKey(e.value)}
+                    onChange: e => {
+                        toggleApplications(), setMetaKey(e.value);
+                    } })),
+                metaKey === false && prop.toggleShow === true && (React.createElement("label", { htmlFor: "input-metakey", style: { marginTop: 6 } },
+                    React.createElement(Translate$2, { contentKey: "label.expandAll" }))),
+                metaKey === true && prop.toggleShow === true && (React.createElement("label", { htmlFor: "input-metakey", style: { marginTop: 6 } },
+                    React.createElement(Translate$2, { contentKey: "label.collapsAll" }))),
                 prop.statusFilter === true && (React.createElement("span", { className: "d-flex justify-content-center m-r-15 statusFilter" },
-                    React.createElement("span", { style: { marginLeft: "10px" }, className: "d-flex align-items-center" },
-                        React.createElement(RadioButton, { inputId: gridId + "gridActive", name: "filter", value: "Active", onChange: (e) => redioFilterSelection(e.value), checked: redioFilter === "Active" }),
-                        React.createElement("label", { htmlFor: gridId + "gridActive", style: { marginBottom: 0 } }, labelbtnFlag.activeradio
-                            ? labelbtnFlag.activeradio
-                            : "Active")),
-                    React.createElement("span", { style: { marginLeft: "10px" }, className: "d-flex align-items-center" },
-                        React.createElement(RadioButton, { inputId: gridId + "gridInactive", name: "filter", value: "Inactive", onChange: (e) => redioFilterSelection(e.value), checked: redioFilter === "Inactive" }),
-                        React.createElement("label", { htmlFor: gridId + "gridInactive", style: { marginBottom: 0 } }, labelbtnFlag.inactiveradio
-                            ? labelbtnFlag.inactiveradio
-                            : "Inactive")),
-                    React.createElement("span", { style: { marginLeft: "10px" }, className: "d-flex align-items-center" },
-                        React.createElement(RadioButton, { inputId: gridId + "All", name: "filter", value: "All", onChange: (e) => redioFilterSelection(e.value), checked: redioFilter === "All" }),
-                        React.createElement("label", { htmlFor: gridId + "All", style: { marginBottom: 0 } }, labelbtnFlag.allradio ? labelbtnFlag.allradio : "All")))),
+                    React.createElement("span", { style: { marginLeft: '10px' }, className: "d-flex align-items-center" },
+                        React.createElement(RadioButton, { inputId: gridId + 'gridActive', name: "filter", value: "Active", onChange: e => redioFilterSelection(e.value), checked: redioFilter === 'Active' }),
+                        React.createElement("label", { htmlFor: gridId + 'gridActive', style: { marginBottom: 0 } }, labelbtnFlag.activeradio ? labelbtnFlag.activeradio : 'Active')),
+                    React.createElement("span", { style: { marginLeft: '10px' }, className: "d-flex align-items-center" },
+                        React.createElement(RadioButton, { inputId: gridId + 'gridInactive', name: "filter", value: "Inactive", onChange: e => redioFilterSelection(e.value), checked: redioFilter === 'Inactive' }),
+                        React.createElement("label", { htmlFor: gridId + 'gridInactive', style: { marginBottom: 0 } }, labelbtnFlag.inactiveradio ? labelbtnFlag.inactiveradio : 'Inactive')),
+                    React.createElement("span", { style: { marginLeft: '10px' }, className: "d-flex align-items-center" },
+                        React.createElement(RadioButton, { inputId: gridId + 'All', name: "filter", value: "All", onChange: e => redioFilterSelection(e.value), checked: redioFilter === 'All' }),
+                        React.createElement("label", { htmlFor: gridId + 'All', style: { marginBottom: 0 } }, labelbtnFlag.allradio ? labelbtnFlag.allradio : 'All')))),
                 React.createElement(Button$1, { color: "secondary", className: "iconBtn", onClick: () => {
                         setModal(!modal);
                     } },
                     React.createElement(FontAwesomeIcon, { icon: "cogs" })),
-                React.createElement(SplitButton, { tooltip: "Export", tooltipOptions: { position: "top" }, label: labelbtnFlag.export ? labelbtnFlag.export : "Export", className: "tableExportMenu", model: items })))),
-        modal && (React.createElement(Setting$1, { show: modal, onClose: closeSettingModal, gridId: gridId, gridData: apiGridData, filter: filter, columns: column, onSetting: settingChanges })),
-        modalExport && (React.createElement(ExportSetting, { show: modalExport, columns: column, onSetting: settingChangesExport })),
+                React.createElement("button", { className: "btn btn-outline-secondary dropdown-toggle", type: "button", "data-bs-toggle": "dropdown", "aria-expanded": "false", style: { border: 'none', background: 'white', boxShadow: 'none', color: '#1565c0' } }, labelbtnFlag.export ? labelbtnFlag.export : 'Export'),
+                React.createElement("ul", { className: "dropdown-menu", style: {} },
+                    React.createElement("li", null,
+                        ' ',
+                        React.createElement("a", { className: "dropdown-item", onClick: () => toggle('EXCEL') },
+                            React.createElement("i", { className: "fa-solid fa-file-excel", style: { color: '#1c6c42' } }),
+                            " Excel")),
+                    React.createElement("li", null,
+                        ' ',
+                        React.createElement("a", { className: "dropdown-item", onClick: () => toggle('PDF') },
+                            React.createElement("i", { className: "fa-solid fa-file-pdf", style: { color: '#f72015' } }),
+                            " PDF")))))),
+        modal && (React.createElement(Setting$1, { show: modal, gridId: gridId, gridData: apiGridData, filter: filter, columns: column, menuItemId: menuItemId, onClose: closeSettingModal, onSetting: settingChanges, onReset: onReset })),
+        modalExport && React.createElement(ExportSetting, { show: modalExport, columns: column, onSetting: settingChangesExport, onClose: exportClose }),
         React.createElement("div", { className: "dataTable" },
             React.createElement(React.Fragment, null,
                 prop.data && prop.data.length > 0 ? (React.createElement(React.Fragment, null,
                     React.createElement(TreeTable, { ref: dt, sortMode: "multiple", value: nodes, filters: filters, 
                         // header={header}
-                        rows: 5, id: "table", selectionMode: "single", selectionKeys: selectedProduct, onSelectionChange: (e) => getSubDocType(e.value), onExpand: onNodeExpand, 
+                        rows: 5, id: "table", selectionMode: "single", selectionKeys: selectedProduct, onSelectionChange: e => getSubDocType(e.value), onExpand: onNodeExpand, expandedKeys: expandedKeys, 
+                        // onToggle={(e) => setExpandedKeys(e.value)}
+                        onToggle: onToggle, 
                         // onToggle={e => setParentId2(e.value)}
-                        tableStyle: { minWidth: "50rem" } },
-                        React.createElement(Column, { style: { width: "30px" }, expander: true }),
+                        tableStyle: { minWidth: '50rem' }, paginator: true, rows: defaultPageSize, rowsPerPageOptions: perPage },
+                        React.createElement(Column, { expander: true, style: { marginRight: '50px' } }),
                         column.map((e, i) => {
                             if (e.visible) {
-                                if (e.type === "Radio") {
-                                    return (React.createElement(Column, { header: e.header, body: (data2) => (React.createElement(React.Fragment, null,
-                                            React.createElement(RadioButton, { inputId: data2, name: data2.id, value: selectedCategory, onChange: (e) => setSelectedCategory(data2), checked: selectedCategory === data2 }))) }));
+                                if (e.type === 'Radio') {
+                                    return (React.createElement(Column, { header: e.header, body: data2 => (React.createElement(React.Fragment, null,
+                                            React.createElement(RadioButton, { inputId: data2, name: data2.id, value: selectedCategory, onChange: e => setSelectedCategory(data2), checked: selectedCategory === data2 }))) }));
                                 }
-                                if (e.type === "CheckBox") {
-                                    return (React.createElement(Column, { key: i, header: e.header, body: (data) => (React.createElement(Checkbox, { key: Math.random(), name: data.id, value: e.field, onChange: (x) => {
+                                if (e.type === 'CheckBox') {
+                                    return (React.createElement(Column, { key: i, header: e.header, body: data => (React.createElement(Checkbox, { key: Math.random(), name: data.id, value: e.field, onChange: x => {
                                                 onSelectCheckBox(x, e.field, data);
                                             }, checked: defaultChecked(e.field, data) })
                                         // <input
@@ -2166,36 +2111,32 @@ const Treetable = (prop) => {
                                         // />
                                         ) }));
                                 }
-                                if (e.type === "Action") {
-                                    return (React.createElement(Column, { header: e.header, body: (data2) => (React.createElement(React.Fragment, null,
+                                if (e.type === 'Action') {
+                                    return (React.createElement(Column, { style: { width: '100px' }, header: e.header, body: data2 => (React.createElement(React.Fragment, null,
                                             React.createElement(SplitButton, { icon: "fa-solid fa-bars", className: "tableActionMenu", model: itemsAction, 
                                                 //model= {!data2.isLastNode && itemsAction.id === 'Add' ? data2.isLastNode : itemsAction}
                                                 onFocus: () => getActionBtn(data2.data.id, data2.data) }))) }));
                                     //  <Column header="Field Name" body={rowData => <span>Hello</span>} />;
                                 }
-                                if (e.type === "Button") {
-                                    return (React.createElement(Column, { header: e.header, body: (data2) => (React.createElement(React.Fragment, null, buttonAction.map((button) => (React.createElement(React.Fragment, null, button.visible == true && (React.createElement(Button$1, { tooltip: button.label, tooltipOptions: { position: "top" }, className: button.className + " gridIcon", onClick: () => button["id"] == "Delete"
-                                                ? deleteConfirmOnAction(data2.id, button["askReason"], editObject)
+                                if (e.type === 'Button') {
+                                    return (React.createElement(Column, { header: e.header, body: data2 => (React.createElement(React.Fragment, null, buttonAction.map(button => (React.createElement(React.Fragment, null, button.visible == true && (React.createElement(Button$1, { tooltip: button.label, tooltipOptions: { position: 'top' }, className: button.className + ' gridIcon', onClick: () => button['id'] == 'Delete'
+                                                ? deleteConfirmOnAction(data2.id, button['askReason'], editObject)
                                                 : eval(prop[buttonAction[0].command](data2.id, gridId, true, editObject)) },
                                             React.createElement("i", { className: button.icon })))))))) }));
                                 }
                                 if (e.editable == true) {
-                                    return (React.createElement(Column, { key: i, field: e.field, header: e.header, editor: typeEditor, expander: e.expander, sortable: true }));
+                                    return (React.createElement(Column, { key: i, field: e.field, header: e.header, style: { width: e.width }, editor: typeEditor, expander: e.expander, sortable: true }));
                                 }
                                 else {
-                                    return (React.createElement(Column, { key: i, field: e.field, header: e.header, expander: e.expander, sortable: true }));
+                                    return React.createElement(Column, { key: i, field: e.field, header: e.header, style: { width: e.width }, expander: e.expander, sortable: true });
                                 }
                                 // return <Column key={i} field={e.field} header={e.header} editor={typeEditor} expander={e.expander} sortable />;
                             }
                             else
                                 return null;
-                        })),
-                    React.createElement(Paginator, { template: paginatorTemplate, rows: lazyState === null || lazyState === void 0 ? void 0 : lazyState.rows, first: lazyState === null || lazyState === void 0 ? void 0 : lazyState.first, onPageChange: (e) => {
-                            setlazyState(e);
-                            prop.onPageChange(e);
-                        }, pageLinkSize: 3, totalRecords: totalRecords, className: "justify-content-end" }))) : (React.createElement("div", { className: "alert alert-warning" },
+                        })))) : (React.createElement("div", { className: "alert alert-warning" },
                     React.createElement(Translate$2, { contentKey: "home.notFound" }, "No records found"))),
-                reasonFlag && (React.createElement(AskReason, { data: reasonIdDelete, action: "delete", visible: reasonFlag, saveWithReason: accept, onClose: handleCloseForReason }))),
+                reasonFlag && (React.createElement(AskReason$1, { data: reasonIdDelete, action: "delete", visible: reasonFlag, saveWithReason: accept, onClose: handleCloseForReason }))),
             prop.flag && (React.createElement("div", { className: "p-dialog-footer" },
                 React.createElement(Button$1, { color: "primary", id: "save-entity", onClick: save, className: "btnStyle", "data-cy": "entityCreateSaveButton", type: "submit" },
                     React.createElement(FontAwesomeIcon, { icon: "save" }),
@@ -2315,6 +2256,113 @@ var index = /*#__PURE__*/Object.freeze({
   getDateAndTimeFormate: getDateAndTimeFormate,
   getDateFormat: getDateFormat
 });
+
+// const dataSC1: any = JSON.parse(sessionStorage.getItem('LanguageData'));
+// const dataSc = dataSC1 ? dataSC1.translations[2].validations.validateDetails : '';
+sessionStorage.getItem("Language");
+// let screenDataSc1 = JSON.parse(sessionStorage.getItem('LanguageData'));
+sessionStorage.getItem("LanguageData")
+    ? JSON.parse(sessionStorage.getItem("LanguageData"))["translations"]
+    : "";
+function screenConfigration(menuItemId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // setLanguageAPIData(getDataSC.data.languageDetails);
+        const getDataSC = yield axios.get(`/api/screen-configurations/getAllScreenConfigurationsAndScreenControlValidations/${menuItemId}/${sessionStorage.getItem("lastSyncTime")
+            ? sessionStorage.getItem("lastSyncTime")
+            : 0}`);
+        sessionStorage.setItem("lastSyncTime", getDataSC.data.lastSyncTime);
+        sessionStorage.setItem("LanguageData", JSON.stringify(getDataSC.data));
+    });
+}
+function setMsgLangKeyInSessionStorage(key) {
+    sessionStorage.setItem("msgLangKey", key);
+}
+function getDisplay(field) {
+    let language = sessionStorage.getItem("Language");
+    let screenDataSc1 = sessionStorage.getItem("LanguageData")
+        ? JSON.parse(sessionStorage.getItem("LanguageData"))["translations"]
+        : "";
+    const lngobj = screenDataSc1[language];
+    const obj = lngobj[field];
+    return Boolean(obj.display);
+}
+function getControlValidationObj(field) {
+    let language = sessionStorage.getItem("Language");
+    let screenDataSc1 = sessionStorage.getItem("LanguageData")
+        ? JSON.parse(sessionStorage.getItem("LanguageData"))["translations"]
+        : "";
+    const lngobj = screenDataSc1[language];
+    const obj = lngobj[field];
+    const ruleObj = {};
+    if (obj.mandatory != null) {
+        ruleObj["required"] = {};
+        ruleObj["required"]["value"] = obj.mandatory;
+        if (obj.isRequiredMessage != null && obj.isRequiredMessage !== "") {
+            ruleObj["required"]["message"] = obj.isRequiredMessage;
+        }
+    }
+    if (obj.minvalue != null && obj.minvalue !== "") {
+        ruleObj["minLength"] = {};
+        ruleObj["minLength"]["value"] = Number(obj.minvalue);
+        //message = getErrorMessageForMinLength(screenDataSc, field);
+        // if (message != null && message != '') {
+        ruleObj["minLength"]["message"] = obj.minLengthMessage;
+        // }
+    }
+    // let maxLength: any = getMaxLength(screenDataSc, field);
+    if (obj.maxvalue != null && obj.maxvalue !== "") {
+        ruleObj["maxLength"] = {};
+        ruleObj["maxLength"]["value"] = obj.maxvalue;
+        ruleObj["maxLength"]["message"] = obj.maxLengthMessage;
+    }
+    // let pattern: any = getRegex(screenDataSc, field);
+    if (obj.validationRegex != null && obj.validationRegex !== "") {
+        ruleObj["pattern"] = {};
+        ruleObj["pattern"]["value"] = RegExp(obj.validationRegex);
+        //message = getErrorMessageForRegex(screenDataSc, field);
+        // if (message != null && message != '') {
+        ruleObj["pattern"]["message"] = obj.regexPatternMessage;
+        // }
+    }
+    return ruleObj;
+}
+function isFieldMandatory(field) {
+    let language = sessionStorage.getItem("Language");
+    let screenDataSc1 = sessionStorage.getItem("LanguageData")
+        ? JSON.parse(sessionStorage.getItem("LanguageData"))["translations"]
+        : "";
+    const lngobj = screenDataSc1[language];
+    const obj = lngobj[field];
+    if (obj.mandatory != null) {
+        return obj.mandatory;
+    }
+    else {
+        return false;
+    }
+}
+function checkReasonFlag(field) {
+    let language = sessionStorage.getItem("Language");
+    let screenDataSc1 = sessionStorage.getItem("LanguageData")
+        ? JSON.parse(sessionStorage.getItem("LanguageData"))["translations"]
+        : "";
+    const lngobj = screenDataSc1[language];
+    const obj = lngobj[field]["askForReason"];
+    return obj;
+}
+function checkStatus(statusCode) {
+    if (statusCode == 400 || statusCode == 412 || statusCode == 500) {
+        return false;
+    }
+    else {
+        return true;
+    }
+}
+function breadCrumbsFlag() {
+    const configurationUrl = 'services/gateway/api/getSystemConfigurationByName/breadCrumbs_flag';
+    axios.get(configurationUrl).then((res) => {
+        sessionStorage.setItem('breadCrumbsFlag', res.data.configurationValue);
+    });
+}
 
 export { AskReason, index as DateFormat, ExportSetting, LoadingSpinner, Setting, Table, Translate, Treetable, breadCrumbsFlag, checkReasonFlag, checkStatus, convertDateObjToDateString, convertDateStringToDateObj, getCalendarDateFormat, getControlValidationObj, getDateAndTimeFormate, getDateFormat, getDisplay, isFieldMandatory, screenConfigration, setMsgLangKeyInSessionStorage };
 //# sourceMappingURL=index.js.map

@@ -939,7 +939,7 @@ export const Table = prop => {
                   }
                 })}
             </DataTable>
-            <Paginator
+            {/* <Paginator
               template={paginatorTemplate}
               rows={lazyState.rows}
               first={lazyState.first}
@@ -950,7 +950,7 @@ export const Table = prop => {
               pageLinkSize={3}
               totalRecords={totalRecords}
               className="justify-content-end"
-            />
+            /> */}
           </>
 
           {reasonFlag && (
