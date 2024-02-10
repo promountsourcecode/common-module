@@ -684,7 +684,7 @@ export const Table = prop => {
 
   return (
     <div>
-      <div className="d-flex justify-content-between align-items-center">
+      <div className="d-flex justify-content-between align-items-center flex-wrap">
         {
           <div className="d-flex globlFilter">
             {filter && (

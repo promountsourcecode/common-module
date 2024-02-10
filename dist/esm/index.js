@@ -1372,7 +1372,7 @@ const Table = prop => {
         setModalExport(false);
     };
     return (React.createElement("div", null,
-        React.createElement("div", { className: "d-flex justify-content-between align-items-center" },
+        React.createElement("div", { className: "d-flex justify-content-between align-items-center flex-wrap" },
             React.createElement("div", { className: "d-flex globlFilter" }, filter && (React.createElement("span", { className: "p-input-icon-left" },
                 React.createElement("i", { className: "pi pi-search" }),
                 React.createElement(InputText, { value: globalFilterValue, onChange: e => onGlobalFilterChange(e) })))),
@@ -2033,7 +2033,7 @@ const Treetable = prop => {
         setModalExport(!modalExport);
     };
     return (React.createElement("div", null,
-        ifHideHeader && (React.createElement("div", { className: "d-flex justify-content-between align-items-center  " },
+        ifHideHeader && (React.createElement("div", { className: "d-flex justify-content-between align-items-center flex-wrap" },
             React.createElement("div", { className: "d-flex globlFilter" },
                 React.createElement("span", { className: "p-input-icon-left" },
                     React.createElement("i", { className: "pi pi-search" }),

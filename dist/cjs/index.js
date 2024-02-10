@@ -1402,7 +1402,7 @@ const Table = prop => {
         setModalExport(false);
     };
     return (React__default["default"].createElement("div", null,
-        React__default["default"].createElement("div", { className: "d-flex justify-content-between align-items-center" },
+        React__default["default"].createElement("div", { className: "d-flex justify-content-between align-items-center flex-wrap" },
             React__default["default"].createElement("div", { className: "d-flex globlFilter" }, filter && (React__default["default"].createElement("span", { className: "p-input-icon-left" },
                 React__default["default"].createElement("i", { className: "pi pi-search" }),
                 React__default["default"].createElement(inputtext.InputText, { value: globalFilterValue, onChange: e => onGlobalFilterChange(e) })))),
@@ -2063,7 +2063,7 @@ const Treetable = prop => {
         setModalExport(!modalExport);
     };
     return (React__default["default"].createElement("div", null,
-        ifHideHeader && (React__default["default"].createElement("div", { className: "d-flex justify-content-between align-items-center  " },
+        ifHideHeader && (React__default["default"].createElement("div", { className: "d-flex justify-content-between align-items-center flex-wrap" },
             React__default["default"].createElement("div", { className: "d-flex globlFilter" },
                 React__default["default"].createElement("span", { className: "p-input-icon-left" },
                     React__default["default"].createElement("i", { className: "pi pi-search" }),

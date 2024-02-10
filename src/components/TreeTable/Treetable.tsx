@@ -739,7 +739,7 @@ export const Treetable = prop => {
   return (
     <div>
       {ifHideHeader && (
-        <div className="d-flex justify-content-between align-items-center  ">
+        <div className="d-flex justify-content-between align-items-center flex-wrap">
           {
             <div className="d-flex globlFilter">
               <span className="p-input-icon-left">
