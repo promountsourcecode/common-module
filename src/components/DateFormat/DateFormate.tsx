@@ -7,7 +7,7 @@ const VarFordisplayeDate = "DisplayDate";
 
 export const getDateFormat = () => {
   const dateSetFormate =
-    "services/gateway/api/getGlobalDateSystemConfigurations";
+    "services/coreweb/api/getGlobalDateSystemConfigurations";
   axios.get(dateSetFormate).then(async (res: any) => {
     for (let i = 0; i < res.data.length; i++) {
       if (

@@ -38,7 +38,7 @@ import { setMsgLangKeyInSessionStorage } from '@promountsourcecode/common_module
 import { OverlayPanel } from 'primereact/overlaypanel';
 import _ from 'lodash';
 import { boolean, object } from 'yup';
-import { getColumns } from 'app/entities/form/form.reducer';
+import  {getColumns}  from '../ValidationMethod';
 
 
 export const Table = prop => {
@@ -144,7 +144,7 @@ export const Table = prop => {
     if (language === 'en') id = 1;
     else if (language === 'hi') id = 2;
     else id = 3;
-    const gridData = await axios.get(`api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
+    const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
     (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
     const pageData = {
       first: lazyState.first,
@@ -476,7 +476,7 @@ export const Table = prop => {
     if (language === 'en') id = 1;
     else if (language === 'hi') id = 2;
     else id = 3;
-    var gridData = await axios.get(`api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
+    var gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
     dispatch(
       getColumns({
         gridId: gridId,
@@ -508,7 +508,7 @@ export const Table = prop => {
     else if (language === 'hi') id = 2;
     else id = 3;
 
-    const gridData = await axios.get(`api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
+    const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
     // (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
     setColumn(gridData.data.data);
     const pageData = {

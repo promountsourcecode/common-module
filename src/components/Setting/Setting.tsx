@@ -72,7 +72,7 @@ class Setting extends Component<ModalInputProps> {
       languageId: 1,
     };
 
-    data = await axios.put('api/grid-user-settings/saveUpdateData', entity);
+    data = await axios.put('services/coreweb/api/grid-user-settings/saveUpdateData', entity);
     const dataJson = JSON.parse(data.data.gridSettingDetailText);
 
     // if(dataJson.length == 0 ){
@@ -131,7 +131,7 @@ class Setting extends Component<ModalInputProps> {
     else if (this.state.language === 'hi') id = 2;
     else id = 3;
     const reset = await axios.delete(
-      `/api/grid-user-settings/deleteByUserIdAndHierarchyIdAndGridIdAndMenuItemId?userMasterId=${1}&languageId=${id}&gridId=${
+      `/services/coreweb/api/grid-user-settings/deleteByUserIdAndHierarchyIdAndGridIdAndMenuItemId?userMasterId=${1}&languageId=${id}&gridId=${
         this.state.prop.gridId
       }`
     );
@@ -173,7 +173,7 @@ class Setting extends Component<ModalInputProps> {
       languageId: id,
     };
 
-    data1 = await axios.put('api/grid-user-settings/saveUpdateData', entity, {
+    data1 = await axios.put('services/coreweb/api/grid-user-settings/saveUpdateData', entity, {
       headers: { menuItemId: this.props.gridId },
     });
     const dataJson = JSON.parse(data1.data.gridSettingDetailText);

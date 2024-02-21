@@ -38,7 +38,7 @@ export const Translate = (prop) => {
       fetchData();
     } else {
       const getDataSC = await axios.get(
-        `/api/screen-configurations/getAllScreenConfigurationsAndScreenControlValidations/${menuItemId}/${
+        `/services/coreweb/api/screen-configurations/getAllScreenConfigurationsAndScreenControlValidations/${menuItemId}/${
           sessionStorage.getItem("lastSyncTime")
             ? sessionStorage.getItem("lastSyncTime")
             : 0

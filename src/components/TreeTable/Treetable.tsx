@@ -15,18 +15,15 @@ import ExportSetting from '../Export-Column';
 import axios from 'axios';
 import { InputText } from 'primereact/inputtext';
 import { TreeTable } from 'primereact/treetable';
-import { faCloudUpload, faDownload, faFileWord, faPenToSquare, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import { MenuItem } from 'primereact/menuitem';
 import { SplitButton } from 'primereact/splitbutton';
 import { Translate } from '@promountsourcecode/common_module';
 import { RadioButton } from 'primereact/radiobutton';
 import { Checkbox } from 'primereact/checkbox';
-import { createEntityHierarchy } from 'app/entities/dms-document-type/dms-document-type.reducer';
 import { AskReason } from '@promountsourcecode/common_module';
 import { setMsgLangKeyInSessionStorage } from '@promountsourcecode/common_module';
-import { Paginator } from 'primereact/paginator';
 import { Dropdown } from 'primereact/dropdown';
-import { getColumns } from 'app/entities/form/form.reducer';
+import { getColumns } from '../ValidationMethod';
 import { Setting } from '@promountsourcecode/common_module';
 import { InputSwitch } from 'primereact/inputswitch';
 
@@ -66,7 +63,7 @@ export const Treetable = prop => {
     else if (language === 'hi') id = 2;
     else id = 3;
     // const menuItemId = gridId;
-    const gridData = await axios.get(`api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
+    const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
     await setColumn(gridData.data.data.length > 0 ? gridData.data.data : prop.column);
     await prepareRowAction(gridData.data.data);
   };
@@ -665,7 +662,7 @@ export const Treetable = prop => {
     if (language === 'en') id = 1;
     else if (language === 'hi') id = 2;
     else id = 3;
-    var gridData = await axios.get(`api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
+    var gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
     dispatch(
       getColumns({
         gridId: gridId,

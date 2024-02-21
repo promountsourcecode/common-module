@@ -12,7 +12,7 @@ let screenDataSc1 = sessionStorage.getItem("LanguageData")
 export async function screenConfigration(menuItemId) {
   // setLanguageAPIData(getDataSC.data.languageDetails);
   const getDataSC = await axios.get(
-    `/api/screen-configurations/getAllScreenConfigurationsAndScreenControlValidations/${menuItemId}/${
+    `/services/coreweb/api/screen-configurations/getAllScreenConfigurationsAndScreenControlValidations/${menuItemId}/${
       sessionStorage.getItem("lastSyncTime")
         ? sessionStorage.getItem("lastSyncTime")
         : 0
@@ -122,8 +122,18 @@ export function checkStatus(statusCode: Number) {
 }
 
 export function breadCrumbsFlag() {
-  const configurationUrl = 'services/gateway/api/getSystemConfigurationByName/breadCrumbs_flag';
+  const configurationUrl = 'services/coreweb/api/getSystemConfigurationByName/breadCrumbs_flag';
   axios.get(configurationUrl).then((res: any) => {
     sessionStorage.setItem('breadCrumbsFlag', res.data.configurationValue);
   });
+}
+
+
+export const getColumns = async ({ gridId, id, menuItemId, name }: any) => {
+  const apiUrlColoumns= "services/coreweb/api/grid-user-settings";
+  // const requestUrl = `${apiUrl}${
+  //   sort ? `?page=${page}&size=${size}&sort=${sort}&name=${name}&status=${status}&` : '?'
+  // }cacheBuster=${new Date().getTime()}`;
+  const requestUrl = `${apiUrlColoumns}/${gridId}/${id}/${menuItemId}/${1}`;
+  return axios.get<any[]>(requestUrl);
 }
