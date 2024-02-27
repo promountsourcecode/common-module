@@ -19,3 +19,5 @@ export { getDateAndTimeFormate } from "./DateFormat";
 export { getDateFormat } from "./DateFormat";
 export { checkStatus } from "./ValidationMethod";
 export { breadCrumbsFlag } from "./ValidationMethod";
+export { CORE_BASE_URL } from "./constants/apiConstant";
+
