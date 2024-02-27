@@ -425,7 +425,7 @@ export const Table = prop => {
     const orientation = 'portrait';
     const doc = new jsPDF(orientation, unit, size);
     
-    doc.addFont("src/components/Table/ARIALUNI.TTF", "aakar", "normal");
+    doc.addFont("/content/fonts/ARIALUNI.TTF", "aakar", "normal");
     doc.setFont("aakar");
     const title = prop.title.concat(' Report');
     var data = newData.map(obj => headers.map(header => obj[header]));
