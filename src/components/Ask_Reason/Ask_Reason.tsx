@@ -153,28 +153,29 @@ export const AskReason = (prop) => {
                   />
                 </div>
               )}
-              <div className="p-dialog-footer ">
-                <Button
-                  label="Submit"
-                  id="askReason"
-                  type="submit"
-                  color={action == "delete" ? "danger" : "primary"}
-                  className="btnStyle"
-                  icon="pi pi-check"
-                >
-                  {action == "delete" ? (
-                    <FontAwesomeIcon icon="times" />
-                  ) : (
-                    <FontAwesomeIcon icon="save" />
-                  )}
-                  {action == "delete" ? (
-                    <Translate contentKey="delete"></Translate>
-                  ) : (
-                    <Translate contentKey="home.save"></Translate>
-                  )}
-                </Button>
-              </div>
+
             </div>
+          </div>
+          <div className="p-dialog-footer ">
+            <Button
+              label="Submit"
+              id="askReason"
+              type="submit"
+              color={action == "delete" ? "danger" : "primary"}
+              className="btnStyle"
+              icon="pi pi-check"
+            >
+              {action == "delete" ? (
+                <FontAwesomeIcon icon="times" />
+              ) : (
+                <FontAwesomeIcon icon="save" />
+              )}
+              {action == "delete" ? (
+                <Translate contentKey="delete"></Translate>
+              ) : (
+                <Translate contentKey="home.save"></Translate>
+              )}
+            </Button>
           </div>
         </form>
       </Dialog>
