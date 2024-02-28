@@ -161,7 +161,7 @@ export const AskReason = (prop) => {
               label="Submit"
               id="askReason"
               type="submit"
-              color={action == "delete" ? "danger" : "primary"}
+              color={action == "delete" ? "danger" : "success"}
               className="btnStyle"
               icon="pi pi-check"
             >
