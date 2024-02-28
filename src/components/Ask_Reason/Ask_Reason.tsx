@@ -153,15 +153,12 @@ export const AskReason = (prop) => {
                   />
                 </div>
               )}
-              
-            </div>
-          </div>
-          <div className="p-dialog-footer ">
+              <div className="p-dialog-footer ">
                 <Button
                   label="Submit"
                   id="askReason"
                   type="submit"
-                  color={action == "delete" ? "danger" : "success"}
+                  color={action == "delete" ? "danger" : "primary"}
                   className="btnStyle"
                   icon="pi pi-check"
                 >
@@ -177,6 +174,8 @@ export const AskReason = (prop) => {
                   )}
                 </Button>
               </div>
+            </div>
+          </div>
         </form>
       </Dialog>
     </>
