@@ -23,5 +23,7 @@ export { CORE_BASE_URL } from "./constants/apiConstant";
 export { GATEWAY_BASE_URL } from "./constants/apiConstant";
 export { QMS_BASE_URL } from "./constants/apiConstant";
 export { Itegration_service } from "./constants/apiConstant";
+export { BUSSINESS_PROCESS_SERVICE } from "./constants/apiConstant";
+
 
 
