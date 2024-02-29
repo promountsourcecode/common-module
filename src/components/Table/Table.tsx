@@ -32,7 +32,7 @@ import { MenuItem } from 'primereact/menuitem';
 // import { Translate } from 'app/shared/translation';
 import { RadioButton } from 'primereact/radiobutton';
 import { Checkbox } from 'primereact/checkbox';
-import { AskReason } from '@promountsourcecode/common_module';
+import { AskReason } from '../Ask_Reason/Ask_Reason';
 import { Dropdown } from 'primereact/dropdown';
 import { setMsgLangKeyInSessionStorage } from '@promountsourcecode/common_module';
 import { OverlayPanel } from 'primereact/overlaypanel';
