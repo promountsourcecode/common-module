@@ -51,7 +51,7 @@ export const Table = prop => {
   const [column, setColumn] = useState<any>();
   const [filterColumn, setFilterColumn] = useState([]);
   const [exportCol, setExportCol] = useState<any>([]);
-  const [filter, setfilter] = useState(prop.toggleFilter);
+  const [filter, setfilter] = useState(true);
   const [filters, setfilters] = useState(prop.filters);
   /* pagination code */
   const [totalRecords, setTotalRecords] = useState(prop.totalRecords);
@@ -145,7 +145,7 @@ export const Table = prop => {
     else if (language === 'hi') id = 2;
     else id = 3;
     
-    if(gridId != null || gridId !=undefined){
+  
       const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
       (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
       const pageData = {
@@ -159,7 +159,7 @@ export const Table = prop => {
       setfilter(gridData.data.data.length > 0 ? gridData.data.data[0].filterEnable : false);
   
       await prepareRowAction(gridData.data.data);
-    }
+  
     
   };
 
@@ -481,9 +481,9 @@ export const Table = prop => {
     else if (language === 'hi') id = 2;
     else id = 3;
 
-    if(gridId != null || gridId !=undefined){
+    
       var gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
-    }
+
 
     dispatch(
       getColumns({
@@ -516,7 +516,6 @@ export const Table = prop => {
     else if (language === 'hi') id = 2;
     else id = 3;
 
-    if(gridId != null || gridId !=undefined){
       const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
       // (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
       setColumn(gridData.data.data);
@@ -532,7 +531,7 @@ export const Table = prop => {
       await prepareRowAction(gridData.data.data);
       await setModal(false);
       setData(prop.data);
-    }
+    
 
     
   };
