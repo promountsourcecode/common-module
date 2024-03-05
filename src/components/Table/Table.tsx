@@ -144,19 +144,23 @@ export const Table = prop => {
     if (language === 'en') id = 1;
     else if (language === 'hi') id = 2;
     else id = 3;
-    const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
-    (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
-    const pageData = {
-      first: lazyState.first,
-      rows: gridData.data.data.length > 0 ? parseInt(gridData.data.data[0].gridPageSize) : 10,
-      page: lazyState.page,
-      sortField: lazyState.sortField,
-      sortOrder: lazyState.sortOrder,
-    };
-    setlazyState(pageData);
-    setfilter(gridData.data.data.length > 0 ? gridData.data.data[0].filterEnable : false);
-
-    await prepareRowAction(gridData.data.data);
+    
+    if(gridId != null || gridId !=undefined){
+      const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
+      (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
+      const pageData = {
+        first: lazyState.first,
+        rows: gridData.data.data.length > 0 ? parseInt(gridData.data.data[0].gridPageSize) : 10,
+        page: lazyState.page,
+        sortField: lazyState.sortField,
+        sortOrder: lazyState.sortOrder,
+      };
+      setlazyState(pageData);
+      setfilter(gridData.data.data.length > 0 ? gridData.data.data[0].filterEnable : false);
+  
+      await prepareRowAction(gridData.data.data);
+    }
+    
   };
 
   const arrForRow = sessionStorage.getItem('RowsPerPage');
@@ -476,7 +480,11 @@ export const Table = prop => {
     if (language === 'en') id = 1;
     else if (language === 'hi') id = 2;
     else id = 3;
-    var gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
+
+    if(gridId != null || gridId !=undefined){
+      var gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
+    }
+
     dispatch(
       getColumns({
         gridId: gridId,
@@ -508,21 +516,25 @@ export const Table = prop => {
     else if (language === 'hi') id = 2;
     else id = 3;
 
-    const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
-    // (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
-    setColumn(gridData.data.data);
-    const pageData = {
-      first: lazyState.first,
-      rows: await parseInt(gridData.data.data[0].gridPageSize),
-      page: lazyState.page,
-      sortField: lazyState.sortField,
-      sortOrder: lazyState.sortOrder,
-    };
-    setlazyState(pageData);
-    setfilter(gridData.data.data[0].filterEnable);
-    await prepareRowAction(gridData.data.data);
-    await setModal(false);
-    setData(prop.data);
+    if(gridId != null || gridId !=undefined){
+      const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
+      // (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
+      setColumn(gridData.data.data);
+      const pageData = {
+        first: lazyState.first,
+        rows: await parseInt(gridData.data.data[0].gridPageSize),
+        page: lazyState.page,
+        sortField: lazyState.sortField,
+        sortOrder: lazyState.sortOrder,
+      };
+      setlazyState(pageData);
+      setfilter(gridData.data.data[0].filterEnable);
+      await prepareRowAction(gridData.data.data);
+      await setModal(false);
+      setData(prop.data);
+    }
+
+    
   };
 
   const [reasonIdDelete, setReasonIdDelete] = useState<any>();
