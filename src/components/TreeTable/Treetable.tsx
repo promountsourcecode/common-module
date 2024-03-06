@@ -47,7 +47,7 @@ export const Treetable = prop => {
   const [ifShowHeader, setifShowHeader] = useState(false);
   const [ifHideHeader, setifHideHeader] = useState(true);
 
-  const [language, setlanguage] = useState(sessionStorage.getItem('Language'));
+  const [language, setlanguage] = useState(sessionStorage.getItem('LanguageId'));
   const [redioFilter, setRedioFilter] = useState(sessionStorage.getItem('FilterStatus'));
   const [configurableReason, setConfigurableReason] = useState<boolean>(prop.reasonAsk ? prop.reasonAsk : false);
   const menuItemId = sessionStorage.getItem('menuItemId');
@@ -59,11 +59,11 @@ export const Treetable = prop => {
   const finalObject = [];
   const getGridData = async () => {
     let id;
-    if (language === 'en') id = 1;
-    else if (language === 'hi') id = 2;
-    else id = 3;
+    // if (language === 'en') id = 1;
+    // else if (language === 'hi') id = 2;
+    // else id = 3;
     // const menuItemId = gridId;
-    const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
+    const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
     await setColumn(gridData.data.data.length > 0 ? gridData.data.data : prop.column);
     await prepareRowAction(gridData.data.data);
   };
@@ -649,10 +649,10 @@ export const Treetable = prop => {
   const onReset = async () => {
     let id;
     setModal(false);
-    if (language === 'en') id = 1;
-    else if (language === 'hi') id = 2;
-    else id = 3;
-    var gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
+    // if (language === 'en') id = 1;
+    // else if (language === 'hi') id = 2;
+    // else id = 3;
+    var gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
     dispatch(
       getColumns({
         gridId: gridId,

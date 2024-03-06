@@ -481,12 +481,14 @@ export const Table = prop => {
   const onReset = async () => {
     let id;
     setModal(false);
-    if (language === 'en') id = 1;
-    else if (language === 'hi') id = 2;
-    else id = 3;
+    // if (language === 'en') id = 1;
+    // else if (language === 'hi') id = 2;
+    // else id = 3;
 
-    
-      var gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
+    if(gridId != null || gridId != '' || gridId != undefined){
+      var gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
+
+    }
 
 
     dispatch(
@@ -516,12 +518,12 @@ export const Table = prop => {
 
   const closeSettingModal = async () => {
     let id;
-    if (language === 'en') id = 1;
-    else if (language === 'hi') id = 2;
-    else id = 3;
+    // if (language === 'en') id = 1;
+    // else if (language === 'hi') id = 2;
+    // else id = 3;
 
     if(gridId != null || gridId != '' || gridId != undefined){
-      const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
+      const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
       // (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
       setColumn(gridData.data.data);
       const pageData = {
