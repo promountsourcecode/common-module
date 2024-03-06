@@ -51,7 +51,7 @@ export const Table = prop => {
   const [column, setColumn] = useState<any>();
   const [filterColumn, setFilterColumn] = useState([]);
   const [exportCol, setExportCol] = useState<any>([]);
-  const [filter, setfilter] = useState(prop.toggleFilter);
+  const [filter, setfilter] = useState(true);
   const [filters, setfilters] = useState(prop.filters);
   /* pagination code */
   const [totalRecords, setTotalRecords] = useState(prop.totalRecords);
@@ -87,7 +87,7 @@ export const Table = prop => {
   const [editObject, setEditObject] = useState<any>([]);
   const [maxPageSize, setMaxPageSize] = useState(Number(sessionStorage.getItem('MaxPageSize')));
   const [defaultPageSize, setDefaultPageSize] = useState(Number(sessionStorage.getItem('DefaultPageSize')));
-
+  
   useEffect(() => {
     setlazyState(lazyState);
   }, [lazyState]);
@@ -144,35 +144,38 @@ export const Table = prop => {
     if (language === 'en') id = 1;
     else if (language === 'hi') id = 2;
     else id = 3;
-    const gridData = await axios.get(`api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
-    (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
-    const pageData = {
-      first: lazyState.first,
-      rows: gridData.data.data.length > 0 ? parseInt(gridData.data.data[0].gridPageSize) : 10,
-      page: lazyState.page,
-      sortField: lazyState.sortField,
-      sortOrder: lazyState.sortOrder,
-    };
-    setlazyState(pageData);
-    setfilter(gridData.data.data.length > 0 ? gridData.data.data[0].filterEnable : false);
+    
+    if(gridId != null || gridId != '' || gridId != undefined){
+      const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
+      (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
+      const pageData = {
+        first: lazyState.first,
+        rows: gridData.data.data.length > 0 ? parseInt(gridData.data.data[0].gridPageSize) : 10,
+        page: lazyState.page,
+        sortField: lazyState.sortField,
+        sortOrder: lazyState.sortOrder,
+      };
+      setlazyState(pageData);
+      setfilter(gridData.data.data.length > 0 ? gridData.data.data[0].filterEnable : false);
+  
+      await prepareRowAction(gridData.data.data);
+    }
 
-    await prepareRowAction(gridData.data.data);
+      
+  
+    
   };
 
   const arrForRow = sessionStorage.getItem('RowsPerPage');
   const [perPage, setPerPage] = useState([]);
   useEffect(() => {
     let arr = arrForRow.split(',').map(Number);
-    console.log('arrFor', arr);
-
     // for (let i = 0; i < arrForRow.length; i++) {
     //   arr.push(Number(arrForRow[i]));
     // }
 
     setPerPage(arr);
   }, [arrForRow]);
-
-
 
 
   useEffect(() => {
@@ -184,9 +187,6 @@ export const Table = prop => {
     setEditObject(editObject);
     prepareRowAction(column);
   }, [actionId, editObject]);
-
-
-
 
   useEffect(() => {
     setTotalRecords(prop.totalRecords);
@@ -319,11 +319,9 @@ export const Table = prop => {
     coulmnData.map(col => {
       if (col.visible) headers.push(col.field);
     });
-
     const newData = [];
     exportData.map(element => {
       const newObj = {};
-
       headers.forEach(name => {
         newObj[name] = element[name];
       });
@@ -332,17 +330,13 @@ export const Table = prop => {
     });
 
     const newDataExcel = [];
-    let headersExcel: any = [];
-    coulmnData.map(col => {
-      if (col.visible) headersExcel.push({ title: col.header, field: col.field });
-    });
-
     exportData.map(element => {
       const newObj = {};
-      headersExcel.forEach(name => {
-        newObj[name.title] = element[name.field]
-      })
+      headers.forEach(name => {
+        newObj[name.toUpperCase()] = element[name];
+      });
       newDataExcel.push(newObj);
+      newObj;
     });
 
     switch (exportType) {
@@ -382,6 +376,7 @@ export const Table = prop => {
   const convertToCSV = objArray => {
     const array = typeof objArray !== 'object' ? JSON.parse(objArray) : objArray;
     let str = '';
+
     for (let i = 0; i < array.length; i++) {
       let line = '';
       // eslint-disable-next-line guard-for-in
@@ -391,17 +386,24 @@ export const Table = prop => {
       }
       str += line + '\r\n';
     }
+
     return str;
   };
 
   const exportCSV = (newData, headers) => {
-    
+    // Convert Object to JSON
     const jsonObject = JSON.stringify(newData);
+
     const csv = convertToCSV(jsonObject);
+
     const exportedFilenmae = 'report' + '.csv' || 'export.csv';
+
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+
     const link = document.createElement('a');
     if (link.download !== undefined) {
+      // feature detection
+      // Browsers that support HTML5 download attribute
       const url = URL.createObjectURL(blob);
       link.setAttribute('href', url);
       link.setAttribute('download', exportedFilenmae);
@@ -414,35 +416,36 @@ export const Table = prop => {
 
   const exportPdf = async (newData, headers, coulmnData) => {
     var out: any = [];
+
     for (var i = 0; i < coulmnData.length; i++) {
       if (coulmnData[i].field === headers[i]) {
         out.push(coulmnData[i].header);
       }
     }
+   
     const input = document.getElementById('tablePdf');
     const unit = 'pt';
     const size = 'A4';
     const orientation = 'portrait';
     const doc = new jsPDF(orientation, unit, size);
-    
-    doc.addFont("/ARIALUNI.TTF", "aakar", "normal");
-    doc.setFont("aakar");
+
     const title = prop.title.concat(' Report');
     var data = newData.map(obj => headers.map(header => obj[header]));
     const content = {
       startY: 50,
       head: [out],
       body: data,
-      styles: {
-        font: 'aakar',
-      },
     };
+
     doc.text(title, 40, 40);
     autoTable(doc, content);
     doc.save(prop.title.concat(' Report.pdf'));
+
+    //html2pdf(input);
+
   };
 
-  const exportExcel = (newData) => {
+  const exportExcel = newData => {
     import('xlsx').then(xlsx => {
       const worksheet = xlsx.utils.json_to_sheet(newData);
       const workbook = { Sheets: { data: worksheet }, SheetNames: ['data'] };
@@ -478,7 +481,11 @@ export const Table = prop => {
     if (language === 'en') id = 1;
     else if (language === 'hi') id = 2;
     else id = 3;
-    var gridData = await axios.get(`api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
+
+    
+      var gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
+
+
     dispatch(
       getColumns({
         gridId: gridId,
@@ -510,21 +517,27 @@ export const Table = prop => {
     else if (language === 'hi') id = 2;
     else id = 3;
 
-    const gridData = await axios.get(`api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
-    // (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
-    setColumn(gridData.data.data);
-    const pageData = {
-      first: lazyState.first,
-      rows: await parseInt(gridData.data.data[0].gridPageSize),
-      page: lazyState.page,
-      sortField: lazyState.sortField,
-      sortOrder: lazyState.sortOrder,
-    };
-    setlazyState(pageData);
-    setfilter(gridData.data.data[0].filterEnable);
-    await prepareRowAction(gridData.data.data);
-    await setModal(false);
-    setData(prop.data);
+    if(gridId != null || gridId != '' || gridId != undefined){
+      const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
+      // (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
+      setColumn(gridData.data.data);
+      const pageData = {
+        first: lazyState.first,
+        rows: await parseInt(gridData.data.data[0].gridPageSize),
+        page: lazyState.page,
+        sortField: lazyState.sortField,
+        sortOrder: lazyState.sortOrder,
+      };
+      setlazyState(pageData);
+      setfilter(gridData.data.data[0].filterEnable);
+      await prepareRowAction(gridData.data.data);
+      await setModal(false);
+      setData(prop.data);
+    }
+      
+    
+
+    
   };
 
   const [reasonIdDelete, setReasonIdDelete] = useState<any>();
@@ -686,7 +699,7 @@ export const Table = prop => {
 
   return (
     <div>
-      <div className="d-flex justify-content-between align-items-center">
+      <div className="d-flex justify-content-between align-items-center flex-wrap">
         {
           <div className="d-flex globlFilter">
             {filter && (
@@ -784,7 +797,7 @@ export const Table = prop => {
             </li>
             <li>
               {' '}
-              <a  className="dropdown-item" onClick={() => toggle('PDF')}>
+              <a className="dropdown-item" onClick={() => toggle('PDF')}>
                 <i className="fa-solid fa-file-pdf" style={{ color: '#f72015' }}></i> PDF
               </a>
             </li>
