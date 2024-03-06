@@ -74,11 +74,6 @@ export const Translate = (prop) => {
     if (languageDataLocal == undefined) {
       navigate("/logout");
     }
-    console.log(
-      "props",
-      prop.contentKey,
-      languageDataLocal["translations"][selectLanguage][prop.contentKey]
-    );
     if (
       languageDataLocal["translations"][selectLanguage][prop.contentKey] !=
       undefined
@@ -92,12 +87,6 @@ export const Translate = (prop) => {
       languageDataLocal["translations"][selectLanguage][prop.contentKey]
     );
     // if (languageDataLocal['translations'][selectLanguage][prop.contentKey]['type'] != undefined) {
-    console.log(
-      "prop",
-      languageDataLocal["translations"][selectLanguage][prop.contentKey],
-      prop.contentKey
-    );
-
     const obj = languageDataLocal["translations"][selectLanguage][
       prop.contentKey
     ]["type"]

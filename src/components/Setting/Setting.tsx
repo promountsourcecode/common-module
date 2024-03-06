@@ -20,11 +20,11 @@ interface ModalInputProps {
   gridData: any;
   onClose: any;
   onReset: any;
-  menuItemId:any;
+  menuItemId: any;
 }
 
 class Setting extends Component<ModalInputProps> {
-  
+
   tableColumns: any;
 
   state = {
@@ -39,24 +39,22 @@ class Setting extends Component<ModalInputProps> {
       size: this.props?.columns[0]?.gridPageSize,
     },
   };
- 
+
 
   constructor(props) {
     super(props);
-    
+
     if (this.state.gridData.length === 0) {
       this.tableColumns = this.state.columns;
-      console.log('this.props?.columns[0]?.gridPageSize', this.state.selectedPageSize, this.state.filter);
     } else {
       this.tableColumns = this.state.gridData;
-      console.log('this.props?.columns[0]?.gridPageSize', this.state.selectedPageSize, this.state.filter);
     }
-  //  const [language, setlanguage] = useState(sessionStorage.getItem('Language'));
+    //  const [language, setlanguage] = useState(sessionStorage.getItem('Language'));
   }
-  
+
   async getcolumns() {
     let data: any = [];
-   
+
 
     this.props.columns.forEach(column => {
       column['gridPageSize'] = this.state.selectedPageSize.size;
@@ -94,8 +92,6 @@ class Setting extends Component<ModalInputProps> {
 
   //const coldata: any = [];
   async setSelectedPageSize(e) {
-    console.log('e', e);
-    
     this.setState({
       selectedPageSize: e,
     });
@@ -131,8 +127,7 @@ class Setting extends Component<ModalInputProps> {
     else if (this.state.language === 'hi') id = 2;
     else id = 3;
     const reset = await axios.delete(
-      `/services/coreweb/api/grid-user-settings/deleteByUserIdAndHierarchyIdAndGridIdAndMenuItemId?userMasterId=${1}&languageId=${id}&gridId=${
-        this.state.prop.gridId
+      `/services/coreweb/api/grid-user-settings/deleteByUserIdAndHierarchyIdAndGridIdAndMenuItemId?userMasterId=${1}&languageId=${id}&gridId=${this.state.prop.gridId
       }`
     );
   }
@@ -239,7 +234,7 @@ class Setting extends Component<ModalInputProps> {
               <div className="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-xs-12 ">
                 <div className="d-flex justify-content-end align-items-center">
                   <label className="form-label" style={{ marginRight: '10px' }}>
-                   <Translate contentKey="setting.pageSize"></Translate>
+                    <Translate contentKey="setting.pageSize"></Translate>
                   </label>
                   <Dropdown
                     value={this.state.selectedPageSize}
@@ -258,7 +253,7 @@ class Setting extends Component<ModalInputProps> {
                 onRowReorder={e => rowReorder(e)}
                 responsiveLayout="scroll"
                 rows={this.tableColumns.length}
-                scrollable 
+                scrollable
               >
                 {/* <Column header="ID" body={props => <div>{props.rowIndex}</div>}></Column> */}
                 <Column rowReorder style={{ width: '3rem' }} />

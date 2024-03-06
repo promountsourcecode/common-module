@@ -102,12 +102,6 @@ export const Treetable = prop => {
   const [perPage, setPerPage] = useState([]);
   useEffect(() => {
     let arr = arrForRow.split(',').map(Number);
-    console.log('arrFor', arr);
-
-    // for (let i = 0; i < arrForRow.length; i++) {
-    //   arr.push(Number(arrForRow[i]));
-    // }
-
     setPerPage(arr);
   }, [arrForRow]);
 
@@ -199,7 +193,6 @@ export const Treetable = prop => {
       if (col.visible) headers.push(col.field);
     });
     const newData = [];
-    console.log('exportData', exportData);
     exportData.map(element => {
       const newObj = {};
       headers.forEach(name => {
@@ -314,9 +307,6 @@ export const Treetable = prop => {
 
   const exportExcel = (newData, coulmnData, data1) => {
     var dataForExport = data1.map(obj => column.map(header => obj[header.field]));
-    // console.log("DATA1",data1);
-    // console.log("newData",newData);
-
     import('xlsx').then(xlsx => {
       const worksheet = xlsx.utils.json_to_sheet(dataForExport);
       const workbook = { Sheets: { data: worksheet }, SheetNames: ['data'] };
@@ -720,7 +710,6 @@ export const Treetable = prop => {
         keys = keys.concat(getAllNodeKeys(node.children));
       }
     });
-    // console.log("keys",keys);
     return keys;
   };
 

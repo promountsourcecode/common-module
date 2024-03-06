@@ -145,7 +145,7 @@ export const Table = prop => {
     else if (language === 'hi') id = 2;
     else id = 3;
     
-  
+    if(gridId != null || gridId != '' || gridId != undefined){
       const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
       (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
       const pageData = {
@@ -159,6 +159,9 @@ export const Table = prop => {
       setfilter(gridData.data.data.length > 0 ? gridData.data.data[0].filterEnable : false);
   
       await prepareRowAction(gridData.data.data);
+    }
+
+      
   
     
   };
@@ -167,8 +170,6 @@ export const Table = prop => {
   const [perPage, setPerPage] = useState([]);
   useEffect(() => {
     let arr = arrForRow.split(',').map(Number);
-    console.log('arrFor', arr);
-
     // for (let i = 0; i < arrForRow.length; i++) {
     //   arr.push(Number(arrForRow[i]));
     // }
@@ -516,6 +517,7 @@ export const Table = prop => {
     else if (language === 'hi') id = 2;
     else id = 3;
 
+    if(gridId != null || gridId != '' || gridId != undefined){
       const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
       // (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
       setColumn(gridData.data.data);
@@ -531,6 +533,8 @@ export const Table = prop => {
       await prepareRowAction(gridData.data.data);
       await setModal(false);
       setData(prop.data);
+    }
+      
     
 
     

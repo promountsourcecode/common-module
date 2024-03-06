@@ -19,9 +19,7 @@ export const AskReason = (prop) => {
     prop.onClose();
   };
 
-  useEffect(() => {
-    console.log(prop);
-  });
+ 
   const defaultValues = {
     ...dataForm,
     reasonForChange: "",
