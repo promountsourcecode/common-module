@@ -330,13 +330,17 @@ export const Table = prop => {
     });
 
     const newDataExcel = [];
+    let headersExcel: any = [];
+    coulmnData.map(col => {
+      if (col.visible) headersExcel.push({ title: col.header, field: col.field });
+    });
+
     exportData.map(element => {
       const newObj = {};
-      headers.forEach(name => {
-        newObj[name.toUpperCase()] = element[name];
-      });
+      headersExcel.forEach(name => {
+        newObj[name.title] = element[name.field]
+      })
       newDataExcel.push(newObj);
-      newObj;
     });
 
     switch (exportType) {
@@ -416,36 +420,35 @@ export const Table = prop => {
 
   const exportPdf = async (newData, headers, coulmnData) => {
     var out: any = [];
-
     for (var i = 0; i < coulmnData.length; i++) {
       if (coulmnData[i].field === headers[i]) {
         out.push(coulmnData[i].header);
       }
     }
-   
     const input = document.getElementById('tablePdf');
     const unit = 'pt';
     const size = 'A4';
     const orientation = 'portrait';
     const doc = new jsPDF(orientation, unit, size);
-
+    
+    doc.addFont("./ARIALUNI.TTF", "aakar", "normal");
+    doc.setFont("aakar");
     const title = prop.title.concat(' Report');
     var data = newData.map(obj => headers.map(header => obj[header]));
     const content = {
       startY: 50,
       head: [out],
       body: data,
+      styles: {
+        font: 'aakar',
+      },
     };
-
     doc.text(title, 40, 40);
     autoTable(doc, content);
     doc.save(prop.title.concat(' Report.pdf'));
-
-    //html2pdf(input);
-
   };
 
-  const exportExcel = newData => {
+  const exportExcel = (newData) => {
     import('xlsx').then(xlsx => {
       const worksheet = xlsx.utils.json_to_sheet(newData);
       const workbook = { Sheets: { data: worksheet }, SheetNames: ['data'] };
