@@ -68,7 +68,7 @@ export const Table = prop => {
   const [deletemsg, setdeletemsg] = useState(<Translate contentKey="home.deleteMsg"></Translate>);
   const [ifShowHeader, setifShowHeader] = useState(false);
   const [ifHideHeader, setifHideHeader] = useState(true);
-  const [language, setlanguage] = useState(sessionStorage.getItem('Language'));
+  const [language, setlanguage] = useState(sessionStorage.getItem('LanguageId'));
   const [redioFilter, setRedioFilter] = useState('Active');
   const [redioFilterPublish, setRedioFilterPublish] = useState('');
   const [errorMessage, setErrorMessage] = useState<any>(<Translate contentKey="home.notFound" />);
@@ -140,13 +140,13 @@ export const Table = prop => {
   }, []);
 
   const getGridData = async () => {
-    let id;
-    if (language === 'en') id = 1;
-    else if (language === 'hi') id = 2;
-    else id = 3;
+    // let id;
+    // if (language === 'en') id = 1;
+    // else if (language === 'hi') id = 2;
+    // else id = 3;
     
     if(gridId != null || gridId != '' || gridId != undefined){
-      const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${id}/${menuItemId}/1`);
+      const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
       (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
       const pageData = {
         first: lazyState.first,
