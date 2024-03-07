@@ -145,7 +145,7 @@ export const Table = prop => {
     // else if (language === 'hi') id = 2;
     // else id = 3;
     
-    if(gridId != null || gridId != '' || gridId != undefined){
+    if(gridId != null && gridId != '' && gridId != undefined){
       const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
       (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
       const pageData = {
@@ -485,7 +485,7 @@ export const Table = prop => {
     // else if (language === 'hi') id = 2;
     // else id = 3;
 
-    if(gridId != null || gridId != '' || gridId != undefined){
+    if(gridId != null && gridId != '' && gridId != undefined){
       var gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
 
     }
@@ -522,7 +522,7 @@ export const Table = prop => {
     // else if (language === 'hi') id = 2;
     // else id = 3;
 
-    if(gridId != null || gridId != '' || gridId != undefined){
+    if(gridId != null && gridId != '' && gridId != undefined){
       const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
       // (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
       setColumn(gridData.data.data);
@@ -906,7 +906,7 @@ export const Table = prop => {
                     if (e.type === 'Action') {
                       return (
                         <Column
-                          style={{ width: '100px' }}
+                          style={{ width: e.width ? e.width : "15px" }}
                           header={e.header}
                           body={data2 => (
                             <>
@@ -928,6 +928,7 @@ export const Table = prop => {
                       return (
                         <Column
                           header="Action"
+                          style={{ width: e.width ? e.width : "15px" }}
                           body={data2 => (
                             <>
                               {buttonAction.length > 0 &&

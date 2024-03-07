@@ -63,9 +63,12 @@ export const Treetable = prop => {
     // else if (language === 'hi') id = 2;
     // else id = 3;
     // const menuItemId = gridId;
-    const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
-    await setColumn(gridData.data.data.length > 0 ? gridData.data.data : prop.column);
-    await prepareRowAction(gridData.data.data);
+    if (gridId != null && gridId != '' && gridId != undefined) {
+      const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
+      await setColumn(gridData.data.data.length > 0 ? gridData.data.data : prop.column);
+      await prepareRowAction(gridData.data.data);
+    }
+
   };
 
   useEffect(() => {
@@ -652,7 +655,9 @@ export const Treetable = prop => {
     // if (language === 'en') id = 1;
     // else if (language === 'hi') id = 2;
     // else id = 3;
-    var gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
+    if (gridId != null && gridId != '' && gridId != undefined) {
+      var gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
+    }
     dispatch(
       getColumns({
         gridId: gridId,
@@ -946,7 +951,7 @@ export const Treetable = prop => {
                     if (e.type === 'Action') {
                       return (
                         <Column
-                          style={{ width: '100px' }}
+                          style={{ width: e.width ? e.width : "15px" }}
                           header={e.header}
                           body={data2 => (
                             <>
@@ -967,6 +972,7 @@ export const Treetable = prop => {
                       return (
                         <Column
                           header={e.header}
+                          style={{ width: e.width ? e.width : "15px" }}
                           body={data2 => (
                             <>
                               {buttonAction.map(button => (
