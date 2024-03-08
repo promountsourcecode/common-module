@@ -2,7 +2,6 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { isFieldMandatory } from "../ValidationMethod";
 import { useNavigate } from "react-router-dom";
-import { CORE_BASE_URL } from "../constants/apiConstant";
 export const Translate = (prop) => {
   const [selectLanguage, setSelectLanguage] = useState(
     sessionStorage.getItem("Language")
@@ -65,17 +64,7 @@ export const Translate = (prop) => {
     }
   };
   useEffect(() => {
-   // fetchData();
-    axios
-        .get(
-          `${CORE_BASE_URL}api/screen-configurations/getAllScreenConfigurationsAndScreenControlValidations/${0}/${
-            sessionStorage.getItem('lastSyncTime') ? sessionStorage.getItem('lastSyncTime') : 0
-          }`
-        )
-        .then(async res => {
-          await sessionStorage.setItem('LanguageData', JSON.stringify(res.data));
-          fetchData();
-        });
+    fetchData();
   }, [""]);
 
   const fetchData = () => {
