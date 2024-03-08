@@ -71,9 +71,9 @@ export const Translate = (prop) => {
     const languageDataLocal = JSON.parse(
       sessionStorage.getItem("LanguageData")
     );
-    // if (languageDataLocal == undefined) {
-    //   navigate("/logout");
-    // }
+    if (languageDataLocal == undefined) {
+      navigate("/logout");
+    }
     if (
       languageDataLocal["translations"][selectLanguage][prop.contentKey] !=
       undefined
