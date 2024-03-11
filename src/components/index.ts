@@ -25,5 +25,7 @@ export { QMS_BASE_URL } from "./constants/apiConstant";
 export { Itegration_service } from "./constants/apiConstant";
 export { BUSSINESS_PROCESS_SERVICE } from "./constants/apiConstant";
 export { FORM_BUILDER } from "./constants/apiConstant";
-
+export { default as BreadCrumbs } from "./BreadCrums";
+export { default as MenuTranslate } from "./MenuTranslate";
+export { default as MenuItemTranslate } from "./MenuItemTranslate";
 
