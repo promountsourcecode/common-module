@@ -59,10 +59,6 @@ export const Treetable = prop => {
   const finalObject = [];
   const getGridData = async () => {
     let id;
-    // if (language === 'en') id = 1;
-    // else if (language === 'hi') id = 2;
-    // else id = 3;
-    // const menuItemId = gridId;
     if (gridId != null && gridId != '' && gridId != undefined) {
       const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
       await setColumn(gridData.data.data.length > 0 ? gridData.data.data : prop.column);
@@ -156,23 +152,7 @@ export const Treetable = prop => {
     setColumn(coulmnData);
     setfilter(filterToggle);
   };
-  // const settingChangesExport = coulmnData => {
-  //   setModalExport(false);
-  //   setExportCol(coulmnData);
-  //   switch (exportType) {
-  //     case 'PDF':
-  //       exportPdf();
-  //       break;
-  //     case 'EXCEL':
-  //       exportExcel();
-  //       break;
-  //     case 'CSV':
-  //       exportCSV();
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  // };
+  
   const getDataForPdfXls = data => {
     if (data.length > 0) {
       data.forEach(element => {
@@ -652,9 +632,7 @@ export const Treetable = prop => {
   const onReset = async () => {
     let id;
     setModal(false);
-    // if (language === 'en') id = 1;
-    // else if (language === 'hi') id = 2;
-    // else id = 3;
+   
     if (gridId != null && gridId != '' && gridId != undefined) {
       var gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
     }
@@ -820,13 +798,7 @@ export const Treetable = prop => {
             >
               <FontAwesomeIcon icon="cogs" />
             </Button>
-            {/* <SplitButton
-              tooltip="Export"
-              tooltipOptions={{ position: 'top' }}
-              label={labelbtnFlag.export ? labelbtnFlag.export : 'Export'}
-              className="tableExportMenu"
-              model={items}
-            /> */}
+            
             <button
               className="btn btn-outline-secondary dropdown-toggle"
               type="button"
@@ -894,9 +866,9 @@ export const Treetable = prop => {
                 onToggle={onToggle}
                 // onToggle={e => setParentId2(e.value)}
                 tableStyle={{ minWidth: '50rem' }}
-                paginator
-                rows={defaultPageSize}
-                rowsPerPageOptions={perPage}
+                // paginator
+                // rows={defaultPageSize}
+                // rowsPerPageOptions={perPage}
               >
                 <Column expander={true} style={{ marginRight: '50px' }}></Column>
                 {column.map((e: any, i: any) => {
@@ -934,16 +906,6 @@ export const Treetable = prop => {
                               }}
                               checked={defaultChecked(e.field, data)}
                             />
-
-                            // <input
-                            //   key={Math.random()}
-                            //   type="checkbox"
-                            //   onChange={ele => {
-                            //     data.data.checkBoxSelected = ele.target.checked;
-                            //   }}
-                            //   defaultChecked={data.data.checkBoxSelected}
-                            //   style={{ width: '15px', height: '15px' }}
-                            // />
                           )}
                         ></Column>
                       );
@@ -966,7 +928,6 @@ export const Treetable = prop => {
                           )}
                         />
                       );
-                      //  <Column header="Field Name" body={rowData => <span>Hello</span>} />;
                     }
                     if (e.type === 'Button') {
                       return (
@@ -1016,104 +977,9 @@ export const Treetable = prop => {
                     // return <Column key={i} field={e.field} header={e.header} editor={typeEditor} expander={e.expander} sortable />;
                   } else return null;
                 })}
-                {/* {prop.flag && (
-                <Column
-                  style={{ minWidth: '11%' }}
-                  header="Action"
-                  body={data1 => (
-                    <div>
-                      {prop.actionFlag.edit && (
-                        <>
-                          <button className="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <FontAwesomeIcon icon="list" />{' '}
-                          </button>
-                          <ul className="dropdown-menu">
-                            <li>
-                              <a className="dropdown-item" style={{ color: 'darkblue' }} onClick={() => edit(data1.key)}>
-                                <FontAwesomeIcon style={{ color: 'darkblue' }} icon={faPenToSquare} /> Edit
-                              </a>
-                            </li>
-                            <li>
-                              <a className="dropdown-item" style={{ color: 'darkblue' }} onClick={() => editSub(data1.key)}>
-                                <FontAwesomeIcon style={{ color: 'orangered' }} icon={faFileWord} /> Add Sub Documents
-                              </a>
-                            </li>
-                            <li>
-                              <a className="dropdown-item" style={{ color: 'darkblue' }} onClick={() => confirm2(data1.key)}>
-                                <FontAwesomeIcon style={{ color: 'indianred' }} icon={faTrashCan} /> Obsolete
-                              </a>
-                            </li>
-                            <li>
-                              <a className="dropdown-item" style={{ color: 'darkblue' }} onClick={() => edit(data1.id)}>
-                                <FontAwesomeIcon style={{ color: 'indianred' }} icon="eye" /> Preview
-                              </a>
-                            </li>
-                            <li>
-                              <a className="dropdown-item" onClick={() => edit(data1.id)}>
-                                <FontAwesomeIcon icon={faCloudUpload} /> Release
-                              </a>
-                            </li>
-                            <li>
-                              <a className="dropdown-item" style={{ color: 'darkblue' }} onClick={() => revice(data1.key)}>
-                                <FontAwesomeIcon style={{ color: 'indianred' }} icon="refresh" /> Revice
-                              </a>
-                            </li>
-
-                            <li>
-                              <a className="dropdown-item" style={{ color: 'darkblue' }} onClick={() => edit(data1.id)}>
-                                <FontAwesomeIcon style={{ color: 'green' }} icon={faDownload} /> Download
-                              </a>
-                            </li>
-                          </ul>
-                        </>
-                      )}
-                    </div>
-                  )}
-                />
-              )}
-
-              {!prop.flag && (
-                <Column
-                  style={{ minWidth: '11%' }}
-                  header="Action"
-                  body={data1 => (
-                    <div>
-                      {prop.actionFlag.edit && (
-                        <>
-                          <div>
-                            {!data1.isLastNode && (
-                              <Button
-                                onClick={() => getParentId(data1.data.id, data1.data.level)}
-                                type="button"
-                                icon="pi pi-plus"
-                                severity="success"
-                                rounded
-                              ></Button>
-                            )}
-                            <Button
-                              onClick={() => toggleEdit(data1.data.id, data1.data.level)}
-                              style={{ marginLeft: '0.5rem' }}
-                              type="button"
-                              icon="pi pi-pencil"
-                              rounded
-                            ></Button>
-                            <Button
-                              style={{ marginLeft: '0.5rem' }}
-                              onClick={() => confirm2(data1.data.id)}
-                              type="button"
-                              icon="pi pi-trash"
-                              severity="danger"
-                              rounded
-                            ></Button>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  )}
-                />
-              )} */}
+                
               </TreeTable>
-              {/* <Paginator
+              <Paginator
                 template={paginatorTemplate}
                 rows={lazyState?.rows}
                 first={lazyState?.first}
@@ -1124,7 +990,7 @@ export const Treetable = prop => {
                 pageLinkSize={3}
                 totalRecords={totalRecords}
                 className="justify-content-end"
-              /> */}
+              />
             </>
           ) : (
             <div className="alert alert-warning">
@@ -1147,8 +1013,6 @@ export const Treetable = prop => {
           </div>
         )}
       </div>
-      {/* <Toast ref={toast} />
-     <ConfirmDialog /> */}
     </div>
   );
 };

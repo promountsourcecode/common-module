@@ -159,22 +159,7 @@ export const Table = prop => {
   
       await prepareRowAction(gridData.data.data);
     }
-
-      
-  
-    
   };
-
-  // const arrForRow = sessionStorage.getItem('RowsPerPage');
-  // const [perPage, setPerPage] = useState([]);
-  // useEffect(() => {
-  //   let arr = arrForRow.split(',').map(Number);
-  //   // for (let i = 0; i < arrForRow.length; i++) {
-  //   //   arr.push(Number(arrForRow[i]));
-  //   // }
-
-  //   setPerPage(arr);
-  // }, [arrForRow]);
 
 
   useEffect(() => {
@@ -430,17 +415,17 @@ export const Table = prop => {
     const orientation = 'portrait';
     const doc = new jsPDF(orientation, unit, size);
     
-    doc.addFont("./ARIALUNI.TTF", "aakar", "normal");
-    doc.setFont("aakar");
+    // doc.addFont("./ARIALUNI.TTF", "aakar", "normal");
+    // doc.setFont("aakar");
     const title = prop.title.concat(' Report');
     var data = newData.map(obj => headers.map(header => obj[header]));
     const content = {
       startY: 50,
       head: [out],
       body: data,
-      styles: {
-        font: 'aakar',
-      },
+      // styles: {
+      //   font: 'aakar',
+      // },
     };
     doc.text(title, 40, 40);
     autoTable(doc, content);
@@ -480,16 +465,6 @@ export const Table = prop => {
   const onReset = async () => {
     let id;
     setModal(false);
-    // if (language === 'en') id = 1;
-    // else if (language === 'hi') id = 2;
-    // else id = 3;
-
-    if(gridId != null && gridId != '' && gridId != undefined){
-      var gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
-
-    }
-
-
     dispatch(
       getColumns({
         gridId: gridId,
@@ -497,6 +472,9 @@ export const Table = prop => {
         menuItemId: menuItemId,
       })
     ).then(async (res: any) => {
+
+
+      
       setColumn(res.payload.data.data);
       // setColumn(gridData.data.data)
       const pageData = {
