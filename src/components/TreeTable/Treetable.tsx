@@ -26,7 +26,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { getColumns } from '../ValidationMethod';
 import { Setting } from '@promountsourcecode/common_module';
 import { InputSwitch } from 'primereact/inputswitch';
-
+import { Paginator } from 'primereact/paginator';
 export const Treetable = prop => {
   const dispatch = useAppDispatch();
   const dt = useRef<any>();
