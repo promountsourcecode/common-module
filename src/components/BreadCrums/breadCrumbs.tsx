@@ -19,19 +19,34 @@ const BreadCrumbs = () => {
   ];
 
   const home = { icon: 'fa-solid fa-home', url: '' };
+
+  const [showbreadCrums, setBreadcrums] = useState<boolean>(false);
+  useEffect(() => {
+    //  setLogoId(props.logoId);
+    if (sessionStorage.getItem("menuItemId") == "11731") {
+      setBreadcrums(false)
+    }
+    else {
+      setBreadcrums(true)
+    }
+  });
+
   return (
     <>
       {/* <h4 style={{ marginRight: '70rem' }} >{menuItem ? <MenuItemTranslate contentKey={menuItem.keyName} /> : ''}</h4>
       <BreadCrumb className="breadCrumb-header float-right" model={items} home={home} /> */}
-       <div className="page-header d-flex justify-content-between">
+      {showbreadCrums && (
+        <div className="page-header d-flex justify-content-between">
           <div>
             {/* {/ <h4>{breadCrums == 'true' ? <BreadCrumbs / > : <Translate contentKey="level.title"></Translate>}</h4> /} */}
-          <h4>{menuItem ? <MenuItemTranslate contentKey={menuItem.keyName} /> : ''}</h4>
+            <h4>{menuItem ? <MenuItemTranslate contentKey={menuItem.keyName} /> : ''}</h4>
+          </div>
+          <div><h4><BreadCrumb className="breadCrumb-header float-right" model={items} home={home} /></h4></div>
         </div>
-        <div><h4><BreadCrumb className="breadCrumb-header float-right" model={items} home={home} /></h4></div>
-      </div>
+      )}
+
     </>
-   // <BreadCrumb className="breadCrumb-header" model={items} home={home} />
+    // <BreadCrumb className="breadCrumb-header" model={items} home={home} />
   )
 
 };
