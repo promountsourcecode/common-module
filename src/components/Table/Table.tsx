@@ -85,8 +85,7 @@ export const Table = prop => {
 
   const [actionId, setActionId] = useState<number>();
   const [editObject, setEditObject] = useState<any>([]);
-  const [maxPageSize, setMaxPageSize] = useState(Number(sessionStorage.getItem('MaxPageSize')));
-  const [defaultPageSize, setDefaultPageSize] = useState(Number(sessionStorage.getItem('DefaultPageSize')));
+  
   
   useEffect(() => {
     setlazyState(lazyState);
@@ -166,16 +165,16 @@ export const Table = prop => {
     
   };
 
-  const arrForRow = sessionStorage.getItem('RowsPerPage');
-  const [perPage, setPerPage] = useState([]);
-  useEffect(() => {
-    let arr = arrForRow.split(',').map(Number);
-    // for (let i = 0; i < arrForRow.length; i++) {
-    //   arr.push(Number(arrForRow[i]));
-    // }
+  // const arrForRow = sessionStorage.getItem('RowsPerPage');
+  // const [perPage, setPerPage] = useState([]);
+  // useEffect(() => {
+  //   let arr = arrForRow.split(',').map(Number);
+  //   // for (let i = 0; i < arrForRow.length; i++) {
+  //   //   arr.push(Number(arrForRow[i]));
+  //   // }
 
-    setPerPage(arr);
-  }, [arrForRow]);
+  //   setPerPage(arr);
+  // }, [arrForRow]);
 
 
   useEffect(() => {
@@ -854,9 +853,9 @@ export const Table = prop => {
               onRowReorder={(e: any): void => prop.onAddReorderRow(e.value, gridId)}
               reorderableRows
               removableSort
-              paginator
-              rows={defaultPageSize}
-              rowsPerPageOptions={perPage}
+              // paginator
+              // rows={defaultPageSize}
+              // rowsPerPageOptions={perPage}
             >
               {rowReorder && <Column rowReorder style={{ minWidth: '3rem' }} />}
               {column &&
@@ -960,7 +959,7 @@ export const Table = prop => {
                   }
                 })}
             </DataTable>
-            {/* <Paginator
+            <Paginator
               template={paginatorTemplate}
               rows={lazyState.rows}
               first={lazyState.first}
@@ -971,7 +970,7 @@ export const Table = prop => {
               pageLinkSize={3}
               totalRecords={totalRecords}
               className="justify-content-end"
-            /> */}
+            />
           </>
 
           {reasonFlag && (
