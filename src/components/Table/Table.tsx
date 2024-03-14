@@ -39,6 +39,7 @@ import { OverlayPanel } from 'primereact/overlaypanel';
 import _ from 'lodash';
 import { boolean, object } from 'yup';
 import  {getColumns}  from '../ValidationMethod';
+import { CORE_BASE_URL } from '../constants/apiConstant';
 
 
 export const Table = prop => {
@@ -101,6 +102,8 @@ export const Table = prop => {
         { label: 100, value: 100 },
         { label: 200, value: 200 },
         { label: 500, value: 500 },
+        { label: 1000, value: 1000 },
+        { label: 2000, value: 2000 },
       ];
 
       return (
@@ -139,26 +142,28 @@ export const Table = prop => {
   }, []);
 
   const getGridData = async () => {
-    // let id;
-    // if (language === 'en') id = 1;
-    // else if (language === 'hi') id = 2;
-    // else id = 3;
     
-    if(gridId != null && gridId != '' && gridId != undefined){
-      const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
-      (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
-      const pageData = {
-        first: lazyState.first,
-        rows: gridData.data.data.length > 0 ? parseInt(gridData.data.data[0].gridPageSize) : 10,
-        page: lazyState.page,
-        sortField: lazyState.sortField,
-        sortOrder: lazyState.sortOrder,
-      };
-      setlazyState(pageData);
-      setfilter(gridData.data.data.length > 0 ? gridData.data.data[0].filterEnable : false);
-  
-      await prepareRowAction(gridData.data.data);
+    try {
+      if(gridId != null && gridId != '' && gridId != undefined){
+        const gridData = await axios.get(`${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
+        (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
+        const pageData = {
+          first: lazyState.first,
+          rows: gridData.data.data.length > 0 ? parseInt(gridData.data.data[0].gridPageSize) : 10,
+          page: lazyState.page,
+          sortField: lazyState.sortField,
+          sortOrder: lazyState.sortOrder,
+        };
+        setlazyState(pageData);
+        setfilter(gridData.data.data.length > 0 ? gridData.data.data[0].filterEnable : false);
+    
+        await prepareRowAction(gridData.data.data);
+      }
+    } catch (error) {
+      toast.error(error.toString())
     }
+
+   
   };
 
 
@@ -202,41 +207,48 @@ export const Table = prop => {
 
   const prepareRowAction = (actionArr: any[]) => {
     let tmpRowAction = [];
-    if (actionArr) {
-      for (let i = 0; i < actionArr.length; i++) {
-        if (actionArr[i]['type'] == 'Action') {
-          let actinObj = actionArr[i].actionJson;
-          if (actinObj) {
-            for (let j = 0; j < actinObj.length; j++) {
-              let item = {
-                className: actinObj[j]['className'] != null && actinObj[j]['className'] != '' ? actinObj[j]['className'] : 'icon',
-                label: (
-                  <span style={{ color: '#1565c0' }}>
-                    <Translate contentKey={actinObj[j]['label']}></Translate>
-                  </span>
-                ),
-                icon: actinObj[j]['icon'],
-                id: actinObj[j]['id'],
-                visible: actinObj[j]['visible'],
-                askReason: actinObj[j]['askReason'],
-                command: () => {
-                  actinObj[j]['id'] == 'Delete'
-                    ? deleteConfirmOnAction(actionId, actinObj[j]['askReason'], editObject)
-                    : eval(prop[actinObj[j].command](actionId, gridId, actinObj[j]['askReason'], editObject));
-                },
-              };
-              tmpRowAction.push(item);
-              setitemsAction(tmpRowAction);
+
+    try {
+      if (actionArr) {
+        for (let i = 0; i < actionArr.length; i++) {
+          if (actionArr[i]['type'] == 'Action') {
+            let actinObj = actionArr[i].actionJson;
+            if (actinObj) {
+              for (let j = 0; j < actinObj.length; j++) {
+                let item = {
+                  className: actinObj[j]['className'] != null && actinObj[j]['className'] != '' ? actinObj[j]['className'] : 'icon',
+                  label: (
+                    <span style={{ color: '#1565c0' }}>
+                      <Translate contentKey={actinObj[j]['label']}></Translate>
+                    </span>
+                  ),
+                  icon: actinObj[j]['icon'],
+                  id: actinObj[j]['id'],
+                  visible: actinObj[j]['visible'],
+                  askReason: actinObj[j]['askReason'],
+                  command: () => {
+                    actinObj[j]['id'] == 'Delete'
+                      ? deleteConfirmOnAction(actionId, actinObj[j]['askReason'], editObject)
+                      : eval(prop[actinObj[j].command](actionId, gridId, actinObj[j]['askReason'], editObject));
+                  },
+                };
+                tmpRowAction.push(item);
+                setitemsAction(tmpRowAction);
+              }
             }
           }
-        }
-
-        if (actionArr[i]['type'] == 'Button') {
-          let butonObj = actionArr[i].actionJson;
-          setButtonAction(butonObj);
+  
+          if (actionArr[i]['type'] == 'Button') {
+            let butonObj = actionArr[i].actionJson;
+            setButtonAction(butonObj);
+          }
         }
       }
+    } catch (error) {
+      toast.error(error.toString());
     }
+
+   
   };
 
   useEffect(() => {
@@ -495,31 +507,29 @@ export const Table = prop => {
 
   const closeSettingModal = async () => {
     let id;
-    // if (language === 'en') id = 1;
-    // else if (language === 'hi') id = 2;
-    // else id = 3;
 
-    if(gridId != null && gridId != '' && gridId != undefined){
-      const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
-      // (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
-      setColumn(gridData.data.data);
-      const pageData = {
-        first: lazyState.first,
-        rows: await parseInt(gridData.data.data[0].gridPageSize),
-        page: lazyState.page,
-        sortField: lazyState.sortField,
-        sortOrder: lazyState.sortOrder,
-      };
-      setlazyState(pageData);
-      setfilter(gridData.data.data[0].filterEnable);
-      await prepareRowAction(gridData.data.data);
-      await setModal(false);
-      setData(prop.data);
+
+    try {
+      if(gridId != null && gridId != '' && gridId != undefined){
+        const gridData = await axios.get(`${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
+        // (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
+        setColumn(gridData.data.data);
+        const pageData = {
+          first: lazyState.first,
+          rows: await parseInt(gridData.data.data[0].gridPageSize),
+          page: lazyState.page,
+          sortField: lazyState.sortField,
+          sortOrder: lazyState.sortOrder,
+        };
+        setlazyState(pageData);
+        setfilter(gridData.data.data[0].filterEnable);
+        await prepareRowAction(gridData.data.data);
+        await setModal(false);
+        setData(prop.data);
+      }
+    } catch (error) {
+      toast.error(error.toString())
     }
-      
-    
-
-    
   };
 
   const [reasonIdDelete, setReasonIdDelete] = useState<any>();
@@ -601,38 +611,7 @@ export const Table = prop => {
   };
 
   const [selectCheckboxRc, setSelectCheckboxRc] = useState<any>([]);
-  const [selectedCategory, setSelectedCategory] = useState<any>();
-  const defaultChecked = (fieldName, data1) => {
 
-
-    let flag: any;
-    flag = data1[fieldName] ? typeof data1[fieldName] : undefined;
-    if (flag != undefined) {
-      if (flag == 'boolean') {
-        return data1[fieldName];
-      } else if (flag == 'string' || flag == 'number') {
-        let returnValue: boolean;
-        if (flag == 'number') {
-          // returnValue = parseFloat(data1[fieldName]);
-        }
-        if (flag == 'string') {
-          returnValue = data1[fieldName] == 'Yes' ? true : false;
-        }
-        return returnValue;
-      }
-      return data1[fieldName];
-    } else {
-      if (selectCheckboxRc != undefined) {
-        for (let i = 0; i < selectCheckboxRc.length; i++) {
-          if (selectCheckboxRc[i].id == data1.id) {
-            return true;
-          } else {
-            false;
-          }
-        }
-      }
-    }
-  };
 
   const radioSelectRecord = (record, fieldName) => {
     prop.radioEvent(record, fieldName);
@@ -659,10 +638,6 @@ export const Table = prop => {
           selectedItemsArray.push(obj);
         } else {
           selectedItemsArray.push(obj);
-          // for (let i = 0; i < selectedItemsArray.length; i++) {
-          //   if (obj.id != selectedItemsArray[i].id || selectedItemsArray.legth == 0) {
-          //   }
-          // }
         }
       } else {
         selectedItemsArray.splice(selectedItemsArray.indexOf(obj), 1);

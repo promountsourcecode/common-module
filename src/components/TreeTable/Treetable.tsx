@@ -27,6 +27,8 @@ import { getColumns } from '../ValidationMethod';
 import { Setting } from '@promountsourcecode/common_module';
 import { InputSwitch } from 'primereact/inputswitch';
 import { Paginator } from 'primereact/paginator';
+import { toast } from 'react-toastify';
+import { CORE_BASE_URL } from '../constants/apiConstant';
 export const Treetable = prop => {
   const dispatch = useAppDispatch();
   const dt = useRef<any>();
@@ -59,12 +61,18 @@ export const Treetable = prop => {
   const finalObject = [];
   const getGridData = async () => {
     let id;
-    if (gridId != null && gridId != '' && gridId != undefined) {
-      const gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
-      await setColumn(gridData.data.data.length > 0 ? gridData.data.data : prop.column);
-      await prepareRowAction(gridData.data.data);
-    }
 
+    try {
+      if (gridId != null && gridId != '' && gridId != undefined) {
+        const gridData = await axios.get(`${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
+        await setColumn(gridData.data.data.length > 0 ? gridData.data.data : prop.column);
+        await prepareRowAction(gridData.data.data);
+      }
+  
+    } catch (error) {
+      toast.error(error.toString())
+    }
+   
   };
 
   useEffect(() => {
@@ -466,35 +474,42 @@ export const Treetable = prop => {
   const [actionId, setActionId] = useState<number>();
   const prepareRowAction = (actionArr: any[]) => {
     let tmpRowAction = [];
-    if (actionArr) {
-      for (let i = 0; i < actionArr.length; i++) {
-        if (actionArr[i]['type'] == 'Action') {
-          let actinObj = actionArr[i].actionJson;
-          if (actinObj) {
-            for (let j = 0; j < actinObj.length; j++) {
-              let item = {
-                className: actinObj[j]['className'] != null && actinObj[j]['className'] != '' ? actinObj[j]['className'] : 'icon',
-                label: <Translate contentKey={actinObj[j]['label']}></Translate>,
-                icon: actinObj[j]['icon'],
-                id: actinObj[j]['id'],
-                visible: actinObj[j]['visible'],
-                command: () => {
-                  actinObj[j]['id'] == 'Delete'
-                    ? deleteConfirmOnAction(actionId, true, editObject)
-                    : eval(prop[actinObj[j].command](actionId, gridId, actinObj[j].askReason, editObject));
-                },
-              };
-              tmpRowAction.push(item);
+
+    try {
+      if (actionArr) {
+        for (let i = 0; i < actionArr.length; i++) {
+          if (actionArr[i]['type'] == 'Action') {
+            let actinObj = actionArr[i].actionJson;
+            if (actinObj) {
+              for (let j = 0; j < actinObj.length; j++) {
+                let item = {
+                  className: actinObj[j]['className'] != null && actinObj[j]['className'] != '' ? actinObj[j]['className'] : 'icon',
+                  label: <Translate contentKey={actinObj[j]['label']}></Translate>,
+                  icon: actinObj[j]['icon'],
+                  id: actinObj[j]['id'],
+                  visible: actinObj[j]['visible'],
+                  command: () => {
+                    actinObj[j]['id'] == 'Delete'
+                      ? deleteConfirmOnAction(actionId, true, editObject)
+                      : eval(prop[actinObj[j].command](actionId, gridId, actinObj[j].askReason, editObject));
+                  },
+                };
+                tmpRowAction.push(item);
+              }
+              setitemsAction(tmpRowAction);
             }
-            setitemsAction(tmpRowAction);
+          }
+          if (actionArr[i]['type'] == 'Button') {
+            let butonObj = actionArr[i].actionJson;
+            setButtonAction(butonObj);
           }
         }
-        if (actionArr[i]['type'] == 'Button') {
-          let butonObj = actionArr[i].actionJson;
-          setButtonAction(butonObj);
-        }
       }
+    } catch (error) {
+      toast.error(error.toString())
     }
+
+   
   };
 
   const typeEditor = options => {
@@ -572,20 +587,27 @@ export const Treetable = prop => {
     const checked = e.target.checked;
     // prop.selectCheckbox(checked, e.value, gridId);
 
-    if (e.checked) {
-      if (selectedItemsArray.length == 0) {
-        selectedItemsArray.push(obj);
-      } else {
-        for (let i = 0; i < selectCheckboxRc.length; i++) {
-          if (obj.id != selectCheckboxRc[i].id || selectCheckboxRc.legth == 0) {
-            selectedItemsArray.push(obj);
+
+    try {
+      if (e.checked) {
+        if (selectedItemsArray.length == 0) {
+          selectedItemsArray.push(obj);
+        } else {
+          for (let i = 0; i < selectCheckboxRc.length; i++) {
+            if (obj.id != selectCheckboxRc[i].id || selectCheckboxRc.legth == 0) {
+              selectedItemsArray.push(obj);
+            }
           }
         }
-      }
-    } else selectedItemsArray.splice(selectedItemsArray.indexOf(obj), 1);
-    setSelectCheckboxRc(selectedItemsArray);
-    setReasonIdDelete(obj);
-    prop.selectCheckbox(checked, obj, selectedItemsArray);
+      } else selectedItemsArray.splice(selectedItemsArray.indexOf(obj), 1);
+      setSelectCheckboxRc(selectedItemsArray);
+      setReasonIdDelete(obj);
+      prop.selectCheckbox(checked, obj, selectedItemsArray);
+    } catch (error) {
+      toast.error(error.toString())
+    }
+
+   
   };
 
   /* pagination code */
@@ -610,6 +632,9 @@ export const Treetable = prop => {
         { label: 20, value: 20 },
         { label: 50, value: 50 },
         { label: 100, value: 100 },
+        { label: 500, value: 500 },
+        { label: 1000, value: 1000 },
+        { label: 2000, value: 2000 },
       ];
 
       return (
@@ -634,7 +659,7 @@ export const Treetable = prop => {
     setModal(false);
    
     if (gridId != null && gridId != '' && gridId != undefined) {
-      var gridData = await axios.get(`services/coreweb/api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
+      var gridData = await axios.get(`${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
     }
     dispatch(
       getColumns({
@@ -643,7 +668,9 @@ export const Treetable = prop => {
         menuItemId: menuItemId,
       })
     ).then(async (res: any) => {
-      setColumn(res.payload.data.data);
+
+      try {
+        setColumn(res.payload.data.data);
       const pageData = {
         first: lazyState.first,
         rows: parseInt(res.payload.data.data[0].gridPageSize),
@@ -657,6 +684,10 @@ export const Treetable = prop => {
       await prepareRowAction(res.payload.data.data);
       await prop.onPageChange(pageData);
       setData(prop.data);
+      } catch (error) {
+        toast.error(error.toString())
+      }
+      
     });
   };
 

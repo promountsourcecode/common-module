@@ -10,7 +10,8 @@ import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faRepeat } from '@fortawesome/free-solid-svg-icons';
 import { Translate } from '@promountsourcecode/common_module';
-
+import { toast } from 'react-toastify';
+import { CORE_BASE_URL } from '../constants/apiConstant';
 interface ModalInputProps {
   show: boolean;
   onSetting: any;
@@ -44,11 +45,16 @@ class Setting extends Component<ModalInputProps> {
   constructor(props) {
     super(props);
 
-    if (this.state.gridData.length === 0) {
-      this.tableColumns = this.state.columns;
-    } else {
-      this.tableColumns = this.state.gridData;
+    try {
+      if (this.state.gridData.length === 0) {
+        this.tableColumns = this.state.columns;
+      } else {
+        this.tableColumns = this.state.gridData;
+      }
+    } catch (error) {
+      toast.error(error.toString())
     }
+   
     //  const [language, setlanguage] = useState(sessionStorage.getItem('Language'));
   }
 
@@ -70,15 +76,14 @@ class Setting extends Component<ModalInputProps> {
       languageId: 1,
     };
 
-    data = await axios.put('services/coreweb/api/grid-user-settings/saveUpdateData', entity);
-    const dataJson = JSON.parse(data.data.gridSettingDetailText);
+    data = await axios.put(CORE_BASE_URL+'api/grid-user-settings/saveUpdateData', entity);
 
-    // if(dataJson.length == 0 ){
-    //   this.tableColumns= this.state.columns
-    // }
-    // else{
-    this.tableColumns = dataJson;
-    // }
+    try {
+      const dataJson = JSON.parse(data.data.gridSettingDetailText);
+      this.tableColumns = dataJson;
+    } catch (error) {
+      toast.error(error.toString)
+    }
   }
 
   componentDidMount() {
@@ -123,13 +128,18 @@ class Setting extends Component<ModalInputProps> {
 
   async resetFromServer() {
     let id;
-    if (this.state.language === 'en') id = 1;
+    try {
+      if (this.state.language === 'en') id = 1;
     else if (this.state.language === 'hi') id = 2;
     else id = 3;
     const reset = await axios.delete(
-      `/services/coreweb/api/grid-user-settings/deleteByUserIdAndHierarchyIdAndGridIdAndMenuItemId?userMasterId=${1}&languageId=${id}&gridId=${this.state.prop.gridId
+      `${CORE_BASE_URL}api/grid-user-settings/deleteByUserIdAndHierarchyIdAndGridIdAndMenuItemId?userMasterId=${1}&languageId=${id}&gridId=${this.state.prop.gridId
       }`
     );
+    } catch (error) {
+      toast.error(error.toString())
+    }
+    
   }
   footerContent = () => {
     return (
@@ -187,7 +197,8 @@ class Setting extends Component<ModalInputProps> {
         case 'quantity':
         default:
           if (newValue.trim().length > 0) rowData[field] = newValue;
-          else event.preventDefault();
+          //else event.preventDefault();
+          else rowData[field] = "";
           break;
       }
     };
