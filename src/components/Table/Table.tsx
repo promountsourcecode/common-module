@@ -427,17 +427,17 @@ export const Table = prop => {
     const orientation = 'portrait';
     const doc = new jsPDF(orientation, unit, size);
     
-    // doc.addFont("./ARIALUNI.TTF", "aakar", "normal");
-    // doc.setFont("aakar");
+    doc.addFont('/content/fonts/arial-unicode-ms.ttf', 'aakar', 'normal');
+    doc.setFont("aakar");
     const title = prop.title.concat(' Report');
     var data = newData.map(obj => headers.map(header => obj[header]));
     const content = {
       startY: 50,
       head: [out],
       body: data,
-      // styles: {
-      //   font: 'aakar',
-      // },
+      styles: {
+        font: 'aakar',
+      },
     };
     doc.text(title, 40, 40);
     autoTable(doc, content);
