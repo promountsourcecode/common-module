@@ -144,7 +144,10 @@ export const Table = prop => {
   const getGridData = async () => {
     
     try {
-      if(gridId != null && gridId != '' && gridId != undefined){
+      if(gridId != null && gridId != '' && gridId != undefined &&
+        language !=null && language != '' && language !=undefined &&
+        menuItemId != null && menuItemId != '' && menuItemId !=undefined
+      ){
         const gridData = await axios.get(`${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
         (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
         const pageData = {
@@ -510,7 +513,10 @@ export const Table = prop => {
 
 
     try {
-      if(gridId != null && gridId != '' && gridId != undefined){
+      if(gridId != null && gridId != '' && gridId != undefined &&
+        language !=null && language != '' && language !=undefined &&
+        menuItemId != null && menuItemId != '' && menuItemId !=undefined
+      ){
         const gridData = await axios.get(`${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
         // (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
         setColumn(gridData.data.data);

@@ -63,7 +63,10 @@ export const Treetable = prop => {
     let id;
 
     try {
-      if (gridId != null && gridId != '' && gridId != undefined) {
+      if(gridId != null && gridId != '' && gridId != undefined &&
+        language !=null && language != '' && language !=undefined &&
+        menuItemId != null && menuItemId != '' && menuItemId !=undefined
+      ) {
         const gridData = await axios.get(`${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
         await setColumn(gridData.data.data.length > 0 ? gridData.data.data : prop.column);
         await prepareRowAction(gridData.data.data);
@@ -658,7 +661,10 @@ export const Treetable = prop => {
     let id;
     setModal(false);
    
-    if (gridId != null && gridId != '' && gridId != undefined) {
+    if(gridId != null && gridId != '' && gridId != undefined &&
+        language !=null && language != '' && language !=undefined &&
+        menuItemId != null && menuItemId != '' && menuItemId !=undefined
+      ) {
       var gridData = await axios.get(`${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
     }
     dispatch(
