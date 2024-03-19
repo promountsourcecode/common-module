@@ -1,40 +1,33 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  useMemo,
-  Children,
-} from "react";
-import { Column } from "primereact/column";
-import { Button } from "reactstrap";
+import React, { useState, useEffect, useRef, useCallback, useMemo, Children } from 'react';
+import { Column } from 'primereact/column';
+import { Button } from 'reactstrap';
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Toast } from "primereact/toast";
-import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
-import { overridePaginationStateWithQueryParams } from "app/shared/util/entity-utils";
-import { getSortState } from "react-jhipster";
-import { ITEMS_PER_PAGE } from "app/shared/util/pagination.constants";
-import { useAppDispatch } from "app/config/store";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
+import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
+import { getSortState } from 'react-jhipster';
+import { ITEMS_PER_PAGE } from 'app/shared/util/pagination.constants';
+import { useAppDispatch } from 'app/config/store';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import ExportSetting from "../Export-Column";
-import axios from "axios";
-import { InputText } from "primereact/inputtext";
-import { TreeTable } from "primereact/treetable";
-import { MenuItem } from "primereact/menuitem";
-import { SplitButton } from "primereact/splitbutton";
-import { Translate } from "@promountsourcecode/common_module";
-import { RadioButton } from "primereact/radiobutton";
-import { Checkbox } from "primereact/checkbox";
-import { AskReason } from "@promountsourcecode/common_module";
-import { setMsgLangKeyInSessionStorage } from "@promountsourcecode/common_module";
-import { Dropdown } from "primereact/dropdown";
-import { getColumns } from "../ValidationMethod";
+import axios from 'axios';
+import { InputText } from 'primereact/inputtext';
+import { TreeTable } from 'primereact/treetable';
+import { faCloudUpload, faDownload, faFileWord, faPenToSquare, faTrashCan } from '@fortawesome/free-solid-svg-icons';
+import { MenuItem } from 'primereact/menuitem';
+import { SplitButton } from 'primereact/splitbutton';
+import { Translate } from '@promountsourcecode/common_module';
+import { RadioButton } from 'primereact/radiobutton';
+import { Checkbox } from 'primereact/checkbox';
+import { AskReason } from '@promountsourcecode/common_module';
+import { setMsgLangKeyInSessionStorage } from '@promountsourcecode/common_module';
+import { Paginator } from 'primereact/paginator';
+import { Dropdown } from 'primereact/dropdown';
+import { getColumns } from 'app/entities/form/form.reducer';
 import { Setting } from "@promountsourcecode/common_module";
-import { InputSwitch } from "primereact/inputswitch";
-import { Paginator } from "primereact/paginator";
-import { toast } from "react-toastify";
+import { InputSwitch } from 'primereact/inputswitch';
+import { toast } from 'react-toastify';
 import { CORE_BASE_URL } from "../constants/apiConstant";
 export const Treetable = (prop) => {
   const dispatch = useAppDispatch();
@@ -339,14 +332,21 @@ export const Treetable = (prop) => {
     const size = "A4";
     const orientation = "portrait";
     const doc = new jsPDF(orientation, unit, size);
+    doc.addFont("/content/fonts/arial-unicode-ms.ttf", "aakar", "normal");
+    doc.setFont("aakar");
     const title = prop.title.concat(" Report");
     var dataForExport = data1.map((obj) =>
       column.map((header) => obj[header.field])
     );
+
+
     const content = {
       startY: 50,
       head: [out],
       body: dataForExport,
+      styles: {
+        font: "aakar",
+      },
     };
     doc.text(title, 40, 40);
     autoTable(doc, content);

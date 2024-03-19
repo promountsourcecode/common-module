@@ -1,16 +1,17 @@
-import React, { useState, Component, useEffect } from "react";
-import { Checkbox } from "primereact/checkbox";
-import { Dialog } from "primereact/dialog";
-import { Button } from "primereact/button";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
-import { InputText } from "primereact/inputtext";
-import { Dropdown } from "primereact/dropdown";
-import axios from "axios";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck, faRepeat } from "@fortawesome/free-solid-svg-icons";
-import { Translate } from "@promountsourcecode/common_module";
-import { toast } from "react-toastify";
+import React, { useState, Component, useEffect } from 'react';
+import { Checkbox } from 'primereact/checkbox';
+import { Dialog } from 'primereact/dialog';
+import { Button } from 'primereact/button';
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+import { InputText } from 'primereact/inputtext';
+import { Dropdown } from 'primereact/dropdown';
+import axios from 'axios';   
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck, faRepeat } from '@fortawesome/free-solid-svg-icons';
+import { Translate } from '@promountsourcecode/common_module';
+import { toast } from 'react-toastify';
 import { CORE_BASE_URL } from "../constants/apiConstant";
 interface ModalInputProps {
   show: boolean;

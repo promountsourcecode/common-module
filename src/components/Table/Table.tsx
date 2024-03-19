@@ -1,24 +1,25 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
-import { Button } from "primereact/button";
-import { SplitButton } from "primereact/splitbutton";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
-import { getSortState } from "react-jhipster";
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+import { Button } from 'primereact/button';
+import { SplitButton } from 'primereact/splitbutton';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
+import { getSortState } from 'react-jhipster';
 // import { ITEMS_PER_PAGE } from '../constants/index';
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { Setting } from "@promountsourcecode/common_module";
-import ExportSetting from "../Export-Column";
-import axios from "axios";
-import { Paginator } from "primereact/paginator";
-import { Translate } from "@promountsourcecode/common_module";
-import { InputText } from "primereact/inputtext";
-import { toast } from "react-toastify";
-import { useAppDispatch, useAppSelector } from "app/config/store";
-
+import ExportSetting from 'app/shared/export-column'; 
+import axios from 'axios';
+import { Paginator } from 'primereact/paginator';
+import { Translate } from '@promountsourcecode/common_module';
+import { InputText } from 'primereact/inputtext';
+import { toast } from 'react-toastify';
+import { useAppDispatch, useAppSelector } from 'app/config/store';
+import { CORE_BASE_URL } from "../constants/apiConstant";
+//import { gujratiFont } from 'src/main/webapp/content/fonts/Aakar.ttf'
 import {
   faArrowUp19,
   faBoxArchive,
@@ -27,19 +28,18 @@ import {
   faFileWord,
   faPenToSquare,
   faTrashCan,
-} from "@fortawesome/free-solid-svg-icons";
-import { MenuItem } from "primereact/menuitem";
+} from '@fortawesome/free-solid-svg-icons';
+import { MenuItem } from 'primereact/menuitem';
 // import { Translate } from 'app/shared/translation';
-import { RadioButton } from "primereact/radiobutton";
-import { Checkbox } from "primereact/checkbox";
-import { AskReason } from "../Ask_Reason/Ask_Reason";
-import { Dropdown } from "primereact/dropdown";
-import { setMsgLangKeyInSessionStorage } from "@promountsourcecode/common_module";
-import { OverlayPanel } from "primereact/overlaypanel";
-import _ from "lodash";
-import { boolean, object } from "yup";
-import { getColumns } from "../ValidationMethod";
-import { CORE_BASE_URL } from "../constants/apiConstant";
+import { RadioButton } from 'primereact/radiobutton';
+import { Checkbox } from 'primereact/checkbox';
+import { AskReason } from '@promountsourcecode/common_module';
+import { Dropdown } from 'primereact/dropdown';
+import { setMsgLangKeyInSessionStorage } from '@promountsourcecode/common_module';
+import { OverlayPanel } from 'primereact/overlaypanel';
+import _ from 'lodash';
+import { boolean, object } from 'yup';
+import { getColumns } from 'app/entities/form/form.reducer';
 
 export const Table = (prop) => {
   const menuItemId = sessionStorage.getItem("menuItemId");
@@ -1091,5 +1091,6 @@ export const Table = (prop) => {
     </div>
   );
 };
+
 
 export default Table;
