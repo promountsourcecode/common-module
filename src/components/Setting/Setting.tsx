@@ -35,6 +35,7 @@ class Setting extends Component<ModalInputProps> {
     gridData: this.props.gridData,
     prop: this.props,
     pageSize: [
+      { size: '5' },
       { size: '10' },
       { size: '20' },
       { size: '50' },
