@@ -399,8 +399,40 @@ export const Treetable = (prop) => {
       prop.onSearch(value);
     }
   };
-  const closeSettingModal = () => {
-    setModal(false);
+  const closeSettingModal = async () => {
+    let id;
+
+    try {
+      if (
+        gridId != null &&
+        gridId != '' &&
+        gridId != undefined &&
+        language != null &&
+        language != '' &&
+        language != undefined &&
+        menuItemId != null &&
+        menuItemId != '' &&
+        menuItemId != undefined
+      ) {
+        const gridData = await axios.get(`${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
+        // (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
+        setColumn(gridData.data.data);
+        const pageData = {
+          first: lazyState.first,
+          rows: await parseInt(gridData.data.data[0].gridPageSize),
+          page: lazyState.page,
+          sortField: lazyState.sortField,
+          sortOrder: lazyState.sortOrder,
+        };
+        setlazyState(pageData);
+        setfilter(gridData.data.data[0].filterEnable);
+        await prepareRowAction(gridData.data.data);
+        await setModal(false);
+        setData(prop.data);
+      }
+    } catch (error) {
+      toast.error(error.toString());
+    }
   };
   const getBoolean = (id) => {
     const field: any = document.querySelector("#" + id);
