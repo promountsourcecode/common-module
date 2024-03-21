@@ -9,7 +9,6 @@ const BreadCrumbs = (props: any) => {
 
   const languageDataLocal = sessionStorage.getItem('Language');
   const languageDataLocalForMenu = JSON.parse(sessionStorage.getItem('LanguageData'));
-  const currentMenu = useAppSelector(state => state.level.menuData);
   let menu: any = JSON.parse(sessionStorage.getItem('currentMenu' ? 'currentMenu' : ''));
   let menuItem: any = JSON.parse(sessionStorage.getItem('currentMenuItem' ? 'currentMenuItem' : ''));
 
