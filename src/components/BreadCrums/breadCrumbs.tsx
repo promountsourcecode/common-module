@@ -5,20 +5,16 @@ import { MenuTranslate } from '../MenuTranslate/menuTranslate';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
 import { Helmet } from 'react-helmet';
-const BreadCrumbs = (props: any) => {
+const BreadCrumbs = () => {
 
   const languageDataLocal = sessionStorage.getItem('Language');
-  const languageDataLocalForMenu = JSON.parse(sessionStorage.getItem('LanguageData'));
   let menu: any = JSON.parse(sessionStorage.getItem('currentMenu' ? 'currentMenu' : ''));
   let menuItem: any = JSON.parse(sessionStorage.getItem('currentMenuItem' ? 'currentMenuItem' : ''));
 
-
-  //setIsMandatory(languageDataLocalForMenu['menuLanguageData'][selectLanguage][prop.contentKey]);
   const items: any = [
-    { label: menu ? JSON.parse(sessionStorage.getItem('LanguageData'))['menuLanguageData'][languageDataLocal][menu.keyName] : '' },
+    { label: menu ? JSON.parse(sessionStorage.getItem('LanguageData'))['menuLanguageData'][languageDataLocal][menu.keyName]['text'] : '' },
     { label: menuItem ? JSON.parse(sessionStorage.getItem('LanguageData'))['menuItemLanguageData'][languageDataLocal][menuItem.keyName]['text'] : '' },
   ];
-
 
   const home = { icon: 'fa-solid fa-home', url: '' };
   const [showbreadCrums, setBreadcrums] = useState<boolean>(false);
@@ -38,6 +34,7 @@ const BreadCrumbs = (props: any) => {
         <title>{menuItem ? JSON.parse(sessionStorage.getItem('LanguageData'))['menuItemLanguageData'][languageDataLocal][menuItem.keyName]['text'] : ''} | Quality Management System</title>
       </Helmet>
     </div>
+     
       {showbreadCrums && (
         <div className="page-header d-flex justify-content-between">
           <div>
