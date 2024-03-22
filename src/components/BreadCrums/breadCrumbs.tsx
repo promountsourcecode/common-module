@@ -4,7 +4,7 @@ import { MenuItemTranslate } from '../MenuItemTranslate/getMenuandmenuItem';
 import { MenuTranslate } from '../MenuTranslate/menuTranslate';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
-
+import { Helmet } from 'react-helmet';
 const BreadCrumbs = (props: any) => {
 
   const languageDataLocal = sessionStorage.getItem('Language');
@@ -15,7 +15,7 @@ const BreadCrumbs = (props: any) => {
 
   //setIsMandatory(languageDataLocalForMenu['menuLanguageData'][selectLanguage][prop.contentKey]);
   const items: any = [
-    { label: menu ? JSON.parse(sessionStorage.getItem('LanguageData'))['menuLanguageData'][languageDataLocal][menu.keyName]['text'] : '' },
+    { label: menu ? JSON.parse(sessionStorage.getItem('LanguageData'))['menuLanguageData'][languageDataLocal][menu.keyName] : '' },
     { label: menuItem ? JSON.parse(sessionStorage.getItem('LanguageData'))['menuItemLanguageData'][languageDataLocal][menuItem.keyName]['text'] : '' },
   ];
 
@@ -33,6 +33,11 @@ const BreadCrumbs = (props: any) => {
 
   return (
     <>
+    <div>
+    <Helmet>
+        <title>{menuItem ? JSON.parse(sessionStorage.getItem('LanguageData'))['menuItemLanguageData'][languageDataLocal][menuItem.keyName]['text'] : ''} | Quality Management System</title>
+      </Helmet>
+    </div>
       {showbreadCrums && (
         <div className="page-header d-flex justify-content-between">
           <div>
