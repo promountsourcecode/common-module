@@ -1,7 +1,5 @@
 import { BreadCrumb } from 'primereact/breadcrumb';
 import React, { useEffect, useState } from 'react';
-import { MenuItemTranslate } from '../MenuItemTranslate/getMenuandmenuItem';
-import { MenuTranslate } from '../MenuTranslate/menuTranslate';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
 import { Helmet } from 'react-helmet';
