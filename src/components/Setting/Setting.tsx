@@ -49,9 +49,8 @@ class Setting extends Component<ModalInputProps> {
     //   { size: '5000' },
     // ],
     language: sessionStorage.getItem('Language'),
-    selectedPageSize: {
-      size: this.props?.columns[0]?.gridPageSize,
-    },
+    selectedPageSize:        Number(this.props?.columns[0]?.gridPageSize),
+    
   };
 
   constructor(props) {
@@ -272,7 +271,6 @@ class Setting extends Component<ModalInputProps> {
                     value={this.state.selectedPageSize}
                     onChange={e => this.setSelectedPageSize(e.value)}
                     options={this.state.pageSize}
-                    optionLabel="size"
                     placeholder="Select a Page Size"
                   />
                 </div>
