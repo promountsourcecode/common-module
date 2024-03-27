@@ -28,7 +28,7 @@ export const AskReason = (prop) => {
     return errors[name] ? (
       <small className="p-error">{errors[name].message}</small>
     ) : (
-      <small className="p-error">&nbsp;</small>
+      <small className="p-error"></small>
     );
   };
 
@@ -79,7 +79,7 @@ export const AskReason = (prop) => {
             style={{ overflow: "auto !important" }}
           >
             <div className="container-fluid">
-              <div className="row form-group">
+              <div className="form-group">
                 <Controller
                   name="reasonForChange"
                   control={control}

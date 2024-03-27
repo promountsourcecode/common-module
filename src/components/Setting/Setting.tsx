@@ -23,6 +23,7 @@ interface ModalInputProps {
   onClose: any;
   onReset: any;
   menuItemId: any;
+  dropdownOptions:any
 }
 
 class Setting extends Component<ModalInputProps> {
@@ -34,18 +35,19 @@ class Setting extends Component<ModalInputProps> {
     filter: this.props?.columns[0]?.filterEnable,
     gridData: this.props.gridData,
     prop: this.props,
-    pageSize: [
-      { size: '5' },
-      { size: '10' },
-      { size: '20' },
-      { size: '50' },
-      { size: '100' },
-      { size: '200' },
-      { size: '500' },
-      { size: '1000' },
-      { size: '2000' },
-      { size: '5000' },
-    ],
+    pageSize: this.props.dropdownOptions,
+    // pageSize: [
+    //   { size: '5' },
+    //   { size: '10' },
+    //   { size: '20' },
+    //   { size: '50' },
+    //   { size: '100' },
+    //   { size: '200' },
+    //   { size: '500' },
+    //   { size: '1000' },
+    //   { size: '2000' },
+    //   { size: '5000' },
+    // ],
     language: sessionStorage.getItem('Language'),
     selectedPageSize: {
       size: this.props?.columns[0]?.gridPageSize,

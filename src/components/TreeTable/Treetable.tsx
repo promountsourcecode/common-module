@@ -29,6 +29,7 @@ import { Setting } from "@promountsourcecode/common_module";
 import { InputSwitch } from 'primereact/inputswitch';
 import { toast } from 'react-toastify';
 import { CORE_BASE_URL } from "../constants/apiConstant";
+import { useAppDispatch, useAppSelector } from 'app/config/store';
 export const Treetable = (prop) => {
   const dispatch = useAppDispatch();
   const dt = useRef<any>();
@@ -200,7 +201,7 @@ export const Treetable = (prop) => {
     setfilter(filterToggle);
     const pageData = {
       first: lazyState.first,
-      rows: parseInt(selectedPageSize.size),
+      rows: selectedPageSize,
       page: lazyState.page,
       sortField: lazyState.sortField,
       sortOrder: lazyState.sortOrder,
@@ -731,7 +732,8 @@ export const Treetable = (prop) => {
 
   const [totalRecords, setTotalRecords] = useState(prop.totalRecords);
   const [lazyState, setlazyState] = useState(prop.pagination);
-
+  let row_per_page:string = useAppSelector(state =>state.commonReducer.RowsPerPage.configurationValue);
+  const dropdownOptions : any = []
   useEffect(() => {
     setTotalRecords(prop.totalRecords);
   }, [prop.totalRecords]);
@@ -740,21 +742,28 @@ export const Treetable = (prop) => {
     setlazyState(prop.pagination);
   }, [prop.pagination]);
 
+
   const paginatorTemplate = {
     layout:
       "RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport ",
     RowsPerPageDropdown: (options) => {
-      const dropdownOptions = [
-        { label: 5, value: 5 },
-        { label: 10, value: 10 },
-        { label: 20, value: 20 },
-        { label: 50, value: 50 },
-        { label: 100, value: 100 },
-        { label: 500, value: 500 },
-        { label: 1000, value: 1000 },
-        { label: 2000, value: 2000 },
-        { label: 5000, value: 5000 },
-      ];
+      // const dropdownOptions = [
+      //   { label: 5, value: 5 },
+      //   { label: 10, value: 10 },
+      //   { label: 20, value: 20 },
+      //   { label: 50, value: 50 },
+      //   { label: 100, value: 100 },
+      //   { label: 500, value: 500 },
+      //   { label: 1000, value: 1000 },
+      //   { label: 2000, value: 2000 },
+      //   { label: 5000, value: 5000 },
+      // ];
+      if(row_per_page){
+        let arr =  row_per_page ? row_per_page.split(',') : ''
+        for(let i = 0; i < arr.length ; i++ ){
+          dropdownOptions.push(Number(arr[i]))
+        }
+      }  
 
       return (
         <React.Fragment>

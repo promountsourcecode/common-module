@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
+import { toast } from 'react-toastify';
 
 // const dataSC1: any = JSON.parse(sessionStorage.getItem('LanguageData'));
 // const dataSc = dataSC1 ? dataSC1.translations[2].validations.validateDetails : '';
@@ -47,43 +48,63 @@ export function getControlValidationObj(field) {
   const obj = lngobj[field];
   const ruleObj = {};
 
-  if (obj.mandatory != null) {
-    ruleObj["required"] = {};
-    ruleObj["required"]["value"] = obj.mandatory;
-    if (obj.isRequiredMessage != null && obj.isRequiredMessage !== "") {
-      ruleObj["required"]["message"] = obj.isRequiredMessage;
+  try {
+    if (obj.mandatory != null) {
+      ruleObj["required"] = {};
+      ruleObj["required"]["value"] = obj.mandatory;
+      if (obj.isRequiredMessage != null && obj.isRequiredMessage !== "") {
+        ruleObj["required"]["message"] = obj.isRequiredMessage;
+      }
     }
+  } catch (error) {
+    toast.error(error.toString());
   }
+  
 
-  if (obj.minvalue != null && obj.minvalue !== "") {
-    ruleObj["minLength"] = {};
-    ruleObj["minLength"]["value"] = Number(obj.minvalue);
-
-    //message = getErrorMessageForMinLength(screenDataSc, field);
-    // if (message != null && message != '') {
-    ruleObj["minLength"]["message"] = obj.minLengthMessage;
-    // }
+  try {
+    if (obj.minvalue != null && obj.minvalue !== "") {
+      ruleObj["minLength"] = {};
+      ruleObj["minLength"]["value"] = Number(obj.minvalue);
+  
+      //message = getErrorMessageForMinLength(screenDataSc, field);
+      // if (message != null && message != '') {
+      ruleObj["minLength"]["message"] = obj.minLengthMessage;
+      // }
+    }
+  } catch (error) {
+    toast.error(error.toString());
   }
+ 
 
   // let maxLength: any = getMaxLength(screenDataSc, field);
-  if (obj.maxvalue != null && obj.maxvalue !== "") {
-    ruleObj["maxLength"] = {};
-    ruleObj["maxLength"]["value"] = obj.maxvalue;
-
-    ruleObj["maxLength"]["message"] = obj.maxLengthMessage;
+  try {
+    if (obj.maxvalue != null && obj.maxvalue !== "") {
+      ruleObj["maxLength"] = {};
+      ruleObj["maxLength"]["value"] = obj.maxvalue;
+  
+      ruleObj["maxLength"]["message"] = obj.maxLengthMessage;
+    }
+  } catch (error) {
+    toast.error(error.toString());
   }
+  
 
   // let pattern: any = getRegex(screenDataSc, field);
-
-  if (obj.validationRegex != null && obj.validationRegex !== "") {
-    ruleObj["pattern"] = {};
-    ruleObj["pattern"]["value"] = RegExp(obj.validationRegex);
-
-    //message = getErrorMessageForRegex(screenDataSc, field);
-    // if (message != null && message != '') {
-    ruleObj["pattern"]["message"] = obj.regexPatternMessage;
-    // }
+  try {
+    if (obj.validationRegex != null && obj.validationRegex !== "") {
+      ruleObj["pattern"] = {};
+      ruleObj["pattern"]["value"] = RegExp(obj.validationRegex);
+  
+      //message = getErrorMessageForRegex(screenDataSc, field);
+      // if (message != null && message != '') {
+      ruleObj["pattern"]["message"] = obj.regexPatternMessage;
+      // }
+    }
+  } catch (error) {
+    toast.error(error.toString());
   }
+
+  
   return ruleObj;
 }
 
