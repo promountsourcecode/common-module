@@ -183,7 +183,7 @@ class Setting extends Component<ModalInputProps> {
     else if (this.state.language === 'hi') id = 2;
     else id = 3;
     this.props.columns.forEach(column => {
-      column['gridPageSize'] = this.state.selectedPageSize.size;
+      column['gridPageSize'] = this.state.selectedPageSize;
       column['filterEnable'] = this.state.filter;
     });
 
