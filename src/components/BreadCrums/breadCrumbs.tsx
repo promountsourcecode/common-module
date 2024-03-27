@@ -27,12 +27,20 @@ const BreadCrumbs = () => {
 
   return (
     <>
-    <div>
-    <Helmet>
-        <title>{menuItem ? JSON.parse(sessionStorage.getItem('LanguageData'))['menuItemLanguageData'][languageDataLocal][menuItem.keyName]['text'] : ''} | Quality Management System</title>
-      </Helmet>
-    </div>
-     
+      <div>
+        {showbreadCrums && (
+          <Helmet>
+            <title>{menuItem ? JSON.parse(sessionStorage.getItem('LanguageData'))['menuItemLanguageData'][languageDataLocal][menuItem.keyName]['text'] : ''} | Quality Management System</title>
+          </Helmet>
+        )}
+
+        {!showbreadCrums && (
+          <Helmet>
+            <title>Quality Management System</title>
+          </Helmet>
+        )}
+      </div>
+
       {showbreadCrums && (
         <div className="page-header d-flex justify-content-between">
           <div>
