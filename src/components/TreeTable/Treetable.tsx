@@ -136,12 +136,12 @@ export const Treetable = (prop) => {
     setModalExport(!modalExport);
   };
 
-  const arrForRow = sessionStorage.getItem("RowsPerPage");
-  const [perPage, setPerPage] = useState([]);
-  useEffect(() => {
-    let arr = arrForRow.split(",").map(Number);
-    setPerPage(arr);
-  }, [arrForRow]);
+  //const arrForRow = sessionStorage.getItem("RowsPerPage");
+  //const [perPage, setPerPage] = useState([]);
+  // useEffect(() => {
+  //   let arr = arrForRow.split(",").map(Number);
+  //   setPerPage(arr);
+  // }, [arrForRow]);
 
   const [paginationState, setPaginationState] = useState(
     overridePaginationStateWithQueryParams(
