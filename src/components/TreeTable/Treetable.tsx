@@ -1046,6 +1046,7 @@ export const Treetable = (prop) => {
           onClose={closeSettingModal}
           onSetting={settingChanges}
           onReset={onReset}
+          dropdownOptions={dropdownOptions}
         />
       )}
 
