@@ -39,8 +39,8 @@ import { setMsgLangKeyInSessionStorage } from '@promountsourcecode/common_module
 import { OverlayPanel } from 'primereact/overlaypanel';
 import _ from 'lodash';
 import { boolean, object } from 'yup';
-import { getColumns } from 'app/entities/form/form.reducer';
-
+//import { getColumns } from 'app/entities/form/form.reducer'; 
+import {getColumns} from 'app/shared/common.reducer'; 
 export const Table = prop => {
   const menuItemId = sessionStorage.getItem('menuItemId');
   const [userId, setUserId] = useState(sessionStorage.getItem('id'));
@@ -92,7 +92,6 @@ export const Table = prop => {
 
   useEffect(() => {
     setlazyState(lazyState);
-    console.log("lazyState",lazyState)
   }, [lazyState]);
   const paginatorTemplate = {
     layout: 'RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport ',
@@ -472,7 +471,6 @@ export const Table = prop => {
   };
 
   const settingChanges = (coulmnData, filterToggle, selectedPageSize) => {
-    console.log("settinData", selectedPageSize )
     setModal(false);
     setColumn(coulmnData);
     setfilter(filterToggle);
@@ -643,8 +641,6 @@ export const Table = prop => {
         if (element.visible) globalFilterData.push(element.field);
       });
     }
-    console.log("global", globalFilterData);
-
     return globalFilterData;
   };
 
