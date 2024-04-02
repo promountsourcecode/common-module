@@ -24,7 +24,7 @@ import { AskReason } from '@promountsourcecode/common_module';
 import { setMsgLangKeyInSessionStorage } from '@promountsourcecode/common_module';
 import { Paginator } from 'primereact/paginator';
 import { Dropdown } from 'primereact/dropdown';
-import {getColumns} from 'app/shared/common.reducer'; 
+import {getColumns} from '../ValidationMethod/validationMethod'; 
 import { Setting } from "@promountsourcecode/common_module";
 import { InputSwitch } from 'primereact/inputswitch';
 import { toast } from 'react-toastify';

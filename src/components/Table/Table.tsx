@@ -40,7 +40,7 @@ import { OverlayPanel } from 'primereact/overlaypanel';
 import _ from 'lodash';
 import { boolean, object } from 'yup';
 //import { getColumns } from 'app/entities/form/form.reducer'; 
-import {getColumns} from 'app/shared/common.reducer'; 
+import {getColumns} from '../ValidationMethod/validationMethod'; 
 export const Table = prop => {
   const menuItemId = sessionStorage.getItem('menuItemId');
   const [userId, setUserId] = useState(sessionStorage.getItem('id'));
