@@ -1,7 +1,7 @@
 import { BreadCrumb } from 'primereact/breadcrumb';
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHouse } from '@fortawesome/free-solid-svg-icons';
+import { faHouse, faUserLarge } from '@fortawesome/free-solid-svg-icons';
 import { Helmet } from 'react-helmet';
 const BreadCrumbs = () => {
 
@@ -16,9 +16,14 @@ const BreadCrumbs = () => {
 
   const home = { icon: 'fa-solid fa-home', url: '' };
   const [showbreadCrums, setBreadcrums] = useState<boolean>(false);
+  const [showProfile, setShowProfile] = useState<boolean>(false);
   useEffect(() => {
     if (sessionStorage.getItem("menuItemId") == "11731") {
       setBreadcrums(false)
+    }
+    else if (sessionStorage.getItem('menuItemId') == '21249') {
+      setShowProfile(true)
+      setBreadcrums(undefined);
     }
     else {
       setBreadcrums(true)
@@ -53,11 +58,21 @@ const BreadCrumbs = () => {
         </div>
       )}
 
-      {!showbreadCrums && (
+      {!showbreadCrums && !showProfile && (
         <div className="page-header d-flex justify-content-between">
           <div>
             <h4>
               <FontAwesomeIcon icon={faHouse} /> Dashboard{' '}
+            </h4>
+          </div>
+        </div>
+      )}
+
+      {showProfile && (
+        <div className="page-header d-flex justify-content-between">
+          <div>
+            <h4>
+              <FontAwesomeIcon icon={faUserLarge} /> Manage Account{' '}
             </h4>
           </div>
         </div>
