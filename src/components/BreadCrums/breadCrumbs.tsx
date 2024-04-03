@@ -19,14 +19,16 @@ const BreadCrumbs = () => {
   const [showProfile, setShowProfile] = useState<boolean>(false);
   useEffect(() => {
     if (sessionStorage.getItem("menuItemId") == "11731") {
-      setBreadcrums(false)
+      setBreadcrums(false);
+      setShowProfile(false);
     }
     else if (sessionStorage.getItem('menuItemId') == '21249') {
       setShowProfile(true)
       setBreadcrums(undefined);
     }
     else {
-      setBreadcrums(true)
+      setBreadcrums(true);
+      setShowProfile(false);
     }
   });
  
