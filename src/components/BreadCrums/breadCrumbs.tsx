@@ -3,41 +3,56 @@ import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse, faUserLarge } from '@fortawesome/free-solid-svg-icons';
 import { Helmet } from 'react-helmet';
-const BreadCrumbs = () => {
-
+import { toast } from 'react-toastify';
+const BreadCrumbs = (props: any) => {
   const languageDataLocal = sessionStorage.getItem('Language');
   let menu: any = JSON.parse(sessionStorage.getItem('currentMenu' ? 'currentMenu' : ''));
   let menuItem: any = JSON.parse(sessionStorage.getItem('currentMenuItem' ? 'currentMenuItem' : ''));
-
-  const items: any = [
-    { label: menu ? JSON.parse(sessionStorage.getItem('LanguageData'))['menuLanguageData'][languageDataLocal][menu.keyName]['text'] : '' },
-    { label: menuItem ? JSON.parse(sessionStorage.getItem('LanguageData'))['menuItemLanguageData'][languageDataLocal][menuItem.keyName]['text'] : '' },
-  ];
+  let items: any;
+  let languageData;
+  if(sessionStorage.getItem('LanguageData') != null) {
+     languageData = JSON.parse(sessionStorage.getItem('LanguageData'));
+  }
+  try {
+    if (languageData != null) {
+      items = [
+        {
+          label: menu ? languageData?.menuLanguageData?.[languageDataLocal]?.[menu.keyName]['text'] : '',
+        },
+        {
+          label: menuItem ? languageData?.menuItemLanguageData?.[languageDataLocal]?.[menuItem.keyName]['text'] : '',
+        },
+      ];
+    }
+  } catch (error) {
+    toast.error(error.toString());
+  }
 
   const home = { icon: 'fa-solid fa-home', url: '' };
   const [showbreadCrums, setBreadcrums] = useState<boolean>(false);
   const [showProfile, setShowProfile] = useState<boolean>(false);
   useEffect(() => {
-    if (sessionStorage.getItem("menuItemId") == "11731") {
+    if (sessionStorage.getItem('menuItemId') == '11731') {
       setBreadcrums(false);
       setShowProfile(false);
-    }
-    else if (sessionStorage.getItem('menuItemId') == '21249') {
-      setShowProfile(true)
+    } else if (sessionStorage.getItem('menuItemId') == '21249') {
+      setShowProfile(true);
       setBreadcrums(undefined);
-    }
-    else {
+    } else {
       setBreadcrums(true);
       setShowProfile(false);
     }
   });
- 
+
   return (
     <>
       <div>
         {showbreadCrums && (
           <Helmet>
-            <title>{menuItem ? JSON.parse(sessionStorage.getItem('LanguageData'))['menuItemLanguageData'][languageDataLocal][menuItem.keyName]['text'] : ''} | Quality Management System</title>
+            <title>
+              {menuItem ? languageData?.menuItemLanguageData?.[languageDataLocal]?.[menuItem.keyName]['text'] : ''} | Quality
+              Management System
+            </title>
           </Helmet>
         )}
 
@@ -52,11 +67,15 @@ const BreadCrumbs = () => {
         <div className="page-header d-flex justify-content-between">
           <div>
             <h4>
-              <i className={menu.menuIcon} ></i>
-              {menuItem ? JSON.parse(sessionStorage.getItem('LanguageData'))['menuItemLanguageData'][languageDataLocal][menuItem.keyName]['text'] : ''}
+              <i className={menu.menuIcon}></i>
+              {menuItem ? languageData?.menuItemLanguageData?.[languageDataLocal]?.[menuItem.keyName]['text'] : ''}
             </h4>
           </div>
-          <div><h4><BreadCrumb className="breadCrumb-header float-right" model={items} home={home} /></h4></div>
+          <div>
+            <h4>
+              <BreadCrumb className="breadCrumb-header float-right" model={items} home={home} />
+            </h4>
+          </div>
         </div>
       )}
 
@@ -80,7 +99,7 @@ const BreadCrumbs = () => {
         </div>
       )}
     </>
-  )
+  );
 };
 
 export default BreadCrumbs;
