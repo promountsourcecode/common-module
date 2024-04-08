@@ -1,35 +1,50 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo, Children } from 'react';
-import { Column } from 'primereact/column';
-import { Button } from 'reactstrap';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+  Children,
+} from "react";
+import { Column } from "primereact/column";
+import { Button } from "reactstrap";
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
-import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
-import { getSortState } from 'react-jhipster';
-import { ITEMS_PER_PAGE } from 'app/shared/util/pagination.constants';
-import { useAppDispatch } from 'app/config/store';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
+import { overridePaginationStateWithQueryParams } from "app/shared/util/entity-utils";
+import { getSortState } from "react-jhipster";
+import { ITEMS_PER_PAGE } from "app/shared/util/pagination.constants";
+import { useAppDispatch } from "app/config/store";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import ExportSetting from "../Export-Column";
-import axios from 'axios';
-import { InputText } from 'primereact/inputtext';
-import { TreeTable } from 'primereact/treetable';
-import { faCloudUpload, faDownload, faFileWord, faPenToSquare, faTrashCan } from '@fortawesome/free-solid-svg-icons';
-import { MenuItem } from 'primereact/menuitem';
-import { SplitButton } from 'primereact/splitbutton';
-import { Translate } from '@promountsourcecode/common_module';
-import { RadioButton } from 'primereact/radiobutton';
-import { Checkbox } from 'primereact/checkbox';
-import { AskReason } from '@promountsourcecode/common_module';
-import { setMsgLangKeyInSessionStorage } from '@promountsourcecode/common_module';
-import { Paginator } from 'primereact/paginator';
-import { Dropdown } from 'primereact/dropdown';
-import {getColumns} from '../ValidationMethod/validationMethod'; 
+import axios from "axios";
+import { InputText } from "primereact/inputtext";
+import { TreeTable } from "primereact/treetable";
+import {
+  faCloudUpload,
+  faDownload,
+  faFileWord,
+  faPenToSquare,
+  faTrashCan,
+} from "@fortawesome/free-solid-svg-icons";
+import { MenuItem } from "primereact/menuitem";
+import { SplitButton } from "primereact/splitbutton";
+import { Translate } from "@promountsourcecode/common_module";
+import { RadioButton } from "primereact/radiobutton";
+import { Checkbox } from "primereact/checkbox";
+import { AskReason } from "@promountsourcecode/common_module";
+import { setMsgLangKeyInSessionStorage } from "@promountsourcecode/common_module";
+import { Paginator } from "primereact/paginator";
+import { Dropdown } from "primereact/dropdown";
+import { getColumns } from "../ValidationMethod/validationMethod";
 import { Setting } from "@promountsourcecode/common_module";
-import { InputSwitch } from 'primereact/inputswitch';
-import { toast } from 'react-toastify';
+import { InputSwitch } from "primereact/inputswitch";
+import { toast } from "react-toastify";
 import { CORE_BASE_URL } from "../constants/apiConstant";
-import { useAppDispatch, useAppSelector } from 'app/config/store';
+import { useAppDispatch, useAppSelector } from "app/config/store";
+import { FilterMatchMode } from "primereact/api";
+
 export const Treetable = (prop) => {
   const dispatch = useAppDispatch();
   const dt = useRef<any>();
@@ -39,7 +54,9 @@ export const Treetable = (prop) => {
   const [exportCol, setExportCol] = useState<any>([]);
   const [documentTypeId, setdocumentypeId] = useState(prop.documentTypeId);
   const [filter, setfilter] = useState(prop.toggleFilter);
-  const [filters, setfilters] = useState(prop.filters);
+  const [filters, setfilters] = useState({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  });
   const [gridId, setGridId] = useState(prop.gridId);
   const [apiGridData, setApiGridData] = useState([]);
   const [modal, setModal] = useState(false);
@@ -47,6 +64,7 @@ export const Treetable = (prop) => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [exportType, setExportType] = useState();
   const [globalFilterValue, setGlobalFilterValue] = useState("");
+  const [columnfilters, setColumnfilters] = useState(true);
   const [ifShowHeader, setifShowHeader] = useState(false);
   const [ifHideHeader, setifHideHeader] = useState(true);
 
@@ -95,6 +113,29 @@ export const Treetable = (prop) => {
         await setColumn(
           gridData.data.data.length > 0 ? gridData.data.data : prop.column
         );
+
+        const filterObject = {
+          global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        };
+
+        if (gridData?.data?.data != null) {
+          if (gridData?.data?.data.length > 0) {
+            gridData.data.data.forEach((item) => {
+              if (
+                item.field != "radio" &&
+                item.field != "checkbox" &&
+                item.field != "action" &&
+                item.field != "button"
+              )
+                filterObject[item.field] = {
+                  value: null,
+                  matchMode: FilterMatchMode.CONTAINS,
+                };
+            });
+          }
+        }
+
+        setfilters(filterObject);
         await prepareRowAction(gridData.data.data);
       }
     } catch (error) {
@@ -195,10 +236,16 @@ export const Treetable = (prop) => {
     { label: "Print", icon: "fa-solid fa-print" },
   ];
 
-  const settingChanges = (coulmnData, filterToggle, selectedPageSize) => {
+  const settingChanges = (
+    coulmnData,
+    filterToggle,
+    selectedPageSize,
+    columnFilter
+  ) => {
     setModal(false);
     setColumn(coulmnData);
     setfilter(filterToggle);
+    setColumnfilters(columnFilter);
     const pageData = {
       first: lazyState.first,
       rows: selectedPageSize,
@@ -340,7 +387,6 @@ export const Treetable = (prop) => {
       column.map((header) => obj[header.field])
     );
 
-
     const content = {
       startY: 50,
       head: [out],
@@ -406,16 +452,18 @@ export const Treetable = (prop) => {
     try {
       if (
         gridId != null &&
-        gridId != '' &&
+        gridId != "" &&
         gridId != undefined &&
         language != null &&
-        language != '' &&
+        language != "" &&
         language != undefined &&
         menuItemId != null &&
-        menuItemId != '' &&
+        menuItemId != "" &&
         menuItemId != undefined
       ) {
-        const gridData = await axios.get(`${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
+        const gridData = await axios.get(
+          `${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`
+        );
         // (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
         setColumn(gridData.data.data);
         const pageData = {
@@ -426,7 +474,40 @@ export const Treetable = (prop) => {
           sortOrder: lazyState.sortOrder,
         };
         setlazyState(pageData);
-        setfilter(gridData.data.data[0].filterEnable);
+        if (gridData?.data != null) {
+          setfilter(
+            gridData.data?.data?.length > 0
+              ? gridData?.data?.data[0].filterEnable
+              : false
+          );
+          setColumnfilters(
+            gridData?.data?.data?.length > 0
+              ? gridData?.data?.data[0].columnsFilterEnable
+              : false
+          );
+        }
+        const filterObject = {
+          global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        };
+
+        if (gridData?.data?.data != null) {
+          if (gridData?.data?.data.length > 0) {
+            gridData.data.data.forEach((item) => {
+              if (
+                item.field != "radio" &&
+                item.field != "checkbox" &&
+                item.field != "action" &&
+                item.field != "button"
+              )
+                filterObject[item.field] = {
+                  value: null,
+                  matchMode: FilterMatchMode.CONTAINS,
+                };
+            });
+          }
+        }
+
+        setfilters(filterObject);
         await prepareRowAction(gridData.data.data);
         await setModal(false);
         setData(prop.data);
@@ -732,8 +813,10 @@ export const Treetable = (prop) => {
 
   const [totalRecords, setTotalRecords] = useState(prop.totalRecords);
   const [lazyState, setlazyState] = useState(prop.pagination);
-  let row_per_page:string = useAppSelector(state =>state.commonReducer.RowsPerPage.configurationValue);
-  const dropdownOptions : any = []
+  let row_per_page: string = useAppSelector(
+    (state) => state.commonReducer.RowsPerPage.configurationValue
+  );
+  const dropdownOptions: any = [];
   useEffect(() => {
     setTotalRecords(prop.totalRecords);
   }, [prop.totalRecords]);
@@ -741,7 +824,6 @@ export const Treetable = (prop) => {
   useEffect(() => {
     setlazyState(prop.pagination);
   }, [prop.pagination]);
-
 
   const paginatorTemplate = {
     layout:
@@ -758,12 +840,12 @@ export const Treetable = (prop) => {
       //   { label: 2000, value: 2000 },
       //   { label: 5000, value: 5000 },
       // ];
-      if(row_per_page){
-        let arr =  row_per_page ? row_per_page.split(',') : ''
-        for(let i = 0; i < arr.length ; i++ ){
-          dropdownOptions.push(Number(arr[i]))
+      if (row_per_page) {
+        let arr = row_per_page ? row_per_page.split(",") : "";
+        for (let i = 0; i < arr.length; i++) {
+          dropdownOptions.push(Number(arr[i]));
         }
-      }  
+      }
 
       return (
         <React.Fragment>
@@ -814,7 +896,18 @@ export const Treetable = (prop) => {
             sortOrder: lazyState.sortOrder,
           };
           setlazyState(pageData);
-          setfilter(res.payload.data.data[0].filterEnable);
+          if (res?.payload?.data != null) {
+            setfilter(
+              res?.payload?.data?.data?.length > 0
+                ? res?.payload?.data?.data[0].filterEnable
+                : false
+            );
+            setColumnfilters(
+              res?.payload?.data?.data?.length > 0
+                ? res?.payload?.data?.data[0].columnsFilterEnable
+                : false
+            );
+          }
 
           await prepareRowAction(res.payload.data.data);
           await prop.onPageChange(pageData);
@@ -1043,6 +1136,7 @@ export const Treetable = (prop) => {
           filter={filter}
           columns={column}
           menuItemId={menuItemId}
+          isColumnfilters={columnfilters}
           onClose={closeSettingModal}
           onSetting={settingChanges}
           onReset={onReset}
@@ -1059,7 +1153,7 @@ export const Treetable = (prop) => {
         />
       )}
 
-      <div className="dataTable">
+      <div className={columnfilters ? "dataTable" : "dataTable columnFilters"}>
         <>
           {prop.data && prop.data.length > 0 ? (
             <>
@@ -1077,6 +1171,7 @@ export const Treetable = (prop) => {
                 onExpand={onNodeExpand}
                 expandedKeys={expandedKeys}
                 globalFilter={globalFilterValue}
+                filterMode={columnfilters ? "lenient" : null}
                 // onToggle={(e) => setExpandedKeys(e.value)}
                 onToggle={onToggle}
                 // onToggle={e => setParentId2(e.value)}
@@ -1207,6 +1302,7 @@ export const Treetable = (prop) => {
                         <Column
                           key={i}
                           field={e.field}
+                          filter
                           header={e.header}
                           style={{ width: e.width }}
                           expander={e.expander}
@@ -1246,9 +1342,7 @@ export const Treetable = (prop) => {
             />
           )}
         </>
-
         {/* </InfiniteScroll> */}
-
         {prop.flag && (
           <div className="p-dialog-footer">
             <Button
