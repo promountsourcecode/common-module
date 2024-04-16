@@ -2,15 +2,11 @@ import React, {
   useState,
   useEffect,
   useRef,
-  useCallback,
-  useMemo,
-  Children,
 } from "react";
 import { Column } from "primereact/column";
 import { Button } from "reactstrap";
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
+import { confirmDialog } from "primereact/confirmdialog";
 import { overridePaginationStateWithQueryParams } from "app/shared/util/entity-utils";
 import { getSortState } from "react-jhipster";
 import { ITEMS_PER_PAGE } from "app/shared/util/pagination.constants";
@@ -21,13 +17,6 @@ import ExportSetting from "../Export-Column";
 import axios from "axios";
 import { InputText } from "primereact/inputtext";
 import { TreeTable } from "primereact/treetable";
-import {
-  faCloudUpload,
-  faDownload,
-  faFileWord,
-  faPenToSquare,
-  faTrashCan,
-} from "@fortawesome/free-solid-svg-icons";
 import { MenuItem } from "primereact/menuitem";
 import { SplitButton } from "primereact/splitbutton";
 import { Translate } from "@promountsourcecode/common_module";
@@ -51,7 +40,6 @@ export const Treetable = (prop) => {
   const [nodes, setNodes] = useState<any>();
   const [column, setColumn] = useState(prop.column);
   const [exportCol, setExportCol] = useState<any>([]);
-  const [documentTypeId, setdocumentypeId] = useState(prop.documentTypeId);
   const [filter, setfilter] = useState(prop.toggleFilter);
   const [filters, setfilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -73,9 +61,6 @@ export const Treetable = (prop) => {
   const [redioFilter, setRedioFilter] = useState(
     sessionStorage.getItem("FilterStatus")
   );
-  const [configurableReason, setConfigurableReason] = useState<boolean>(
-    prop.reasonAsk ? prop.reasonAsk : false
-  );
   const menuItemId = sessionStorage.getItem("menuItemId");
   const [deleteHeader, setdeleteHeader] = useState(
     <Translate contentKey="global.deleteConfirm"></Translate>
@@ -84,12 +69,6 @@ export const Treetable = (prop) => {
     <Translate contentKey="home.deleteMsg"></Translate>
   );
   const [updatedJson, setUpdatedJson] = useState<any>();
-  const [maxPageSize, setMaxPageSize] = useState(
-    Number(sessionStorage.getItem("MaxPageSize"))
-  );
-  const [defaultPageSize, setDefaultPageSize] = useState(
-    Number(sessionStorage.getItem("DefaultPageSize"))
-  );
   const finalObject = [];
 
   useEffect(() => {
@@ -128,13 +107,10 @@ export const Treetable = (prop) => {
           sortField: lazyState.sortField,
           sortOrder: lazyState.sortOrder,
         };
-
         setlazyState(pageData);
-
         const filterObject = {
           global: { value: null, matchMode: FilterMatchMode.CONTAINS },
         };
-
         if (gridData?.data?.data != null) {
           if (gridData?.data?.data.length > 0) {
             gridData.data.data.forEach((item) => {
@@ -162,7 +138,6 @@ export const Treetable = (prop) => {
             ? gridData.data.data[0].columnsFilterEnable
             : false
         );
-
         setfilters(filterObject);
         await prepareRowAction(gridData.data.data);
       }
@@ -175,7 +150,6 @@ export const Treetable = (prop) => {
     setNodes((pre: any) => {
       if (!prop.data) return pre;
       else return prop.data;
-      //  prepareRowAction(gridData.data.data);
     });
     setData((pre: any) => {
       if (!prop.data) return pre;
@@ -204,13 +178,6 @@ export const Treetable = (prop) => {
     setExportType(e);
     setModalExport(!modalExport);
   };
-
-  //const arrForRow = sessionStorage.getItem("RowsPerPage");
-  //const [perPage, setPerPage] = useState([]);
-  // useEffect(() => {
-  //   let arr = arrForRow.split(",").map(Number);
-  //   setPerPage(arr);
-  // }, [arrForRow]);
 
   const [paginationState, setPaginationState] = useState(
     overridePaginationStateWithQueryParams(
@@ -362,7 +329,6 @@ export const Treetable = (prop) => {
 
     for (let i = 0; i < array.length; i++) {
       let line = "";
-      // eslint-disable-next-line guard-for-in
       for (const index in array[i]) {
         if (line !== "") line += ",";
         line += array[i][index];
@@ -857,17 +823,6 @@ export const Treetable = (prop) => {
     layout:
       "RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport ",
     RowsPerPageDropdown: (options) => {
-      // const dropdownOptions = [
-      //   { label: 5, value: 5 },
-      //   { label: 10, value: 10 },
-      //   { label: 20, value: 20 },
-      //   { label: 50, value: 50 },
-      //   { label: 100, value: 100 },
-      //   { label: 500, value: 500 },
-      //   { label: 1000, value: 1000 },
-      //   { label: 2000, value: 2000 },
-      //   { label: 5000, value: 5000 },
-      // ];
       if (row_per_page) {
         let arr = row_per_page ? row_per_page.split(",") : "";
         for (let i = 0; i < arr.length; i++) {
@@ -1202,17 +1157,12 @@ export const Treetable = (prop) => {
                 expandedKeys={expandedKeys}
                 globalFilter={globalFilterValue}
                 filterMode={columnfilters ? "lenient" : null}
-                // onToggle={(e) => setExpandedKeys(e.value)}
                 onToggle={onToggle}
-                // onToggle={e => setParentId2(e.value)}
                 tableStyle={{ minWidth: "50rem" }}
-                // paginator
-                // rows={defaultPageSize}
-                // rowsPerPageOptions={perPage}
               >
                 <Column
                   expander={true}
-                  style={{ marginRight: "50px" }}
+                  style={{ width: "5%" }}
                 ></Column>
                 {column.map((e: any, i: any) => {
                   if (e.visible) {
