@@ -1160,10 +1160,10 @@ export const Treetable = (prop) => {
                 onToggle={onToggle}
                 tableStyle={{ minWidth: "50rem" }}
               >
-                <Column
+                {/* <Column
                   expander={true}
                   style={{ width: "5%" }}
-                ></Column>
+                ></Column> */}
                 {column.map((e: any, i: any) => {
                   if (e.visible) {
                     if (e.type === "Radio") {
@@ -1273,7 +1273,7 @@ export const Treetable = (prop) => {
                           header={e.header}
                           style={{ width: e.width }}
                           editor={typeEditor}
-                          expander={e.expander}
+                          expander={i == 0 ? true : false}
                           sortable
                         />
                       );
@@ -1285,7 +1285,7 @@ export const Treetable = (prop) => {
                           filter
                           header={e.header}
                           style={{ width: e.width }}
-                          expander={e.expander}
+                          expander={i == 0 ? true : false}
                           sortable
                         />
                       );
