@@ -780,29 +780,39 @@ export const Table = (prop) => {
   };
 
   const onSelectCheckBox = (e, obj, fieldName) => {
+    let selField = { ...obj };
     let selectedItemsArray: any =
       selectCheckboxRc != undefined ? [...selectCheckboxRc] : [];
     const checked = e.checked;
 
-    if (obj[fieldName] != undefined) {
-      obj[fieldName] == e.checked;
+    if (selField[fieldName] != undefined) {
+      selField[fieldName] = e.checked;
+
       if (e.checked) {
         if (selectedItemsArray.length == 0) {
-          selectedItemsArray.push(obj);
+          selectedItemsArray.push(selField);
         } else {
-          selectedItemsArray.push(obj);
+          selectedItemsArray.push(selField);
         }
       } else {
-        selectedItemsArray.splice(selectedItemsArray.indexOf(obj), 1);
+        selectedItemsArray.splice(selectedItemsArray.indexOf(selField), 1);
       }
     } else {
       checked == true
-        ? selectedItemsArray.push(obj)
-        : selectedItemsArray.splice(selectedItemsArray.indexOf(obj), 1);
+        ? selectedItemsArray.push(selField)
+        : selectedItemsArray.splice(selectedItemsArray.indexOf(selField), 1);
     }
     setSelectCheckboxRc(selectedItemsArray);
-    setReasonIdDelete(obj);
-    prop.selectCheckbox(checked, obj, selectedItemsArray, fieldName);
+    setReasonIdDelete(selField);
+    prop.selectCheckbox(checked, selField, selectedItemsArray, fieldName);
+
+    let newData = data.map((item) => {
+      if (item.id === obj.id) {
+        return { ...item, [fieldName]: e.checked };
+      }
+      return item;
+    });
+    setData(newData);
   };
 
   const exportClose = () => {
@@ -1171,5 +1181,4 @@ export const Table = (prop) => {
     </div>
   );
 };
-
 export default Table;
