@@ -58,9 +58,7 @@ export const Treetable = (prop) => {
   const [language, setlanguage] = useState(
     sessionStorage.getItem("LanguageId")
   );
-  const [redioFilter, setRedioFilter] = useState(
-    sessionStorage.getItem("FilterStatus")
-  );
+  const [redioFilter, setRedioFilter] = useState('Active');
   const menuItemId = sessionStorage.getItem("menuItemId");
   const [deleteHeader, setdeleteHeader] = useState(
     <Translate contentKey="global.deleteConfirm"></Translate>
