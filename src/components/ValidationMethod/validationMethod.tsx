@@ -158,3 +158,16 @@ export const getColumns = async ({ gridId, id, menuItemId, name }: any) => {
   const requestUrl = `${apiUrlColoumns}/${gridId}/${id}/${menuItemId}/${1}`;
   return axios.get<any[]>(requestUrl);
 }
+
+// export const getMenuItemId = createAsyncThunk(
+//   'userMaster/update_entity',
+//   async (menuItemId: any) => {
+//     //console.log("MenuItem ID",menuItemId);
+//     const result = menuItemId;
+//     return result;
+//   },
+
+// );
+export function getMenuItemId(menuItemId: any) {
+  return menuItemId;
+}
