@@ -159,7 +159,3 @@ export const getColumns = async ({ gridId, id, menuItemId, name }: any) => {
   return axios.get<any[]>(requestUrl);
 }
 
-export function getMenuItemId(menuItemId: any) {
- // MENU_ITEM_ID=menuItemId
-  return menuItemId;
-}
