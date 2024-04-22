@@ -10,6 +10,7 @@ export { default as getControlValidationObj } from "./ValidationMethod";
 export { setMsgLangKeyInSessionStorage } from "./ValidationMethod";
 export { getDisplay } from "./ValidationMethod";
 export { screenConfigration } from "./ValidationMethod";
+export { getMenuItemId } from "./ValidationMethod";
 export { isFieldMandatory } from "./ValidationMethod";
 export { checkReasonFlag } from "./ValidationMethod";
 export { convertDateObjToDateString } from "./DateFormat";
