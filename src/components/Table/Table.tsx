@@ -1025,7 +1025,7 @@ export const Table = (prop) => {
               // rows={defaultPageSize}
               // rowsPerPageOptions={perPage}
             >
-              {rowReorder && <Column rowReorder style={{ minWidth: "3rem" }} />}
+              {rowReorder && <Column rowReorder style={{ width: "40px" }} />}
               {column &&
                 column.map((e: any, i: any) => {
                   if (e.visible) {
@@ -1096,7 +1096,7 @@ export const Table = (prop) => {
                     if (e.type === "Button") {
                       return (
                         <Column
-                          header="Action"
+                          header={e.header}
                           style={{ width: e.width ? e.width : "15px" }}
                           body={(data2) => (
                             <>

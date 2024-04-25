@@ -9,7 +9,6 @@ export * as DateFormat from "./DateFormat";
 export { default as getControlValidationObj } from "./ValidationMethod";
 export { setMsgLangKeyInSessionStorage } from "./ValidationMethod";
 export { getDisplay } from "./ValidationMethod";
-export { screenConfigration } from "./ValidationMethod";
 export { isFieldMandatory } from "./ValidationMethod";
 export { checkReasonFlag } from "./ValidationMethod";
 export { convertDateObjToDateString } from "./DateFormat";
@@ -28,4 +27,3 @@ export { FORM_BUILDER } from "./constants/apiConstant";
 export { default as BreadCrumbs } from "./BreadCrums";
 export { default as MenuTranslate } from "./MenuTranslate";
 export { default as MenuItemTranslate } from "./MenuItemTranslate";
-
