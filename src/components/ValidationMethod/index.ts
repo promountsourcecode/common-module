@@ -6,3 +6,4 @@ export { setMsgLangKeyInSessionStorage } from "./validationMethod";
 export { checkStatus } from "./validationMethod";
 export { breadCrumbsFlag } from "./validationMethod";
 export { getColumns } from "./validationMethod";
+export { screenConfigration } from "./validationMethod";

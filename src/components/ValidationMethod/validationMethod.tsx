@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { CORE_BASE_URL } from "../constants/apiConstant";
 
 // const dataSC1: any = JSON.parse(sessionStorage.getItem('LanguageData'));
 // const dataSc = dataSC1 ? dataSC1.translations[2].validations.validateDetails : '';
@@ -9,6 +10,19 @@ let language = sessionStorage.getItem("Language");
 let screenDataSc1 = sessionStorage.getItem("LanguageData")
   ? JSON.parse(sessionStorage.getItem("LanguageData"))["translations"]
   : "";
+
+export async function screenConfigration(menuItemId) {
+  // setLanguageAPIData(getDataSC.data.languageDetails);
+  const getDataSC = await axios.get(
+    `${CORE_BASE_URL}/api/screen-configurations/getAllScreenConfigurationsAndScreenControlValidations/${menuItemId}/${
+      sessionStorage.getItem("lastSyncTime")
+        ? sessionStorage.getItem("lastSyncTime")
+        : 0
+    }`
+  );
+  sessionStorage.setItem("lastSyncTime", getDataSC.data.lastSyncTime);
+  sessionStorage.setItem("LanguageData", JSON.stringify(getDataSC.data));
+}
 
 export function setMsgLangKeyInSessionStorage(key) {
   sessionStorage.setItem("msgLangKey", key);

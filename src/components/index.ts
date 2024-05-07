@@ -1,3 +1,5 @@
+import { screenConfigration } from "./ValidationMethod";
+
 export { default as Setting } from "./Setting";
 export { default as Translate } from "./Translate";
 export { default as Table } from "./Table";
@@ -27,3 +29,4 @@ export { FORM_BUILDER } from "./constants/apiConstant";
 export { default as BreadCrumbs } from "./BreadCrums";
 export { default as MenuTranslate } from "./MenuTranslate";
 export { default as MenuItemTranslate } from "./MenuItemTranslate";
+export { screenConfigration } from "./ValidationMethod";

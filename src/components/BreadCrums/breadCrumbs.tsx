@@ -7,9 +7,14 @@ const BreadCrumbs = (props: any) => {
   let menu: any = JSON.parse(
     sessionStorage.getItem("currentMenu" ? "currentMenu" : "")
   );
-  let menuItem: any = JSON.parse(
-    sessionStorage.getItem("currentMenuItem" ? "currentMenuItem" : "")
-  );
+  let menuItem: any = sessionStorage.getItem("currentMenuItem")
+    ? JSON.parse(sessionStorage.getItem("currentMenuItem"))
+    : {
+        subMenuName: "Dashboard",
+        subMenuLink: "/",
+        menuItemId: 15175,
+        keyName: "dashboard.menu",
+      };
   let items: any;
   let languageData;
   if (sessionStorage.getItem("LanguageData") != null) {
@@ -37,7 +42,13 @@ const BreadCrumbs = (props: any) => {
   } catch (error) {
     toast.error(error.toString());
   }
-
+  useEffect(() => {
+    console.log(
+      languageData?.menuItemLanguageData?.[languageDataLocal]?.[
+        menuItem.keyName
+      ]?.["text"]
+    );
+  }, []);
   const home = { icon: "fa-solid fa-home", url: "" };
   const [showbreadCrums, setBreadcrums] = useState<boolean>(true);
   //const [showProfile, setShowProfile] = useState<boolean>(false);
@@ -58,21 +69,22 @@ const BreadCrumbs = (props: any) => {
     <>
       {showbreadCrums ? (
         <Helmet>
-          <title>
-            {menuItem
-              ? languageData?.menuItemLanguageData?.[languageDataLocal]?.[
+          {menuItem != undefined && (
+            <title>
+              {menuItem &&
+                languageData?.menuItemLanguageData?.[languageDataLocal]?.[
                   menuItem.keyName
-                ]["text"]
-              : "Dashboard"}{" "}
-            | Quality Management System
-          </title>
+                ]?.["text"]}
+            </title>
+          )}
+          <title>Dashboard</title>
         </Helmet>
       ) : (
         <Helmet>
           <title>Quality Management System</title>
         </Helmet>
       )}
-      {showbreadCrums && menuItem?.subMenuName != "dashboard" ? (
+      {showbreadCrums && menuItem?.subMenuName != "Dashboard" ? (
         <div className="page-header d-flex justify-content-between">
           <div>
             <h4>
@@ -133,5 +145,4 @@ const BreadCrumbs = (props: any) => {
     </>
   );
 };
-
 export default BreadCrumbs;
