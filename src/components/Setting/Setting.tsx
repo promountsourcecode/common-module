@@ -145,6 +145,7 @@ class Setting extends Component<ModalInputProps> {
 
   async resetFromServer() {
     let id;
+    
     try {
       if (this.state.language === "en") id = 1;
       else if (this.state.language === "hi") id = 2;
@@ -153,7 +154,7 @@ class Setting extends Component<ModalInputProps> {
         .delete(
           `${CORE_BASE_URL}api/grid-user-settings/deleteByUserIdAndHierarchyIdAndGridIdAndMenuItemId?userMasterId=${1}&languageId=${id}&gridId=${
             this.state.prop.gridId
-          }`
+          }&menuItemId=${sessionStorage.getItem("menuItemId")}`
         )
         .then((res: any) => {
           this.setState({
