@@ -42,13 +42,7 @@ const BreadCrumbs = (props: any) => {
   } catch (error) {
     toast.error(error.toString());
   }
-  useEffect(() => {
-    console.log(
-      languageData?.menuItemLanguageData?.[languageDataLocal]?.[
-        menuItem.keyName
-      ]?.["text"]
-    );
-  }, []);
+
   const home = { icon: "fa-solid fa-home", url: "" };
   const [showbreadCrums, setBreadcrums] = useState<boolean>(true);
   //const [showProfile, setShowProfile] = useState<boolean>(false);
