@@ -51,6 +51,7 @@ export const Treetable = (prop) => {
   const [ifShowHeader, setifShowHeader] = useState(false);
   const [ifHideHeader, setifHideHeader] = useState(true);
   const [lazyState, setlazyState] = useState(prop.pagination);
+  const [exportColumnData, setColumnData] = useState([]);
   const [language, setlanguage] = useState(
     sessionStorage.getItem("LanguageId")
   );
@@ -164,6 +165,8 @@ export const Treetable = (prop) => {
   }, []);
 
   const toggle = (e) => {
+    let tempArr = [...column.filter((col) => col.field !== "action")];
+    setColumnData(tempArr);
     setExportType(e);
     setModalExport(!modalExport);
   };
