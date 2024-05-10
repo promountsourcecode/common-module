@@ -11,7 +11,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Setting } from "@promountsourcecode/common_module";
-import ExportSetting from "app/shared/export-column";
+import ExportSetting from "../Export-Column/export-column";
 import axios from "axios";
 import { Paginator } from "primereact/paginator";
 import { Translate } from "@promountsourcecode/common_module";
@@ -39,7 +39,6 @@ import { setMsgLangKeyInSessionStorage } from "@promountsourcecode/common_module
 import { OverlayPanel } from "primereact/overlaypanel";
 import _ from "lodash";
 import { boolean, object } from "yup";
-//import { getColumns } from 'app/entities/form/form.reducer';
 import { getColumns } from "../ValidationMethod/validationMethod";
 import { FilterMatchMode } from "primereact/api";
 
@@ -833,7 +832,6 @@ export const Table = (prop) => {
   };
 
   const statusBodyTemplate = (e) => {
-    console.log("e", e.status);
     if (e) {
       if (e.status == "Active") {
         return <span className="badge bg-success">{e.status}</span>;

@@ -981,7 +981,7 @@ export const Treetable = (prop) => {
       {modalExport && (
         <ExportSetting
           show={modalExport}
-          columns={column}
+          columns={exportColumnData}
           onSetting={settingChangesExport}
           onClose={exportClose}
         />
