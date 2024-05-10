@@ -23,11 +23,20 @@ class ExportSetting extends Component<ModalInputProps> {
     columns: this.props.columns,
     prop: this.props,
   };
+  originalColumns;
   constructor(props) {
     super(props);
-    this.state.columns.map((e) => {
-      e.visible = true;
+    const columnsCopy = this.props.columns.map((col) => ({ ...col }));
+    this.state = {
+      visible: this.props.show,
+      columns: columnsCopy,
+      prop: this.props,
+    };
+
+    columnsCopy.forEach((col) => {
+      col.visible = true;
     });
+    this.originalColumns = [...this.props.columns];
   }
   toggle = (e) => {
     e.preventDefault();
