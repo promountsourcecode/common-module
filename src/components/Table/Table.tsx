@@ -355,8 +355,10 @@ export const Table = (prop) => {
   }, []);
   const [label, setLabel] = useState("Default Label");
   const toggle = (e) => {
-    let tempArr = [...column.filter((col) => col.field !== "action")];
-    setColumnData(tempArr);
+    let exportColumn = [
+      ...column.filter((col) => col.type !== "Action" || col.type !== "Button"),
+    ];
+    setColumnData(exportColumn);
     setExportType(e);
     setModalExport(!modalExport);
   };

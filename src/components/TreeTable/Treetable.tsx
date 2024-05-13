@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Column } from "primereact/column";
-import { Button } from "reactstrap";
+import { Button } from "primereact/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { confirmDialog } from "primereact/confirmdialog";
 import { overridePaginationStateWithQueryParams } from "app/shared/util/entity-utils";
@@ -165,8 +165,10 @@ export const Treetable = (prop) => {
   }, []);
 
   const toggle = (e) => {
-    let tempArr = [...column.filter((col) => col.field !== "action")];
-    setColumnData(tempArr);
+    let exportColumn = [
+      ...column.filter((col) => col.type !== "Action" || col.type !== "Button"),
+    ];
+    setColumnData(exportColumn);
     setExportType(e);
     setModalExport(!modalExport);
   };

@@ -4,7 +4,7 @@ import { InputText } from "primereact/inputtext";
 import { classNames } from "primereact/utils";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Button } from "reactstrap";
+import { Button } from "primereact/Button";
 import Translate from "../Translate";
 import axios from "axios";
 import { InputTextarea } from "primereact/inputtextarea";
@@ -156,7 +156,11 @@ export const AskReason = (prop) => {
               id="askReason"
               type="submit"
               color={action == "delete" ? "danger" : "success"}
-              className="btnStyle"
+              className={
+                action == "delete"
+                  ? "btn btn-danger btnStyle"
+                  : "btn btn-success btnStyle"
+              }
               icon="pi pi-check"
             >
               {action == "delete" ? (
