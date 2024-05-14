@@ -941,7 +941,7 @@ export const Table = (prop) => {
             tooltip="Setting"
             tooltipOptions={{ position: "top" }}
           >
-            <FontAwesomeIcon icon="cogs" />
+            <i className="fa-solid fa-gear"></i>
           </Button>
           {/* <SplitButton
             tooltip="Export"
@@ -959,7 +959,8 @@ export const Table = (prop) => {
             aria-expanded="false"
             style={{
               border: "none",
-              background: "white",
+              background: "#1565C00D",
+              marginLeft: "15px",
               boxShadow: "none",
               color: "#1565c0",
             }}
