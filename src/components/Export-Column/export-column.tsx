@@ -121,7 +121,7 @@ class ExportSetting extends Component<ModalInputProps> {
         visible={this.state.visible}
         style={{ width: "50vw" }}
         onHide={() => {
-          this.handleCancel();
+          this.props.onClose();
         }}
       >
         <div className="modal-content">
