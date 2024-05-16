@@ -145,7 +145,7 @@ class Setting extends Component<ModalInputProps> {
 
   async resetFromServer() {
     let id;
-    
+
     try {
       if (this.state.language === "en") id = 1;
       else if (this.state.language === "hi") id = 2;
@@ -259,6 +259,7 @@ class Setting extends Component<ModalInputProps> {
     return (
       <Dialog
         header={<Translate contentKey="setting.label"></Translate>}
+        className="settingModal"
         //footer={this.footerContent}
         visible={this.state.visible}
         style={{ width: "80vw" }}

@@ -708,6 +708,7 @@ export const Table = (prop) => {
     confirmDialog({
       message: deletemsg,
       header: deleteHeader,
+      className: "confirmationModal",
       icon: "pi pi-info-circle",
       acceptClassName: "p-button-danger",
       rejectClassName: "p-button-success",

@@ -117,6 +117,7 @@ class ExportSetting extends Component<ModalInputProps> {
       <Dialog
         header={<Translate contentKey="exports.title"></Translate>}
         footer={footerContent}
+        className="exportModal"
         maximizable
         visible={this.state.visible}
         style={{ width: "50vw" }}

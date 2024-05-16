@@ -68,6 +68,7 @@ export const AskReason = (prop) => {
       <Dialog
         header={<Translate contentKey="reasonForConfirmation"></Translate>}
         id={prop.id}
+        className="askReasonModal"
         visible={visible}
         onHide={closeModal}
         style={{ width: "30vw" }}

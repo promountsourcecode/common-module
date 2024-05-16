@@ -790,18 +790,6 @@ export const Treetable = (prop) => {
     setModalExport(!modalExport);
   };
 
-  const statusBodyTemplate = (e) => {
-    if (e) {
-      if (e.data.status == "Active") {
-        return <span className="badge bg-success">{e.data.status}</span>;
-      } else if (e.data.status == "Inactive") {
-        return <span className="badge bg-danger">{e.data.status}</span>;
-      } else {
-        return <span className="badge bg-primary">{e.data.status}</span>;
-      }
-    }
-  };
-
   return (
     <div>
       {ifHideHeader && (
@@ -1117,12 +1105,35 @@ export const Treetable = (prop) => {
                       return (
                         <Column
                           key={i}
-                          field={e.field}
-                          filter
                           header={e.header}
+                          filter
+                          columnKey={e.field}
+                          field={e.field}
                           style={{ width: e.width }}
-                          body={statusBodyTemplate}
                           sortable
+                          body={(data2) => {
+                            if (data2) {
+                              if (data2?.data[e.field] == "Active") {
+                                return (
+                                  <span className="badge bg-success">
+                                    {data2?.data[e.field]}
+                                  </span>
+                                );
+                              } else if (data2?.data[e.field] == "Inactive") {
+                                return (
+                                  <span className="badge bg-danger">
+                                    {data2?.data[e.field]}
+                                  </span>
+                                );
+                              } else {
+                                return (
+                                  <span className="badge bg-primary">
+                                    {data2?.data[e.field]}
+                                  </span>
+                                );
+                              }
+                            }
+                          }}
                         />
                       );
                     }
