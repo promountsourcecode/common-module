@@ -834,18 +834,6 @@ export const Table = (prop) => {
     setModalExport(false);
   };
 
-  const statusBodyTemplate = (e) => {
-    if (e) {
-      if (e.status == "Active") {
-        return <span className="badge bg-success">{e.status}</span>;
-      } else if (e.status == "Inactive") {
-        return <span className="badge bg-danger">{e.status}</span>;
-      } else {
-        return <span className="badge bg-primary">{e.status}</span>;
-      }
-    }
-  };
-
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center flex-wrap">
@@ -1171,13 +1159,35 @@ export const Table = (prop) => {
                       return (
                         <Column
                           key={i}
+                          header={e.header}
                           filter
-                          body={statusBodyTemplate}
                           columnKey={e.field}
                           field={e.field}
-                          header={e.header}
                           style={{ width: e.width }}
                           sortable
+                          body={(data2) => {
+                            if (data2) {
+                              if (data2[e.field] == "Active") {
+                                return (
+                                  <span className="badge bg-success">
+                                    {data2[e.field]}
+                                  </span>
+                                );
+                              } else if (data2[e.field] == "Inactive") {
+                                return (
+                                  <span className="badge bg-danger">
+                                    {data2[e.field]}
+                                  </span>
+                                );
+                              } else {
+                                return (
+                                  <span className="badge bg-primary">
+                                    {data2[e.field]}
+                                  </span>
+                                );
+                              }
+                            }
+                          }}
                         />
                       );
                     }
