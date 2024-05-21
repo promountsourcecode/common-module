@@ -373,69 +373,69 @@ export const Treetable = (prop) => {
   };
   const closeSettingModal = async () => {
     let id;
-    await setModal(false);
-    // try {
-    //   if (
-    //     gridId != null &&
-    //     gridId != "" &&
-    //     gridId != undefined &&
-    //     language != null &&
-    //     language != "" &&
-    //     language != undefined &&
-    //     menuItemId != null &&
-    //     menuItemId != "" &&
-    //     menuItemId != undefined
-    //   ) {
-    //     const gridData = await axios.get(
-    //       `${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`
-    //     );
-    //     setColumn(gridData.data.data);
-    //     const pageData = {
-    //       first: lazyState.first,
-    //       rows: await parseInt(gridData.data.data[0].gridPageSize),
-    //       page: lazyState.page,
-    //       sortField: lazyState.sortField,
-    //       sortOrder: lazyState.sortOrder,
-    //     };
-    //     setlazyState(pageData);
-    //     if (gridData?.data != null) {
-    //       setfilter(
-    //         gridData.data?.data?.length > 0
-    //           ? gridData?.data?.data[0].filterEnable
-    //           : false
-    //       );
-    //       setColumnfilters(
-    //         gridData?.data?.data?.length > 0
-    //           ? gridData?.data?.data[0].columnsFilterEnable
-    //           : false
-    //       );
-    //     }
-    //     const filterObject = {
-    //       global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    //     };
-    //     if (gridData?.data?.data != null) {
-    //       if (gridData?.data?.data.length > 0) {
-    //         gridData.data.data.forEach((item) => {
-    //           if (
-    //             item.field != "radio" &&
-    //             item.field != "checkbox" &&
-    //             item.field != "action" &&
-    //             item.field != "button"
-    //           )
-    //             filterObject[item.field] = {
-    //               value: null,
-    //               matchMode: FilterMatchMode.CONTAINS,
-    //             };
-    //         });
-    //       }
-    //     }
-    //     setfilters(filterObject);
-    //     await prepareRowAction(gridData.data.data);
-    //     setData(prop.data);
-    //   }
-    // } catch (error) {
-    //   toast.error(error.toString());
-    // }
+    try {
+      if (
+        gridId != null &&
+        gridId != "" &&
+        gridId != undefined &&
+        language != null &&
+        language != "" &&
+        language != undefined &&
+        menuItemId != null &&
+        menuItemId != "" &&
+        menuItemId != undefined
+      ) {
+        const gridData = await axios.get(
+          `${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`
+        );
+        setColumn(gridData.data.data);
+        const pageData = {
+          first: lazyState.first,
+          rows: await parseInt(gridData.data.data[0].gridPageSize),
+          page: lazyState.page,
+          sortField: lazyState.sortField,
+          sortOrder: lazyState.sortOrder,
+        };
+        setlazyState(pageData);
+        if (gridData?.data != null) {
+          setfilter(
+            gridData.data?.data?.length > 0
+              ? gridData?.data?.data[0].filterEnable
+              : false
+          );
+          setColumnfilters(
+            gridData?.data?.data?.length > 0
+              ? gridData?.data?.data[0].columnsFilterEnable
+              : false
+          );
+        }
+        const filterObject = {
+          global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        };
+        if (gridData?.data?.data != null) {
+          if (gridData?.data?.data.length > 0) {
+            gridData.data.data.forEach((item) => {
+              if (
+                item.field != "radio" &&
+                item.field != "checkbox" &&
+                item.field != "action" &&
+                item.field != "button"
+              )
+                filterObject[item.field] = {
+                  value: null,
+                  matchMode: FilterMatchMode.CONTAINS,
+                };
+            });
+          }
+        }
+        setfilters(filterObject);
+        await prepareRowAction(gridData.data.data);
+        await setModal(false);
+        setData(prop.data);
+      }
+    } catch (error) {
+      toast.error(error.toString());
+    }
   };
   const redioFilterSelection = (name) => {
     setRedioFilter(name);
@@ -471,7 +471,6 @@ export const Treetable = (prop) => {
       message: deletemsg,
       header: deleteHeader,
       icon: "pi pi-info-circle",
-      className: "confirmationModal",
       acceptClassName: "p-button-danger",
       rejectClassName: "p-button-success",
       acceptLabel: labelbtnFlag.yes ? labelbtnFlag.yes : "Yes",
@@ -482,9 +481,6 @@ export const Treetable = (prop) => {
       reject: () => reject(),
     });
   };
-  useEffect(() => {
-    setColumn(column);
-  }, [column]);
   const reject = () => {};
   const accept = (data: any, record: any) => {
     prop.onDelete(data, record);
@@ -719,34 +715,36 @@ export const Treetable = (prop) => {
     let id;
     setModal(false);
     if (gridId && language && menuItemId) {
-      getColumns({
-        gridId: gridId,
-        id: language,
-        menuItemId: menuItemId,
-      }).then(async (res: any) => {
+      dispatch(
+        getColumns({
+          gridId: gridId,
+          id: language,
+          menuItemId: menuItemId,
+        })
+      ).then(async (res: any) => {
         try {
-          setColumn(res.data.data);
+          setColumn(res.payload.data.data);
           const pageData = {
             first: lazyState.first,
-            rows: parseInt(res.data.data[0].gridPageSize),
+            rows: parseInt(res.payload.data.data[0].gridPageSize),
             page: lazyState.page,
             sortField: lazyState.sortField,
             sortOrder: lazyState.sortOrder,
           };
           setlazyState(pageData);
-          if (res?.data != null) {
+          if (res?.payload?.data != null) {
             setfilter(
-              res?.data?.data?.length > 0
-                ? res?.data?.data[0].filterEnable
+              res?.payload?.data?.data?.length > 0
+                ? res?.payload?.data?.data[0].filterEnable
                 : false
             );
             setColumnfilters(
-              res?.data?.data?.length > 0
-                ? res?.data?.data[0].columnsFilterEnable
+              res?.payload?.data?.data?.length > 0
+                ? res?.payload?.data?.data[0].columnsFilterEnable
                 : false
             );
           }
-          await prepareRowAction(res.data.data);
+          await prepareRowAction(res.payload.data.data);
           await prop.onPageChange(pageData);
           setData(prop.data);
         } catch (error) {
@@ -806,11 +804,15 @@ export const Treetable = (prop) => {
                 <IconField iconPosition="left">
                   <InputIcon className="pi pi-search"> </InputIcon>
                   <InputText
-                    value={globalFilterValue}
                     placeholder="Keyword Search"
+                    value={globalFilterValue}
                     onChange={(e) => onGlobalFilterChange(e)}
                   />
                 </IconField>
+                // <span className="p-input-icon-left">
+                //   <i className="pi pi-search" />
+                //   <InputText value={globalFilterValue} onChange={e => onGlobalFilterChange(e)} placeholder="Keyword Search" />
+                // </span>
               )}
             </div>
           }
@@ -1055,7 +1057,6 @@ export const Treetable = (prop) => {
                               <SplitButton
                                 icon="fa-solid fa-bars"
                                 className="tableActionMenu"
-                                dropdownIcon="pi pi-list"
                                 model={itemsAction}
                                 onFocus={() =>
                                   getActionBtn(data2.data.id, data2.data)

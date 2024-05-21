@@ -287,8 +287,8 @@ class Setting extends Component<ModalInputProps> {
             <div className="row">
               <div className="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-xs-12 d-flex">
                 {/* <h4> */}
-                <div className="d-flex justify-content-left align-items-left m-r-20">
-                  <label className="form-label">
+                <div className="d-flex justify-content-left align-items-center m-r-20">
+                  <label className="form-label mb-0">
                     <Translate contentKey="setting.filters"></Translate>{" "}
                   </label>
                   <Checkbox
@@ -299,8 +299,8 @@ class Setting extends Component<ModalInputProps> {
                     checked={this.state.filter}
                   ></Checkbox>
                 </div>
-                <div className="d-flex justify-content-left align-items-left">
-                  <label className="form-label">
+                <div className="d-flex justify-content-left align-items-center">
+                  <label className="form-label mb-0">
                     <Translate contentKey="setting.columnFilter"></Translate>{" "}
                   </label>
                   <Checkbox
@@ -317,13 +317,18 @@ class Setting extends Component<ModalInputProps> {
               </div>
               <div className="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-xs-12 ">
                 <div className="d-flex justify-content-end align-items-center">
-                  <label className="form-label" style={{ marginRight: "10px" }}>
+                  <label
+                    className="form-label mb-0"
+                    style={{ marginRight: "10px" }}
+                  >
                     <Translate contentKey="setting.pageSize"></Translate>
                   </label>
                   <Dropdown
                     value={this.state.selectedPageSize}
                     onChange={(e) => this.setSelectedPageSize(e.value)}
                     options={this.state.pageSize}
+                    optionLabel="size"
+                    optionValue="size"
                     placeholder="Select a Page Size"
                   />
                 </div>

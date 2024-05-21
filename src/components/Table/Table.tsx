@@ -46,7 +46,6 @@ import { InputIcon } from "primereact/inputicon";
 import { InputText } from "primereact/inputtext";
 
 export const Table = (prop) => {
-  const [exportColumnData, setColumnData] = useState([]);
   const menuItemId = sessionStorage.getItem("menuItemId");
   const [userId, setUserId] = useState(sessionStorage.getItem("id"));
   const dt = useRef<any>();
@@ -119,7 +118,7 @@ export const Table = (prop) => {
       if (row_per_page) {
         let arr = row_per_page ? row_per_page.split(",") : "";
         for (let i = 0; i < arr.length; i++) {
-          dropdownOptions.push(Number(arr[i]));
+          dropdownOptions.push({ size: Number(arr[i]) });
         }
       }
 
@@ -127,6 +126,8 @@ export const Table = (prop) => {
         <React.Fragment>
           <Dropdown
             value={options.value}
+            optionLabel="size"
+            optionValue="size"
             scrollHeight={"270px"}
             options={dropdownOptions}
             onChange={options.onChange}
@@ -163,6 +164,10 @@ export const Table = (prop) => {
     compareJsonjs.async = true;
     document.body.appendChild(compareJsonjs);
   }, []);
+
+  useEffect(() => {
+    setColumn(column);
+  }, [column]);
 
   const getGridData = async () => {
     try {
@@ -357,11 +362,12 @@ export const Table = (prop) => {
     setSearchPlaceholder(String(<Translate contentKey="export"></Translate>));
   }, []);
   const [label, setLabel] = useState("Default Label");
+  const [exportColumnData, setExportColumnData] = useState([]);
   const toggle = (e) => {
     let exportColumn = [
       ...column.filter((col) => col.type !== "Action" && col.type !== "Button"),
     ];
-    setColumnData(exportColumn);
+    setExportColumnData(exportColumn);
     setExportType(e);
     setModalExport(!modalExport);
   };
@@ -564,9 +570,6 @@ export const Table = (prop) => {
       }
     });
   };
-  useEffect(() => {
-    setColumn(column);
-  }, [column]);
 
   const settingChanges = (
     coulmnData,
@@ -595,13 +598,14 @@ export const Table = (prop) => {
     let id;
     if (gridId && language && menuItemId) {
       setModal(false);
+      // dispatch(
 
       getColumns({
         gridId: gridId,
         id: language,
         menuItemId: menuItemId,
       }).then(async (res: any) => {
-        setColumn(res.data.data);
+        await setColumn(res.data.data);
         // setColumn(gridData.data.data)
         const pageData = {
           first: lazyState.first,
@@ -630,75 +634,107 @@ export const Table = (prop) => {
       });
     }
   };
-
   const closeSettingModal = async () => {
-    let id;
-    await setModal(false);
+    // let id;
+
     // try {
     //   if (
     //     gridId != null &&
-    //     gridId != "" &&
+    //     gridId != '' &&
     //     gridId != undefined &&
     //     language != null &&
-    //     language != "" &&
+    //     language != '' &&
     //     language != undefined &&
     //     menuItemId != null &&
-    //     menuItemId != "" &&
+    //     menuItemId != '' &&
     //     menuItemId != undefined
     //   ) {
-    //     const gridData = await axios.get(
-    //       `${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`
-    //     );
-    //     // (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
-    //     setColumn(gridData.data.data);
+    // const gridData = await axios.get(`${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
+    // (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
+    // setColumn(gridData.data.data);
 
-    //     const pageData = {
-    //       first: lazyState.first,
-    //       rows: await parseInt(gridData.data.data[0].gridPageSize),
-    //       page: lazyState.page,
-    //       sortField: lazyState.sortField,
-    //       sortOrder: lazyState.sortOrder,
-    //     };
-    //     const filterObject = {
-    //       global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    //     };
+    // const pageData = {
+    //   first: lazyState.first,
+    //   rows: await parseInt(gridData.data.data[0].gridPageSize),
+    //   page: lazyState.page,
+    //   sortField: lazyState.sortField,
+    //   sortOrder: lazyState.sortOrder,
+    // };
+    // const filterObject = {
+    //   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    // };
 
-    //     gridData.data.data.forEach((item) => {
-    //       if (
-    //         item.field != "radio" &&
-    //         item.field != "checkbox" &&
-    //         item.field != "action" &&
-    //         item.field != "button"
-    //       )
-    //         filterObject[item.field] = {
-    //           value: null,
-    //           matchMode: FilterMatchMode.CONTAINS,
-    //         };
-    //     });
+    // gridData.data.data.forEach(item => {
+    //   if (item.field != 'radio' && item.field != 'checkbox' && item.field != 'action' && item.field != 'button')
+    //     filterObject[item.field] = { value: null, matchMode: FilterMatchMode.CONTAINS };
+    // });
 
-    //     setfilters(filterObject);
+    // setfilters(filterObject);
 
-    //     setlazyState(pageData);
-    //     if (gridData?.data != null) {
-    //       setfilter(
-    //         gridData?.data?.data?.length > 0
-    //           ? gridData?.data?.data[0].filterEnable
-    //           : false
-    //       );
-    //       setColumnfilters(
-    //         gridData?.data?.data?.length > 0
-    //           ? gridData?.data?.data[0].columnsFilterEnable
-    //           : false
-    //       );
-    //     }
-    //     await prepareRowAction(gridData.data.data);
-    //     await setModal(false);
-    //     setData(prop.data);
+    // setlazyState(pageData);
+    // if (gridData?.data != null) {
+    //   setfilter(gridData?.data?.data?.length > 0 ? gridData?.data?.data[0].filterEnable : false);
+    //   setColumnfilters(gridData?.data?.data?.length > 0 ? gridData?.data?.data[0].columnsFilterEnable : false);
+    // }
+    // await prepareRowAction(gridData.data.data);
+    await setModal(false);
+    // setData(prop.data);
     //   }
     // } catch (error) {
     //   toast.error(error.toString());
     // }
   };
+
+  // const closeSettingModal = async () => {
+  //   let id;
+
+  //   try {
+  //     if (
+  //       gridId != null &&
+  //       gridId != '' &&
+  //       gridId != undefined &&
+  //       language != null &&
+  //       language != '' &&
+  //       language != undefined &&
+  //       menuItemId != null &&
+  //       menuItemId != '' &&
+  //       menuItemId != undefined
+  //     ) {
+  //       const gridData = await axios.get(`${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
+  //       // (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
+  //       setColumn(gridData.data.data);
+
+  //       const pageData = {
+  //         first: lazyState.first,
+  //         rows: await parseInt(gridData.data.data[0].gridPageSize),
+  //         page: lazyState.page,
+  //         sortField: lazyState.sortField,
+  //         sortOrder: lazyState.sortOrder,
+  //       };
+  //       const filterObject = {
+  //         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  //       };
+
+  //       gridData.data.data.forEach(item => {
+  //         if (item.field != 'radio' && item.field != 'checkbox' && item.field != 'action' && item.field != 'button')
+  //           filterObject[item.field] = { value: null, matchMode: FilterMatchMode.CONTAINS };
+  //       });
+
+  //       setfilters(filterObject);
+
+  //       setlazyState(pageData);
+  //       if (gridData?.data != null) {
+  //         setfilter(gridData?.data?.data?.length > 0 ? gridData?.data?.data[0].filterEnable : false);
+  //         setColumnfilters(gridData?.data?.data?.length > 0 ? gridData?.data?.data[0].columnsFilterEnable : false);
+  //       }
+  //       await prepareRowAction(gridData.data.data);
+  //       await setModal(false);
+  //       setData(prop.data);
+  //     }
+  //   } catch (error) {
+  //     toast.error(error.toString());
+  //   }
+  // };
 
   const [reasonIdDelete, setReasonIdDelete] = useState<any>();
   const deleteConfirmOnAction = async (
@@ -713,10 +749,10 @@ export const Table = (prop) => {
     confirmDialog({
       message: deletemsg,
       header: deleteHeader,
-      className: "confirmationModal",
       icon: "pi pi-info-circle",
       acceptClassName: "p-button-danger",
       rejectClassName: "p-button-success",
+      className: "confirmationModal",
       acceptLabel: labelbtnFlag.yes ? labelbtnFlag.yes : "Yes",
       rejectLabel: labelbtnFlag.no ? labelbtnFlag.no : "No",
       accept: async () => {
@@ -839,20 +875,39 @@ export const Table = (prop) => {
     setModalExport(false);
   };
 
+  const statusBodyTemplate = (filed, fieldName) => {
+    console.log("e", filed, fieldName);
+    if (filed) {
+      if (filed[fieldName] == "Active") {
+        return <span className="badge bg-success">{filed[fieldName]}</span>;
+      } else if (filed[fieldName] == "Inactive") {
+        return <span className="badge bg-danger">{filed[fieldName]}</span>;
+      } else {
+        return <span className="badge bg-primary">{filed[fieldName]}</span>;
+      }
+    }
+  };
+
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center flex-wrap">
         {
           <div className="d-flex globlFilter">
             {filter && (
-              <IconField iconPosition="left">
-                <InputIcon className="pi pi-search"> </InputIcon>
-                <InputText
-                  value={globalFilterValue}
-                  placeholder="Keyword Search"
-                  onChange={(e) => onGlobalFilterChange(e)}
-                />
-              </IconField>
+              <>
+                <IconField iconPosition="left">
+                  <InputIcon className="pi pi-search"> </InputIcon>
+                  <InputText
+                    value={globalFilterValue}
+                    placeholder="Keyword Search"
+                    onChange={(e) => onGlobalFilterChange(e)}
+                  />
+                </IconField>
+                {/* <span className="p-input-icon-left">
+                  <i className="pi pi-search" />
+                  <InputText value={globalFilterValue} onChange={e => onGlobalFilterChange(e)} />
+                </span> */}
+              </>
             )}
           </div>
         }
@@ -1037,7 +1092,6 @@ export const Table = (prop) => {
                 setSelectedItem(e.value);
                 prop.onSelect ? prop.onSelect(e.value) : {};
               }}
-              responsiveLayout="scroll"
               onRowReorder={(e: any): void =>
                 prop.onAddReorderRow(e.value, gridId)
               }
