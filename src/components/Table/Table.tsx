@@ -15,7 +15,6 @@ import ExportSetting from "../Export-Column/export-column";
 import axios from "axios";
 import { Paginator } from "primereact/paginator";
 import { Translate } from "@promountsourcecode/common_module";
-import { InputText } from "primereact/inputtext";
 import { toast } from "react-toastify";
 import { useAppDispatch, useAppSelector } from "app/config/store";
 import { CORE_BASE_URL } from "../constants/apiConstant";
@@ -41,6 +40,10 @@ import _ from "lodash";
 import { boolean, object } from "yup";
 import { getColumns } from "../ValidationMethod/validationMethod";
 import { FilterMatchMode } from "primereact/api";
+
+import { IconField } from "primereact/iconfield";
+import { InputIcon } from "primereact/inputicon";
+import { InputText } from "primereact/inputtext";
 
 export const Table = (prop) => {
   const [exportColumnData, setColumnData] = useState([]);
@@ -840,13 +843,14 @@ export const Table = (prop) => {
         {
           <div className="d-flex globlFilter">
             {filter && (
-              <span className="p-input-icon-left">
-                <i className="pi pi-search" />
+              <IconField iconPosition="left">
+                <InputIcon className="pi pi-search"> </InputIcon>
                 <InputText
                   value={globalFilterValue}
+                  placeholder="Keyword Search"
                   onChange={(e) => onGlobalFilterChange(e)}
                 />
-              </span>
+              </IconField>
             )}
           </div>
         }
@@ -1099,6 +1103,7 @@ export const Table = (prop) => {
                                 icon="fa-solid fa-ellipsis"
                                 className="tableActionMenu"
                                 // style={{ color:'red' }}
+                                dropdownIcon="pi pi-list"
                                 model={itemsAction}
                                 onFocus={() => getActionBtn(data2.id, data2)}
                               />

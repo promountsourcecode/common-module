@@ -120,9 +120,9 @@ class Setting extends Component<ModalInputProps> {
     this.setState({ columns: data });
   };
 
-  handleChange() {
-    this.getTabelHeaderData();
-    this.props.onSetting(
+  async handleChange() {
+    await this.getTabelHeaderData();
+    await this.props.onSetting(
       this.tableColumns,
       this.state.filter,
       this.state.selectedPageSize,

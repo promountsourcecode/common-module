@@ -11,7 +11,6 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import ExportSetting from "../Export-Column";
 import axios from "axios";
-import { InputText } from "primereact/inputtext";
 import { TreeTable } from "primereact/treetable";
 import { MenuItem } from "primereact/menuitem";
 import { SplitButton } from "primereact/splitbutton";
@@ -29,6 +28,11 @@ import { toast } from "react-toastify";
 import { CORE_BASE_URL } from "../constants/apiConstant";
 import { useAppDispatch, useAppSelector } from "app/config/store";
 import { FilterMatchMode } from "primereact/api";
+
+import { IconField } from "primereact/iconfield";
+import { InputIcon } from "primereact/inputicon";
+import { InputText } from "primereact/inputtext";
+
 export const Treetable = (prop) => {
   const dispatch = useAppDispatch();
   const dt = useRef<any>();
@@ -797,14 +801,14 @@ export const Treetable = (prop) => {
           {
             <div className="d-flex globlFilter">
               {filter && (
-                <span className="p-input-icon-left">
-                  <i className="pi pi-search" />
+                <IconField iconPosition="left">
+                  <InputIcon className="pi pi-search"> </InputIcon>
                   <InputText
                     value={globalFilterValue}
-                    onChange={(e) => onGlobalFilterChange(e)}
                     placeholder="Keyword Search"
+                    onChange={(e) => onGlobalFilterChange(e)}
                   />
-                </span>
+                </IconField>
               )}
             </div>
           }
@@ -1049,6 +1053,7 @@ export const Treetable = (prop) => {
                               <SplitButton
                                 icon="fa-solid fa-bars"
                                 className="tableActionMenu"
+                                dropdownIcon="pi pi-list"
                                 model={itemsAction}
                                 onFocus={() =>
                                   getActionBtn(data2.data.id, data2.data)
