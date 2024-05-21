@@ -57,6 +57,18 @@ class Setting extends Component<ModalInputProps> {
 
   constructor(props) {
     super(props);
+    const columnsCopy = this.props.columns.map((col) => ({ ...col }));
+    this.state = {
+      visible: this.props.show,
+      columns: columnsCopy,
+      filter: this.props?.columns[0]?.filterEnable,
+      gridData: this.props.gridData,
+      prop: this.props,
+      pageSize: this.props.dropdownOptions,
+      columnfilters: this.props.isColumnfilters,
+      language: sessionStorage.getItem("Language"),
+      selectedPageSize: Number(this.props?.columns[0]?.gridPageSize),
+    };
     try {
       if (this.state.gridData.length === 0) {
         this.tableColumns = this.state.columns;
@@ -137,10 +149,10 @@ class Setting extends Component<ModalInputProps> {
     this.props.onClose();
   }
 
-  resetSettings() {
-    this.resetFromServer();
+  async resetSettings() {
+    await this.resetFromServer();
 
-    // this.props.onReset();
+    await this.props.onReset();
   }
 
   async resetFromServer() {

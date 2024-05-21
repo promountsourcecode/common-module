@@ -10,7 +10,7 @@ import { getSortState } from "react-jhipster";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { Setting } from "@promountsourcecode/common_module";
+import Setting from "../Setting";
 import ExportSetting from "../Export-Column/export-column";
 import axios from "axios";
 import { Paginator } from "primereact/paginator";
@@ -564,6 +564,9 @@ export const Table = (prop) => {
       }
     });
   };
+  useEffect(() => {
+    setColumn(column);
+  }, [column]);
 
   const settingChanges = (
     coulmnData,
@@ -592,36 +595,35 @@ export const Table = (prop) => {
     let id;
     if (gridId && language && menuItemId) {
       setModal(false);
-      dispatch(
-        getColumns({
-          gridId: gridId,
-          id: language,
-          menuItemId: menuItemId,
-        })
-      ).then(async (res: any) => {
-        setColumn(res.payload.data.data);
+
+      getColumns({
+        gridId: gridId,
+        id: language,
+        menuItemId: menuItemId,
+      }).then(async (res: any) => {
+        setColumn(res.data.data);
         // setColumn(gridData.data.data)
         const pageData = {
           first: lazyState.first,
-          rows: await parseInt(res.payload.data.data[0].gridPageSize),
+          rows: await parseInt(res.data.data[0].gridPageSize),
           page: lazyState.page,
           sortField: lazyState.sortField,
           sortOrder: lazyState.sortOrder,
         };
         setlazyState(pageData);
-        if (res?.payload?.data != null) {
+        if (res?.data != null) {
           setfilter(
-            res?.payload?.data?.data?.length > 0
-              ? res?.payload?.data?.data[0].filterEnable
+            res?.data?.data?.length > 0
+              ? res?.data?.data[0].filterEnable
               : false
           );
           setColumnfilters(
-            res?.payload?.data?.data?.length > 0
-              ? res?.payload?.data?.data[0].columnsFilterEnable
+            res?.data?.data?.length > 0
+              ? res?.data?.data[0].columnsFilterEnable
               : false
           );
         }
-        await prepareRowAction(res.payload.data.data);
+        await prepareRowAction(res.data.data);
         await prop.onPageChange(pageData);
         setData(prop.data);
         setModal(false);
@@ -631,71 +633,71 @@ export const Table = (prop) => {
 
   const closeSettingModal = async () => {
     let id;
+    await setModal(false);
+    // try {
+    //   if (
+    //     gridId != null &&
+    //     gridId != "" &&
+    //     gridId != undefined &&
+    //     language != null &&
+    //     language != "" &&
+    //     language != undefined &&
+    //     menuItemId != null &&
+    //     menuItemId != "" &&
+    //     menuItemId != undefined
+    //   ) {
+    //     const gridData = await axios.get(
+    //       `${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`
+    //     );
+    //     // (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
+    //     setColumn(gridData.data.data);
 
-    try {
-      if (
-        gridId != null &&
-        gridId != "" &&
-        gridId != undefined &&
-        language != null &&
-        language != "" &&
-        language != undefined &&
-        menuItemId != null &&
-        menuItemId != "" &&
-        menuItemId != undefined
-      ) {
-        const gridData = await axios.get(
-          `${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`
-        );
-        // (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
-        setColumn(gridData.data.data);
+    //     const pageData = {
+    //       first: lazyState.first,
+    //       rows: await parseInt(gridData.data.data[0].gridPageSize),
+    //       page: lazyState.page,
+    //       sortField: lazyState.sortField,
+    //       sortOrder: lazyState.sortOrder,
+    //     };
+    //     const filterObject = {
+    //       global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    //     };
 
-        const pageData = {
-          first: lazyState.first,
-          rows: await parseInt(gridData.data.data[0].gridPageSize),
-          page: lazyState.page,
-          sortField: lazyState.sortField,
-          sortOrder: lazyState.sortOrder,
-        };
-        const filterObject = {
-          global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        };
+    //     gridData.data.data.forEach((item) => {
+    //       if (
+    //         item.field != "radio" &&
+    //         item.field != "checkbox" &&
+    //         item.field != "action" &&
+    //         item.field != "button"
+    //       )
+    //         filterObject[item.field] = {
+    //           value: null,
+    //           matchMode: FilterMatchMode.CONTAINS,
+    //         };
+    //     });
 
-        gridData.data.data.forEach((item) => {
-          if (
-            item.field != "radio" &&
-            item.field != "checkbox" &&
-            item.field != "action" &&
-            item.field != "button"
-          )
-            filterObject[item.field] = {
-              value: null,
-              matchMode: FilterMatchMode.CONTAINS,
-            };
-        });
+    //     setfilters(filterObject);
 
-        setfilters(filterObject);
-
-        setlazyState(pageData);
-        if (gridData?.data != null) {
-          setfilter(
-            gridData?.data?.data?.length > 0
-              ? gridData?.data?.data[0].filterEnable
-              : false
-          );
-          setColumnfilters(
-            gridData?.data?.data?.length > 0
-              ? gridData?.data?.data[0].columnsFilterEnable
-              : false
-          );
-        }
-        await prepareRowAction(gridData.data.data);
-        await setModal(false);
-        setData(prop.data);
-      }
-    } catch (error) {
-      toast.error(error.toString());
-    }
+    //     setlazyState(pageData);
+    //     if (gridData?.data != null) {
+    //       setfilter(
+    //         gridData?.data?.data?.length > 0
+    //           ? gridData?.data?.data[0].filterEnable
+    //           : false
+    //       );
+    //       setColumnfilters(
+    //         gridData?.data?.data?.length > 0
+    //           ? gridData?.data?.data[0].columnsFilterEnable
+    //           : false
+    //       );
+    //     }
+    //     await prepareRowAction(gridData.data.data);
+    //     await setModal(false);
+    //     setData(prop.data);
+    //   }
+    // } catch (error) {
+    //   toast.error(error.toString());
+    // }
   };
 
   const [reasonIdDelete, setReasonIdDelete] = useState<any>();
