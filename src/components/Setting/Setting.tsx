@@ -39,18 +39,6 @@ class Setting extends Component<ModalInputProps> {
     prop: this.props,
     pageSize: this.props.dropdownOptions,
     columnfilters: this.props.isColumnfilters,
-    // pageSize: [
-    //   { size: '5' },
-    //   { size: '10' },
-    //   { size: '20' },
-    //   { size: '50' },
-    //   { size: '100' },
-    //   { size: '200' },
-    //   { size: '500' },
-    //   { size: '1000' },
-    //   { size: '2000' },
-    //   { size: '5000' },
-    // ],
     language: sessionStorage.getItem("Language"),
     selectedPageSize: Number(this.props?.columns[0]?.gridPageSize),
   };
@@ -78,39 +66,6 @@ class Setting extends Component<ModalInputProps> {
     } catch (error) {
       toast.error(error.toString());
     }
-
-    //  const [language, setlanguage] = useState(sessionStorage.getItem('Language'));
-  }
-
-  // async getcolumns() {
-  //   let data: any = [];
-
-  //   this.props.columns.forEach(column => {
-  //     column['gridPageSize'] = Number( this.state.selectedPageSize.size);
-  //     column['filterEnable'] = this.state.filter;
-  //   });
-
-  //   const entity = {
-  //     gridId: this.state.prop.gridId,
-  //     gridSettingDetailText: JSON.stringify(this.props.columns),
-  //     menuItemId: sessionStorage.getItem('menuItemId'),
-  //     userMasterId: 1,
-  //     hierarchyLevelId: 352,
-  //     languageId: 1,
-  //   };
-
-  //   data = await axios.put(CORE_BASE_URL + 'api/grid-user-settings/saveUpdateData', entity);
-
-  //   try {
-  //     const dataJson = JSON.parse(data.data.gridSettingDetailText);
-  //     this.tableColumns = dataJson;
-  //   } catch (error) {
-  //     toast.error(error.toString);
-  //   }
-  // }
-
-  componentDidMount() {
-    // this.getcolumns();
   }
 
   toggle = (e) => {
@@ -207,7 +162,7 @@ class Setting extends Component<ModalInputProps> {
     if (this.state.language === "en") id = 1;
     else if (this.state.language === "hi") id = 2;
     else id = 3;
-    this.props.columns.forEach((column) => {
+    this.state.columns.forEach((column) => {
       column["gridPageSize"] = this.state.selectedPageSize;
       column["filterEnable"] = this.state.filter;
       column["columnsFilterEnable"] = this.state.columnfilters;

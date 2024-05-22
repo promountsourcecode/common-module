@@ -1,13 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 import { SplitButton } from "primereact/splitbutton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
-import { getSortState } from "react-jhipster";
-// import { ITEMS_PER_PAGE } from '../constants/index';
-import html2canvas from "html2canvas";
+import { confirmDialog } from "primereact/confirmdialog";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import Setting from "../Setting";
@@ -18,29 +15,14 @@ import { Translate } from "@promountsourcecode/common_module";
 import { toast } from "react-toastify";
 import { useAppDispatch, useAppSelector } from "app/config/store";
 import { CORE_BASE_URL } from "../constants/apiConstant";
-//import { gujratiFont } from 'src/main/webapp/content/fonts/Aakar.ttf'
-import {
-  faArrowUp19,
-  faBoxArchive,
-  faCloudUpload,
-  faDownload,
-  faFileWord,
-  faPenToSquare,
-  faTrashCan,
-} from "@fortawesome/free-solid-svg-icons";
-import { MenuItem } from "primereact/menuitem";
-// import { Translate } from 'app/shared/translation';
 import { RadioButton } from "primereact/radiobutton";
 import { Checkbox } from "primereact/checkbox";
 import { AskReason } from "@promountsourcecode/common_module";
 import { Dropdown } from "primereact/dropdown";
 import { setMsgLangKeyInSessionStorage } from "@promountsourcecode/common_module";
-import { OverlayPanel } from "primereact/overlaypanel";
 import _ from "lodash";
-import { boolean, object } from "yup";
 import { getColumns } from "../ValidationMethod/validationMethod";
 import { FilterMatchMode } from "primereact/api";
-
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
 import { InputText } from "primereact/inputtext";
@@ -53,7 +35,6 @@ export const Table = (prop) => {
   const [reasonFlag, setReasonFlag] = useState<boolean>(false);
   const [data, setData] = useState<any>();
   const [column, setColumn] = useState<any>();
-  const [filterColumn, setFilterColumn] = useState([]);
   const [exportCol, setExportCol] = useState<any>([]);
   const [filter, setfilter] = useState(true);
   const [filters, setfilters] = useState({
@@ -67,9 +48,7 @@ export const Table = (prop) => {
   const [apiGridData, setApiGridData] = useState([]);
   const [modal, setModal] = useState(false);
   const [modalExport, setModalExport] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
   const [exportType, setExportType] = useState();
-  const [selectedRecord, setSelectedRecord] = useState<any>([]);
   const [globalFilterValue, setGlobalFilterValue] = useState("");
   const [deleteHeader, setdeleteHeader] = useState(
     <Translate contentKey="global.deleteConfirm"></Translate>
@@ -88,19 +67,12 @@ export const Table = (prop) => {
     <Translate contentKey="home.notFound" />
   );
   const [Searchplaceholder, setSearchPlaceholder] = useState("Keyword Search");
-  const [configurableReasonOnCheck, setConfigurableReasonOnCheck] =
-    useState<boolean>(prop.reasonAskOnCheck ? prop.reasonAskOnCheck : false);
   const [itemsAction, setitemsAction] = useState<any>([]);
   const [buttonAction, setButtonAction] = useState<any>([]);
   const [selectedItem, setSelectedItem] = useState<any>();
-
-  const [hideActionbtn, sethideActionbtn] = useState(
-    prop.hideActionbtn ? prop.hideActionbtn : false
-  );
   const [rowReorder, setrowReorder] = useState(
     prop.rowReorder ? prop.rowReorder : false
   );
-
   const [actionId, setActionId] = useState<number>();
   const [editObject, setEditObject] = useState<any>([]);
   let row_per_page: string = useAppSelector(
@@ -361,7 +333,7 @@ export const Table = (prop) => {
 
     setSearchPlaceholder(String(<Translate contentKey="export"></Translate>));
   }, []);
-  const [label, setLabel] = useState("Default Label");
+
   const [exportColumnData, setExportColumnData] = useState([]);
   const toggle = (e) => {
     let exportColumn = [
@@ -375,30 +347,6 @@ export const Table = (prop) => {
   const edit = (id) => {
     prop.onEdit(id);
   };
-
-  const items: MenuItem[] = [
-    {
-      label: "CSV",
-      icon: "fa-solid fa-file-csv",
-      command: () => toggle("CSV"),
-    },
-    {
-      label: "Excel",
-      icon: "fa-solid fa-file-excel",
-      command: () => toggle("EXCEL"),
-    },
-    {
-      label: "PDF",
-      icon: "fa-solid fa-file-pdf",
-      command: () => toggle("PDF"),
-    },
-    {
-      label: "Json",
-      icon: "fa-solid fa-file-arrow-down",
-      command: () => exportToJson(),
-    },
-    { label: "Print", icon: "fa-solid fa-print" },
-  ];
 
   const settingChangesExport = (coulmnData) => {
     setModalExport(false);
@@ -571,17 +519,17 @@ export const Table = (prop) => {
     });
   };
 
-  const settingChanges = (
+  const settingChanges = async (
     coulmnData,
     filterToggle,
     selectedPageSize,
     columnFilter
   ) => {
     setModal(false);
-    setColumn(coulmnData);
+    await setColumn(coulmnData);
     setfilter(filterToggle);
     if (!columnFilter) {
-      getGridData();
+      await getGridData();
     }
     setColumnfilters(columnFilter);
     const pageData = {
@@ -606,7 +554,6 @@ export const Table = (prop) => {
         menuItemId: menuItemId,
       }).then(async (res: any) => {
         await setColumn(res.data.data);
-        // setColumn(gridData.data.data)
         const pageData = {
           first: lazyState.first,
           rows: await parseInt(res.data.data[0].gridPageSize),
@@ -635,106 +582,8 @@ export const Table = (prop) => {
     }
   };
   const closeSettingModal = async () => {
-    // let id;
-
-    // try {
-    //   if (
-    //     gridId != null &&
-    //     gridId != '' &&
-    //     gridId != undefined &&
-    //     language != null &&
-    //     language != '' &&
-    //     language != undefined &&
-    //     menuItemId != null &&
-    //     menuItemId != '' &&
-    //     menuItemId != undefined
-    //   ) {
-    // const gridData = await axios.get(`${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
-    // (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
-    // setColumn(gridData.data.data);
-
-    // const pageData = {
-    //   first: lazyState.first,
-    //   rows: await parseInt(gridData.data.data[0].gridPageSize),
-    //   page: lazyState.page,
-    //   sortField: lazyState.sortField,
-    //   sortOrder: lazyState.sortOrder,
-    // };
-    // const filterObject = {
-    //   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    // };
-
-    // gridData.data.data.forEach(item => {
-    //   if (item.field != 'radio' && item.field != 'checkbox' && item.field != 'action' && item.field != 'button')
-    //     filterObject[item.field] = { value: null, matchMode: FilterMatchMode.CONTAINS };
-    // });
-
-    // setfilters(filterObject);
-
-    // setlazyState(pageData);
-    // if (gridData?.data != null) {
-    //   setfilter(gridData?.data?.data?.length > 0 ? gridData?.data?.data[0].filterEnable : false);
-    //   setColumnfilters(gridData?.data?.data?.length > 0 ? gridData?.data?.data[0].columnsFilterEnable : false);
-    // }
-    // await prepareRowAction(gridData.data.data);
     await setModal(false);
-    // setData(prop.data);
-    //   }
-    // } catch (error) {
-    //   toast.error(error.toString());
-    // }
   };
-
-  // const closeSettingModal = async () => {
-  //   let id;
-
-  //   try {
-  //     if (
-  //       gridId != null &&
-  //       gridId != '' &&
-  //       gridId != undefined &&
-  //       language != null &&
-  //       language != '' &&
-  //       language != undefined &&
-  //       menuItemId != null &&
-  //       menuItemId != '' &&
-  //       menuItemId != undefined
-  //     ) {
-  //       const gridData = await axios.get(`${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
-  //       // (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
-  //       setColumn(gridData.data.data);
-
-  //       const pageData = {
-  //         first: lazyState.first,
-  //         rows: await parseInt(gridData.data.data[0].gridPageSize),
-  //         page: lazyState.page,
-  //         sortField: lazyState.sortField,
-  //         sortOrder: lazyState.sortOrder,
-  //       };
-  //       const filterObject = {
-  //         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-  //       };
-
-  //       gridData.data.data.forEach(item => {
-  //         if (item.field != 'radio' && item.field != 'checkbox' && item.field != 'action' && item.field != 'button')
-  //           filterObject[item.field] = { value: null, matchMode: FilterMatchMode.CONTAINS };
-  //       });
-
-  //       setfilters(filterObject);
-
-  //       setlazyState(pageData);
-  //       if (gridData?.data != null) {
-  //         setfilter(gridData?.data?.data?.length > 0 ? gridData?.data?.data[0].filterEnable : false);
-  //         setColumnfilters(gridData?.data?.data?.length > 0 ? gridData?.data?.data[0].columnsFilterEnable : false);
-  //       }
-  //       await prepareRowAction(gridData.data.data);
-  //       await setModal(false);
-  //       setData(prop.data);
-  //     }
-  //   } catch (error) {
-  //     toast.error(error.toString());
-  //   }
-  // };
 
   const [reasonIdDelete, setReasonIdDelete] = useState<any>();
   const deleteConfirmOnAction = async (
@@ -793,32 +642,6 @@ export const Table = (prop) => {
     sessionStorage.setItem("FilterStatus", name);
     prop.onFilterChanges(name, prop.gridId);
   };
-  const redioFilterPublishSelection = (name) => {
-    setRedioFilterPublish(name);
-    sessionStorage.setItem("FilterPublish", name);
-    prop.onPublishFilterChanges(name, prop.gridId);
-  };
-
-  const htmlString = "<p>This is a <strong>bold</strong> text.</p>";
-
-  let arr = [];
-
-  const setRecordForChecked = (event) => {
-    if (event.checked) {
-      arr.push(event.value);
-    } else {
-      let tmparr = [];
-      for (let i = 0; i < arr.length; i++) {
-        if (!_.isEqual(event.value, arr[i])) {
-          tmparr.push(arr[i]);
-        }
-      }
-      arr = tmparr;
-    }
-
-    setSelectedRecord(arr);
-  };
-
   const [selectCheckboxRc, setSelectCheckboxRc] = useState<any>([]);
 
   const radioSelectRecord = (record, fieldName) => {
@@ -875,17 +698,32 @@ export const Table = (prop) => {
     setModalExport(false);
   };
 
-  const statusBodyTemplate = (filed, fieldName) => {
-    console.log("e", filed, fieldName);
-    if (filed) {
-      if (filed[fieldName] == "Active") {
-        return <span className="badge bg-success">{filed[fieldName]}</span>;
-      } else if (filed[fieldName] == "Inactive") {
-        return <span className="badge bg-danger">{filed[fieldName]}</span>;
+  const dtContainerRef = useRef(null);
+  const [tableWidth, setTableWidth] = useState(0);
+
+  useEffect(() => {
+    if (dtContainerRef.current) {
+      const containerWidth = dtContainerRef.current.offsetWidth;
+      setTableWidth(containerWidth);
+    }
+  }, [dtContainerRef.current]);
+
+  const getWidth = (width) => {
+    if (width) {
+      if (width.includes("%")) {
+        width = width.replace("%", "");
+        const widthFloat = parseFloat(width);
+        if (!isNaN(widthFloat)) {
+          const widthInPixels = (widthFloat / 100) * tableWidth;
+          return `${widthInPixels}px`;
+        }
+      } else if (width.includes("px") || width.includes("PX")) {
+        return width;
       } else {
-        return <span className="badge bg-primary">{filed[fieldName]}</span>;
+        return "auto";
       }
     }
+    return "auto";
   };
 
   return (
@@ -1071,7 +909,7 @@ export const Table = (prop) => {
         />
       )}
 
-      <div className="dataTable" id="tablePdf">
+      <div className="dataTable" id="tablePdf" ref={dtContainerRef}>
         <>
           <>
             <DataTable
@@ -1108,6 +946,9 @@ export const Table = (prop) => {
                     if (e.type === "Radio") {
                       return (
                         <Column
+                          style={{
+                            width: e.width ? getWidth(e.width) : "65px",
+                          }}
                           header={e.header}
                           body={(data2) => (
                             <>
@@ -1129,6 +970,9 @@ export const Table = (prop) => {
                     if (e.type === "CheckBox") {
                       return (
                         <Column
+                          style={{
+                            width: e.width ? getWidth(e.width) : "65px",
+                          }}
                           header={e.header}
                           body={(data2) => (
                             <>
@@ -1151,7 +995,9 @@ export const Table = (prop) => {
                     if (e.type === "Action") {
                       return (
                         <Column
-                          style={{ width: e.width ? e.width : "15px" }}
+                          style={{
+                            width: e.width ? getWidth(e.width) : "65px",
+                          }}
                           header={e.header}
                           body={(data2) => (
                             <>
@@ -1174,7 +1020,9 @@ export const Table = (prop) => {
                       return (
                         <Column
                           header={e.header}
-                          style={{ width: e.width ? e.width : "15px" }}
+                          style={{
+                            width: e.width ? getWidth(e.width) : "65px",
+                          }}
                           body={(data2) => (
                             <>
                               {buttonAction.length > 0 &&
@@ -1224,7 +1072,7 @@ export const Table = (prop) => {
                           filter
                           columnKey={e.field}
                           field={e.field}
-                          style={{ width: e.width }}
+                          style={{ width: getWidth(e.width) }}
                           sortable
                           body={(data2) => {
                             if (data2) {
@@ -1259,7 +1107,7 @@ export const Table = (prop) => {
                         columnKey={e.field}
                         field={e.field}
                         header={e.header}
-                        style={{ width: e.width }}
+                        style={{ width: getWidth(e.width) }}
                         sortable
                       />
                     );

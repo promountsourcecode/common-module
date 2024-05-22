@@ -189,19 +189,19 @@ export const Treetable = (prop) => {
     // Increment the key to force re-rendering
     setKey(key + 1);
   };
-  const settingChanges = (
+  const settingChanges = async (
     coulmnData,
     filterToggle,
     selectedPageSize,
     columnFilter
   ) => {
     setModal(false);
-    setColumn(coulmnData);
+    await setColumn(coulmnData);
     setfilter(filterToggle);
     if (!columnFilter) {
-      resetFilters();
+      await resetFilters();
     }
-    setColumnfilters(columnFilter);
+    await setColumnfilters(columnFilter);
     const pageData = {
       first: lazyState.first,
       rows: selectedPageSize,
@@ -794,6 +794,34 @@ export const Treetable = (prop) => {
     setModalExport(!modalExport);
   };
 
+  const dtContainerRef = useRef(null);
+  const [tableWidth, setTableWidth] = useState(0);
+
+  useEffect(() => {
+    if (dtContainerRef.current) {
+      const containerWidth = dtContainerRef.current.offsetWidth;
+      setTableWidth(containerWidth);
+    }
+  }, [dtContainerRef.current]);
+
+  const getWidth = (width) => {
+    if (width) {
+      if (width.includes("%")) {
+        width = width.replace("%", "");
+        const widthFloat = parseFloat(width);
+        if (!isNaN(widthFloat)) {
+          const widthInPixels = (widthFloat / 100) * tableWidth;
+          return `${widthInPixels}px`;
+        }
+      } else if (width.includes("px") || width.includes("PX")) {
+        return width;
+      } else {
+        return "auto";
+      }
+    }
+    return "auto";
+  };
+
   return (
     <div>
       {ifHideHeader && (
@@ -985,7 +1013,10 @@ export const Treetable = (prop) => {
           onClose={exportClose}
         />
       )}
-      <div className={columnfilters ? "dataTable" : "dataTable columnFilters"}>
+      <div
+        ref={dtContainerRef}
+        className={columnfilters ? "dataTable" : "dataTable columnFilters"}
+      >
         <>
           {prop.data && prop.data.length > 0 ? (
             <>
@@ -1014,6 +1045,9 @@ export const Treetable = (prop) => {
                       return (
                         <Column
                           header={e.header}
+                          style={{
+                            width: e.width ? getWidth(e.width) : "65px",
+                          }}
                           body={(data2) => (
                             <>
                               <RadioButton
@@ -1033,6 +1067,9 @@ export const Treetable = (prop) => {
                         <Column
                           key={i}
                           header={e.header}
+                          style={{
+                            width: e.width ? getWidth(e.width) : "65px",
+                          }}
                           body={(data) => (
                             <Checkbox
                               key={Math.random()}
@@ -1050,7 +1087,9 @@ export const Treetable = (prop) => {
                     if (e.type === "Action") {
                       return (
                         <Column
-                          style={{ width: e.width ? e.width : "15px" }}
+                          style={{
+                            width: e.width ? getWidth(e.width) : "65px",
+                          }}
                           header={e.header}
                           body={(data2) => (
                             <>
@@ -1058,6 +1097,7 @@ export const Treetable = (prop) => {
                                 icon="fa-solid fa-bars"
                                 className="tableActionMenu"
                                 model={itemsAction}
+                                dropdownIcon="pi pi-list"
                                 onFocus={() =>
                                   getActionBtn(data2.data.id, data2.data)
                                 }
@@ -1071,7 +1111,9 @@ export const Treetable = (prop) => {
                       return (
                         <Column
                           header={e.header}
-                          style={{ width: e.width ? e.width : "15px" }}
+                          style={{
+                            width: e.width ? getWidth(e.width) : "65px",
+                          }}
                           body={(data2) => (
                             <>
                               {buttonAction.map((button) => (
@@ -1117,7 +1159,7 @@ export const Treetable = (prop) => {
                           filter
                           columnKey={e.field}
                           field={e.field}
-                          style={{ width: e.width }}
+                          style={{ width: getWidth(e.width) }}
                           sortable
                           body={(data2) => {
                             if (data2) {
@@ -1152,7 +1194,7 @@ export const Treetable = (prop) => {
                           key={i}
                           field={e.field}
                           header={e.header}
-                          style={{ width: e.width }}
+                          style={{ width: getWidth(e.width) }}
                           editor={typeEditor}
                           // expander={e.expander}
                           expander={i == 0 ? true : false}
@@ -1166,7 +1208,7 @@ export const Treetable = (prop) => {
                           field={e.field}
                           filter
                           header={e.header}
-                          style={{ width: e.width }}
+                          style={{ width: getWidth(e.width) }}
                           // expander={e.expander}
                           expander={i == 0 ? true : false}
                           sortable
