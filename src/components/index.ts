@@ -20,6 +20,8 @@ export { getDateAndTimeFormate } from "./DateFormat";
 export { getDateFormat } from "./DateFormat";
 export { checkStatus } from "./ValidationMethod";
 export { breadCrumbsFlag } from "./ValidationMethod";
+export { menuTooltip } from "./ValidationMethod";
+export { placeholder } from "./ValidationMethod";
 export { CORE_BASE_URL } from "./constants/apiConstant";
 export { GATEWAY_BASE_URL } from "./constants/apiConstant";
 export { QMS_BASE_URL } from "./constants/apiConstant";

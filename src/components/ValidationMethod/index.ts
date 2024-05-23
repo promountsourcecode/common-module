@@ -7,3 +7,5 @@ export { checkStatus } from "./validationMethod";
 export { breadCrumbsFlag } from "./validationMethod";
 export { getColumns } from "./validationMethod";
 export { screenConfigration } from "./validationMethod";
+export { placeholder } from "./validationMethod";
+export { menuTooltip } from "./validationMethod";

@@ -155,3 +155,31 @@ export const getColumns = async ({ gridId, id, menuItemId, name }: any) => {
   const requestUrl = `${apiUrlColoumns}/${gridId}/${id}/${menuItemId}/${1}`;
   return axios.get<any[]>(requestUrl);
 };
+
+export function menuTooltip(prop) {
+  let selectLanguage =
+    sessionStorage.getItem("Language") == null
+      ? "en"
+      : sessionStorage.getItem("Language");
+
+  let languageDataLocal = sessionStorage.getItem("LanguageData")
+    ? JSON.parse(sessionStorage.getItem("LanguageData"))
+    : "";
+  return languageDataLocal?.["menuLanguageData"]?.[selectLanguage]?.[
+    prop.keyName
+  ]?.["text"];
+}
+
+export function placeholder(prop) {
+  const [selectLanguage, setSelectLanguage] = useState(
+    sessionStorage.getItem("Language") == null
+      ? "en"
+      : sessionStorage.getItem("Language")
+  );
+  let languageDataLocal = sessionStorage.getItem("LanguageData")
+    ? JSON.parse(sessionStorage.getItem("LanguageData"))
+    : "";
+  return languageDataLocal?.["translations"]?.[selectLanguage]?.[prop]?.[
+    "text"
+  ];
+}

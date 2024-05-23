@@ -72,7 +72,7 @@ const BreadCrumbs = (props: any) => {
           <title>Quality Management System</title>
         </Helmet>
       )}
-      {showbreadCrums && menuItem?.subMenuName != "dashboard" ? (
+      {showbreadCrums && menuItem?.subMenuName != "Dashboard" ? (
         <div className="page-header d-flex justify-content-between">
           <div>
             <h4 className="pageTitle">
