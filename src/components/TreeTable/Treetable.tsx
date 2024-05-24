@@ -21,7 +21,7 @@ import { AskReason } from "@promountsourcecode/common_module";
 import { setMsgLangKeyInSessionStorage } from "@promountsourcecode/common_module";
 import { Paginator } from "primereact/paginator";
 import { Dropdown } from "primereact/dropdown";
-import { getColumns } from "../ValidationMethod/validationMethod";
+import { getColumns, placeholder } from "../ValidationMethod/validationMethod";
 import Setting from "../Setting";
 import { InputSwitch } from "primereact/inputswitch";
 import { toast } from "react-toastify";
@@ -984,6 +984,8 @@ export const Treetable = (prop) => {
               onClick={() => {
                 setModal(!modal);
               }}
+              tooltip={placeholder("setting.label")}
+              tooltipOptions={{ position: "top" }}
             >
               <i className="fa-solid fa-gear"></i>
             </Button>

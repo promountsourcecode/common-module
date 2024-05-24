@@ -21,7 +21,7 @@ import { AskReason } from "@promountsourcecode/common_module";
 import { Dropdown } from "primereact/dropdown";
 import { setMsgLangKeyInSessionStorage } from "@promountsourcecode/common_module";
 import _ from "lodash";
-import { getColumns } from "../ValidationMethod/validationMethod";
+import { getColumns, placeholder } from "../ValidationMethod/validationMethod";
 import { FilterMatchMode } from "primereact/api";
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
@@ -826,7 +826,7 @@ export const Table = (prop) => {
             onClick={() => {
               setModal(!modal);
             }}
-            tooltip="Setting"
+            tooltip={placeholder("setting.label")}
             tooltipOptions={{ position: "top" }}
           >
             <i className="fa-solid fa-gear"></i>
