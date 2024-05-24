@@ -673,37 +673,77 @@ export const Treetable = (prop) => {
     setlazyState(prop.pagination);
   }, [prop.pagination]);
 
+  // const paginatorTemplate = {
+  //   layout:
+  //     "RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport ",
+  //   RowsPerPageDropdown: (options) => {
+  //     if (row_per_page) {
+  //       let arr = row_per_page ? row_per_page.split(",") : "";
+  //       for (let i = 0; i < arr.length; i++) {
+  //         dropdownOptions.push(Number(arr[i]));
+  //       }
+  //     }
+  //     return (
+  //       <React.Fragment>
+  //         <Dropdown
+  //           value={options.value}
+  //           scrollHeight={"270px"}
+  //           options={dropdownOptions}
+  //           onChange={options.onChange}
+  //         />
+  //       </React.Fragment>
+  //     );
+  //   },
+  //   CurrentPageReport: (options) => {
+  //     return (
+  //       <span
+  //         className="totalPages"
+  //         style={{
+  //           color: "var(--text-color)",
+  //           fontSize: "14px",
+  //           userSelect: "none",
+  //           marginLeft: "auto",
+  //           textAlign: "center",
+  //         }}
+  //       >
+  //         {options.first} - {options.last} of {options.totalRecords}
+  //       </span>
+  //     );
+  //   },
+  // };
   const paginatorTemplate = {
-    layout:
-      "RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport ",
-    RowsPerPageDropdown: (options) => {
+    layout: 'RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport ',
+    RowsPerPageDropdown: options => {
       if (row_per_page) {
-        let arr = row_per_page ? row_per_page.split(",") : "";
+        let arr = row_per_page ? row_per_page.split(',') : '';
         for (let i = 0; i < arr.length; i++) {
-          dropdownOptions.push(Number(arr[i]));
+          dropdownOptions.push({ size: Number(arr[i]) });
         }
       }
+
       return (
         <React.Fragment>
           <Dropdown
             value={options.value}
-            scrollHeight={"270px"}
+            optionLabel="size"
+            optionValue="size"
+            scrollHeight={'270px'}
             options={dropdownOptions}
             onChange={options.onChange}
           />
         </React.Fragment>
       );
     },
-    CurrentPageReport: (options) => {
+    CurrentPageReport: options => {
       return (
         <span
           className="totalPages"
           style={{
-            color: "var(--text-color)",
-            fontSize: "14px",
-            userSelect: "none",
-            marginLeft: "auto",
-            textAlign: "center",
+            //color: 'var(--text-color)',
+            fontSize: '14px',
+            userSelect: 'none',
+            marginLeft: 'auto',
+            textAlign: 'center',
           }}
         >
           {options.first} - {options.last} of {options.totalRecords}
