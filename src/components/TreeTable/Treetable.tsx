@@ -551,16 +551,9 @@ export const Treetable = (prop) => {
                   id: actinObj[j]["id"],
                   visible: actinObj[j]["visible"],
                   command: () => {
-                    actinObj[j]["id"] == "Delete"
-                      ? deleteConfirmOnAction(actionId, true, editObject)
-                      : eval(
-                          prop[actinObj[j].command](
-                            actionId,
-                            gridId,
-                            actinObj[j].askReason,
-                            editObject
-                          )
-                        );
+                    actinObj[j]['id'] == 'Delete'
+                    ? deleteConfirmOnAction(actionId, actinObj[j]['askReason'], editObject)
+                    : eval(prop[actinObj[j].command](actionId, gridId, actinObj[j]['askReason'], editObject));
                   },
                 };
                 tmpRowAction.push(item);
