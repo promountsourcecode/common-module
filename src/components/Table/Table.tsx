@@ -935,6 +935,7 @@ export const Table = (prop) => {
               }
               reorderableRows
               removableSort
+              draggable={true}
               // paginator
               // rows={defaultPageSize}
               // rowsPerPageOptions={perPage}
