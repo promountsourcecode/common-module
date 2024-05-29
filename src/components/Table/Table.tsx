@@ -45,6 +45,7 @@ export const Table = (prop) => {
   const [totalRecords, setTotalRecords] = useState(prop.totalRecords);
   const [lazyState, setlazyState] = useState(prop.pagination);
   const [gridId, setGridId] = useState(prop.gridId);
+  const [reOrderRowValue, setReOrderRowValue] = useState<boolean>(prop?.isReOrderableRows);
   const [apiGridData, setApiGridData] = useState([]);
   const [modal, setModal] = useState(false);
   const [modalExport, setModalExport] = useState(false);
@@ -933,9 +934,9 @@ export const Table = (prop) => {
               onRowReorder={(e: any): void =>
                 prop.onAddReorderRow(e.value, gridId)
               }
-              reorderableRows
+              reorderableRows={reOrderRowValue}
               removableSort
-              draggable={true}
+              
               // paginator
               // rows={defaultPageSize}
               // rowsPerPageOptions={perPage}
