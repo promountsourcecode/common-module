@@ -354,8 +354,12 @@ export const Table = (prop) => {
     setExportCol(coulmnData);
     const exportData = data;
     const headers = [];
+    const colData = [];
     coulmnData.map((col) => {
       if (col.visible) headers.push(col.field);
+    });
+    coulmnData.map((col) => {
+      if (col.visible) colData.push(col);
     });
     const newData = [];
     exportData.map((element) => {
@@ -384,7 +388,7 @@ export const Table = (prop) => {
 
     switch (exportType) {
       case "PDF":
-        exportPdf(newData, headers, coulmnData);
+        exportPdf(newData, headers, colData);
         break;
       case "EXCEL":
         exportExcel(newDataExcel);
@@ -458,11 +462,11 @@ export const Table = (prop) => {
     }
   };
 
-  const exportPdf = async (newData, headers, coulmnData) => {
+  const exportPdf = async (newData, headers, colData) => {
     var out: any = [];
-    for (var i = 0; i < coulmnData.length; i++) {
-      if (coulmnData[i].field === headers[i]) {
-        out.push(coulmnData[i].header);
+    for (var i = 0; i < colData.length; i++) {
+      if (colData[i].field === headers[i]) {
+        out.push(colData[i].header);
       }
     }
     const input = document.getElementById("tablePdf");
