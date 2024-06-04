@@ -530,21 +530,57 @@ export const Table = (prop) => {
     selectedPageSize,
     columnFilter
   ) => {
-    setModal(false);
-    await setColumn(coulmnData);
-    setfilter(filterToggle);
-    if (!columnFilter) {
-      await getGridData();
+    // setModal(false);
+    // await setColumn(coulmnData);
+    // setfilter(filterToggle);
+    // if (!columnFilter) {
+    //   await getGridData();
+    // }
+    // setColumnfilters(columnFilter);
+    // const pageData = {
+    //   first: lazyState.first,
+    //   rows: selectedPageSize,
+    //   page: lazyState.page,
+    //   sortField: lazyState.sortField,
+    //   sortOrder: lazyState.sortOrder,
+    // };
+    // setlazyState(pageData);
+    if (gridId && language && menuItemId) {
+      setModal(false);
+      // dispatch(
+
+      getColumns({
+        gridId: gridId,
+        id: language,
+        menuItemId: menuItemId,
+      }).then(async (res: any) => {
+        await setColumn(res.data.data);
+        const pageData = {
+          first: lazyState.first,
+          rows: selectedPageSize,
+          page: lazyState.page,
+          sortField: lazyState.sortField,
+          sortOrder: lazyState.sortOrder,
+        };
+        setlazyState(pageData);
+        if (res?.data != null) {
+          setfilter(
+            res?.data?.data?.length > 0
+              ? res?.data?.data[0].filterEnable
+              : false
+          );
+          setColumnfilters(
+            res?.data?.data?.length > 0
+              ? res?.data?.data[0].columnsFilterEnable
+              : false
+          );
+        }
+        await prepareRowAction(res.data.data);
+        await prop.onPageChange(pageData);
+        setData(prop.data);
+        setModal(false);
+      });
     }
-    setColumnfilters(columnFilter);
-    const pageData = {
-      first: lazyState.first,
-      rows: selectedPageSize,
-      page: lazyState.page,
-      sortField: lazyState.sortField,
-      sortOrder: lazyState.sortOrder,
-    };
-    setlazyState(pageData);
   };
 
   const onReset = async () => {
