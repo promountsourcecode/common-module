@@ -471,8 +471,8 @@ export const Treetable = (prop) => {
       message: deletemsg,
       header: deleteHeader,
       icon: "pi pi-info-circle",
-      acceptClassName: "p-button-danger",
-      rejectClassName: "p-button-success",
+      acceptClassName: "p-button-success",
+      rejectClassName: "p-button-danger",
       acceptLabel: labelbtnFlag.yes ? labelbtnFlag.yes : "Yes",
       rejectLabel: labelbtnFlag.no ? labelbtnFlag.no : "No",
       accept: async () => {
