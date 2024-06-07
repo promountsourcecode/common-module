@@ -120,7 +120,7 @@ export const Table = (prop) => {
             textAlign: "center",
           }}
         >
-          {options.first} - {options.last} of {options.totalRecords}
+         Record {options.first} - {options.last} of {options.totalRecords}
         </span>
       );
     },
