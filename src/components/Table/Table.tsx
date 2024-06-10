@@ -122,7 +122,7 @@ export const Table = (prop) => {
             textAlign: "center",
           }}
         >
-         Record {options.first} - {options.last} of {options.totalRecords}
+          Record {options.first} - {options.last} of {options.totalRecords}
         </span>
       );
     },
@@ -338,13 +338,30 @@ export const Table = (prop) => {
   }, []);
 
   const [exportColumnData, setExportColumnData] = useState([]);
+  const getErrorMessage = () => {
+    const getMsg =
+      CORE_BASE_URL +
+      `api/getErrorMessageByCodeLanguageJson?errorCode=${1404}&languageId=${sessionStorage.getItem(
+        "LanguageId"
+      )}`;
+    axios.get(getMsg).then(async (res) => {
+      toast.error(res.data);
+    });
+  };
+
   const toggle = (e) => {
-    let exportColumn = [
-      ...column.filter((col) => col.type !== "Action" && col.type !== "Button"),
-    ];
-    setExportColumnData(exportColumn);
-    setExportType(e);
-    setModalExport(!modalExport);
+    if (data.length > 0) {
+      let exportColumn = [
+        ...column.filter(
+          (col) => col.type !== "Action" && col.type !== "Button"
+        ),
+      ];
+      setExportColumnData(exportColumn);
+      setExportType(e);
+      setModalExport(!modalExport);
+    } else {
+      getErrorMessage();
+    }
   };
 
   const edit = (id) => {
