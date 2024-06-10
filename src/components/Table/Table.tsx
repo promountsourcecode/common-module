@@ -45,7 +45,9 @@ export const Table = (prop) => {
   const [totalRecords, setTotalRecords] = useState(prop.totalRecords);
   const [lazyState, setlazyState] = useState(prop.pagination);
   const [gridId, setGridId] = useState(prop.gridId);
-  const [reOrderRowValue, setReOrderRowValue] = useState<boolean>(prop?.isReOrderableRows);
+  const [reOrderRowValue, setReOrderRowValue] = useState<boolean>(
+    prop?.isReOrderableRows
+  );
   const [apiGridData, setApiGridData] = useState([]);
   const [modal, setModal] = useState(false);
   const [modalExport, setModalExport] = useState(false);
@@ -472,7 +474,7 @@ export const Table = (prop) => {
     const input = document.getElementById("tablePdf");
     const unit = "pt";
     const size = "A4";
-    const orientation = "portrait";
+    const orientation = "landscape";
     const doc = new jsPDF(orientation, unit, size);
 
     doc.addFont("/content/fonts/arial-unicode-ms.ttf", "aakar", "normal");
@@ -976,7 +978,7 @@ export const Table = (prop) => {
               }
               reorderableRows={reOrderRowValue}
               removableSort
-              
+
               // paginator
               // rows={defaultPageSize}
               // rowsPerPageOptions={perPage}
