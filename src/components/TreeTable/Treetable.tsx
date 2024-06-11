@@ -321,7 +321,17 @@ export const Treetable = (prop) => {
       },
     };
     doc.text(title, 40, 40);
+
     autoTable(doc, content);
+
+    const totalPage = doc.getNumberOfPages();
+
+    for (let i = 1; i <= totalPage; i++) {
+      doc.setPage(i);
+      doc.setFontSize(10);
+      let pageStr = `Page ${i} of ${totalPage}`;
+      doc.text(pageStr, 510, 820);
+    }
     let fileName = `_Report_${moment(new Date()).format(
       "DD_MM_YYYY_HH_mm_ss"
     )}.pdf`;
@@ -551,9 +561,20 @@ export const Treetable = (prop) => {
                   id: actinObj[j]["id"],
                   visible: actinObj[j]["visible"],
                   command: () => {
-                    actinObj[j]['id'] == 'Delete'
-                    ? deleteConfirmOnAction(actionId, actinObj[j]['askReason'], editObject)
-                    : eval(prop[actinObj[j].command](actionId, gridId, actinObj[j]['askReason'], editObject));
+                    actinObj[j]["id"] == "Delete"
+                      ? deleteConfirmOnAction(
+                          actionId,
+                          actinObj[j]["askReason"],
+                          editObject
+                        )
+                      : eval(
+                          prop[actinObj[j].command](
+                            actionId,
+                            gridId,
+                            actinObj[j]["askReason"],
+                            editObject
+                          )
+                        );
                   },
                 };
                 tmpRowAction.push(item);
@@ -705,10 +726,11 @@ export const Treetable = (prop) => {
   //   },
   // };
   const paginatorTemplate = {
-    layout: 'RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport ',
-    RowsPerPageDropdown: options => {
+    layout:
+      "RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport ",
+    RowsPerPageDropdown: (options) => {
       if (row_per_page) {
-        let arr = row_per_page ? row_per_page.split(',') : '';
+        let arr = row_per_page ? row_per_page.split(",") : "";
         for (let i = 0; i < arr.length; i++) {
           dropdownOptions.push({ size: Number(arr[i]) });
         }
@@ -720,26 +742,26 @@ export const Treetable = (prop) => {
             value={options.value}
             optionLabel="size"
             optionValue="size"
-            scrollHeight={'270px'}
+            scrollHeight={"270px"}
             options={dropdownOptions}
             onChange={options.onChange}
           />
         </React.Fragment>
       );
     },
-    CurrentPageReport: options => {
+    CurrentPageReport: (options) => {
       return (
         <span
           className="totalPages"
           style={{
             //color: 'var(--text-color)',
-            fontSize: '14px',
-            userSelect: 'none',
-            marginLeft: 'auto',
-            textAlign: 'center',
+            fontSize: "14px",
+            userSelect: "none",
+            marginLeft: "auto",
+            textAlign: "center",
           }}
         >
-         Record {options.first} - {options.last} of {options.totalRecords}
+          Record {options.first} - {options.last} of {options.totalRecords}
         </span>
       );
     },

@@ -484,20 +484,20 @@ export const Table = (prop) => {
   const exportPdf = async (newData, headers, colData) => {
     var out: any = [];
     for (var i = 0; i < colData.length; i++) {
-      if (colData[i].field === headers[i]) {
+      if (colData[i]?.field === headers[i]) {
         out.push(colData[i].header);
       }
     }
     const input = document.getElementById("tablePdf");
     const unit = "pt";
     const size = "A4";
-    const orientation = "landscape";
+    const orientation = "portrait";
     const doc = new jsPDF(orientation, unit, size);
-
     doc.addFont("/content/fonts/arial-unicode-ms.ttf", "aakar", "normal");
     doc.setFont("aakar");
     const title = prop.title.concat(" Report");
     var data = newData.map((obj) => headers.map((header) => obj[header]));
+
     const content = {
       startY: 50,
       head: [out],
@@ -507,7 +507,18 @@ export const Table = (prop) => {
       },
     };
     doc.text(title, 40, 40);
+
     autoTable(doc, content);
+
+    const totalPage = doc.getNumberOfPages();
+
+    for (let i = 1; i <= totalPage; i++) {
+      doc.setPage(i);
+      doc.setFontSize(10);
+      let pageStr = `Page ${i} of ${totalPage}`;
+      doc.text(pageStr, 510, 820);
+    }
+
     let fileName = `_Report_${moment(new Date()).format(
       "DD_MM_YYYY_HH_mm_ss"
     )}.pdf`;
