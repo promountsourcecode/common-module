@@ -1094,6 +1094,8 @@ export const Treetable = (prop) => {
                 filterMode={columnfilters ? "lenient" : null}
                 onToggle={onToggle}
                 tableStyle={{ minWidth: "50rem" }}
+                scrollable
+                scrollHeight="400px"
               >
                 {/* <Column expander={true} style={{ width: '5%' }}></Column> */}
                 {column.map((e: any, i: any) => {
