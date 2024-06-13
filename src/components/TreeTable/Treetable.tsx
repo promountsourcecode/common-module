@@ -68,7 +68,16 @@ export const Treetable = (prop) => {
     <Translate contentKey="home.deleteMsg"></Translate>
   );
   const [updatedJson, setUpdatedJson] = useState<any>();
+  const [columnLengthForExport, setColumnLengthForExport] = useState<any>();
+
   const finalObject = [];
+
+  const getColumnLength = async () => {
+    const columnLengthForExport = await axios.get(
+      `${CORE_BASE_URL}api/getSystemConfigurationByName/column_length`
+    );
+    setColumnLengthForExport(columnLengthForExport.data.configurationValue);
+  };
 
   useEffect(() => {
     setlazyState(lazyState);
@@ -166,6 +175,8 @@ export const Treetable = (prop) => {
     if (gridId === "documentWorkspaceID") {
       setifHideHeader(false);
     }
+
+    getColumnLength();
   }, []);
 
   const toggle = (e) => {
@@ -303,7 +314,8 @@ export const Treetable = (prop) => {
     }
     const unit = "pt";
     const size = "A4";
-    const orientation = "portrait";
+    const columnLength = Number(columnLengthForExport);
+    const orientation = colData.length >= columnLength ? "l" : "p";
     const doc = new jsPDF(orientation, unit, size);
     doc.addFont("/content/fonts/arial-unicode-ms.ttf", "aakar", "normal");
     doc.setFont("aakar");
