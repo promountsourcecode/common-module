@@ -78,10 +78,18 @@ export const Table = (prop) => {
   );
   const [actionId, setActionId] = useState<number>();
   const [editObject, setEditObject] = useState<any>([]);
+  const [columnLengthForExport, setColumnLengthForExport] = useState<any>();
   let row_per_page: string = useAppSelector(
     (state) => state.commonReducer.RowsPerPage.configurationValue
   );
   const dropdownOptions: any = [];
+
+  const getColumnLength = async () => {
+    const columnLengthForExport = await axios.get(
+      `${CORE_BASE_URL}api/getSystemConfigurationByName/column_length`
+    );
+    setColumnLengthForExport(columnLengthForExport.data.configurationValue);
+  };
 
   useEffect(() => {
     setlazyState(lazyState);
@@ -138,6 +146,8 @@ export const Table = (prop) => {
       "https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js";
     compareJsonjs.async = true;
     document.body.appendChild(compareJsonjs);
+
+    getColumnLength();
   }, []);
 
   useEffect(() => {
@@ -491,7 +501,8 @@ export const Table = (prop) => {
     const input = document.getElementById("tablePdf");
     const unit = "pt";
     const size = "A4";
-    const orientation = "portrait";
+    const columnLength = Number(columnLengthForExport);
+    const orientation = colData.length >= columnLength ? "l" : "p";
     const doc = new jsPDF(orientation, unit, size);
     doc.addFont("/content/fonts/arial-unicode-ms.ttf", "aakar", "normal");
     doc.setFont("aakar");
