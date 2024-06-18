@@ -968,6 +968,7 @@ export const Treetable = (prop) => {
                       : "Active"}
                   </label>
                 </span>
+                {prop.inactiveFlag == true&&(
                 <span
                   style={{ marginLeft: "10px" }}
                   className="d-flex align-items-center"
@@ -988,6 +989,7 @@ export const Treetable = (prop) => {
                       : "Inactive"}
                   </label>
                 </span>
+                )}
                 <span
                   style={{ marginLeft: "10px" }}
                   className="d-flex align-items-center"
