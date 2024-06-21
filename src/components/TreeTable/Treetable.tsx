@@ -28,7 +28,7 @@ import { toast } from "react-toastify";
 import { CORE_BASE_URL } from "../constants/apiConstant";
 import { useAppDispatch, useAppSelector } from "app/config/store";
 import { FilterMatchMode } from "primereact/api";
-
+import { Tooltip } from 'primereact/tooltip';
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
 import { InputText } from "primereact/inputtext";
@@ -889,6 +889,21 @@ export const Treetable = (prop) => {
     return "auto";
   };
 
+
+  const bodyTemplate = (node, column) => {
+    const field = column.field;
+    const value = node.data[field];
+    const tooltip = value;
+    return (
+        <React.Fragment>
+            <span id={`${field}-${node.key}`} data-pr-tooltip={tooltip}>
+                {value}
+            </span>
+            <Tooltip target={`#${field}-${node.key}`} />
+        </React.Fragment>
+    );
+};
+
   return (
     <div>
       {ifHideHeader && (
@@ -1285,6 +1300,7 @@ export const Treetable = (prop) => {
                           // expander={e.expander}
                           expander={i == 0 ? true : false}
                           sortable
+                          body={(node) => bodyTemplate(node, e)}
                         />
                       );
                     }

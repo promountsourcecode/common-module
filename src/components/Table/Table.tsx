@@ -26,6 +26,7 @@ import { FilterMatchMode } from "primereact/api";
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
 import { InputText } from "primereact/inputtext";
+import { Tooltip } from "primereact/tooltip";
 
 export const Table = (prop) => {
   const menuItemId = sessionStorage.getItem("menuItemId");
@@ -808,6 +809,21 @@ export const Table = (prop) => {
     return "auto";
   };
 
+  const bodyTemplate = (rowData, column) => {
+   
+    const field = column.field;
+    const value = rowData[field];
+    const tooltip = value;
+    return (
+        <>
+            <span id={`${field}-${value}`} data-pr-tooltip={tooltip}>
+                {value}
+            </span>
+            <Tooltip target={`#${field}-${value}`} />
+        </>
+    );
+};
+
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center flex-wrap">
@@ -1192,6 +1208,7 @@ export const Table = (prop) => {
                         header={e.header}
                         style={{ width: getWidth(e.width) }}
                         sortable
+                        body={(rowData) => bodyTemplate(rowData, e)}
                       />
                     );
                   }
