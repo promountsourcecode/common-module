@@ -816,10 +816,10 @@ export const Table = (prop) => {
     const tooltip = value;
     return (
         <>
-            <span id={`${field}-${value}`} data-pr-tooltip={tooltip}>
+            <span id={`${field}`} data-pr-tooltip={tooltip}>
                 {value}
             </span>
-            <Tooltip target={`#${field}-${value}`} />
+            <Tooltip target={`#${field}`} />
         </>
     );
 };

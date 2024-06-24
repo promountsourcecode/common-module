@@ -229,7 +229,7 @@ class Setting extends Component<ModalInputProps> {
         className="settingModal"
         //footer={this.footerContent}
         visible={this.state.visible}
-        style={{ width: "80vw" }}
+        style={{ width: "50vw" }}
         onHide={() => {
           this.handleCancel();
         }}
