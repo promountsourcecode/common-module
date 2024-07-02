@@ -32,7 +32,7 @@ import { Tooltip } from 'primereact/tooltip';
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
 import { InputText } from "primereact/inputtext";
-
+import { TreeNode } from 'primereact/treenode';
 export const Treetable = (prop) => {
   const dispatch = useAppDispatch();
   const dt = useRef<any>();
@@ -904,6 +904,20 @@ export const Treetable = (prop) => {
     );
 };
 
+const logNode = (node : TreeNode)=>{
+  let [, ...newArr] = itemsAction;
+
+  return  <SplitButton
+        icon="fa-solid fa-bars"
+        className="tableActionMenu"
+        model={node.data.level === 3 ?newArr:itemsAction}
+        dropdownIcon="pi pi-list"
+        onFocus={() => getActionBtn(node.data.id, node.data)}
+      />;
+}
+
+
+
   return (
     <div>
       {ifHideHeader && (
@@ -1179,19 +1193,13 @@ export const Treetable = (prop) => {
                             width: e.width ? getWidth(e.width) : "65px",
                           }}
                           header={e.header}
-                          body={(data2) => (
-                            <>
-                              <SplitButton
-                                icon="fa-solid fa-bars"
-                                className="tableActionMenu"
-                                model={itemsAction}
-                                dropdownIcon="pi pi-list"
-                                onFocus={() =>
-                                  getActionBtn(data2.data.id, data2.data)
-                                }
-                              />
-                            </>
-                          )}
+                          body={data2 =>  logNode(data2) 
+                            //   (
+                            //   <>
+                            //    
+                            //   </>
+                            // )
+                          }
                         />
                       );
                     }
