@@ -819,7 +819,7 @@ export const Table = (prop) => {
             <span id={`${field}`} data-pr-tooltip={tooltip}>
                 {value}
             </span>
-            <Tooltip target={`#${field}`} />
+            <Tooltip mouseTrack mouseTrackLeft={10}  style={{fontSize:'14px'}} target={`#${field}`} />
         </>
     );
 };

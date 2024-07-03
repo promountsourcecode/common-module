@@ -899,7 +899,7 @@ export const Treetable = (prop) => {
             <span id={`${field}-${node.key}`} data-pr-tooltip={tooltip}>
                 {value}
             </span>
-            <Tooltip target={`#${field}-${node.key}`} />
+            <Tooltip mouseTrack mouseTrackLeft={10}  style={{fontSize:'14px'}} target={`#${field}-${node.key}`} />
         </React.Fragment>
     );
 };
