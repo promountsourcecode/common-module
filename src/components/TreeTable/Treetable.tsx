@@ -1122,7 +1122,7 @@ const logNode = (node : TreeNode)=>{
             <>
               <TreeTable
                 ref={dt}
-                sortMode="multiple"
+              //  sortMode="multiple"
                 value={nodes}
                 filters={filter}
                 key={key}
@@ -1256,7 +1256,7 @@ const logNode = (node : TreeNode)=>{
                           columnKey={e.field}
                           field={e.field}
                           style={{ width: getWidth(e.width) }}
-                          sortable
+                         // sortable
                           body={(data2) => {
                             if (data2) {
                               if (data2?.data[e.field] == "Active") {
@@ -1294,7 +1294,7 @@ const logNode = (node : TreeNode)=>{
                           editor={typeEditor}
                           // expander={e.expander}
                           expander={i == 0 ? true : false}
-                          sortable
+                         // sortable
                         />
                       );
                     } else {
@@ -1307,7 +1307,7 @@ const logNode = (node : TreeNode)=>{
                           style={{ width: getWidth(e.width) }}
                           // expander={e.expander}
                           expander={i == 0 ? true : false}
-                          sortable
+                         // sortable
                           body={(node) => bodyTemplate(node, e)}
                         />
                       );
