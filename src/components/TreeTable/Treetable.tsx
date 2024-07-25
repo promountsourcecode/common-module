@@ -28,11 +28,11 @@ import { toast } from "react-toastify";
 import { CORE_BASE_URL } from "../constants/apiConstant";
 import { useAppDispatch, useAppSelector } from "app/config/store";
 import { FilterMatchMode } from "primereact/api";
-import { Tooltip } from 'primereact/tooltip';
+import { Tooltip } from "primereact/tooltip";
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
 import { InputText } from "primereact/inputtext";
-import { TreeNode } from 'primereact/treenode';
+import { TreeNode } from "primereact/treenode";
 export const Treetable = (prop) => {
   const dispatch = useAppDispatch();
   const dt = useRef<any>();
@@ -889,34 +889,38 @@ export const Treetable = (prop) => {
     return "auto";
   };
 
-
   const bodyTemplate = (node, column) => {
     const field = column.field;
     const value = node.data[field];
     const tooltip = value;
     return (
-        <React.Fragment>
-            <span id={`${field}-${node.key}`} data-pr-tooltip={tooltip}>
-                {value}
-            </span>
-            <Tooltip mouseTrack mouseTrackLeft={10}  style={{fontSize:'14px'}} target={`#${field}-${node.key}`} />
-        </React.Fragment>
+      <React.Fragment>
+        <span id={`${field}-${node.key}`} data-pr-tooltip={tooltip}>
+          {value}
+        </span>
+        <Tooltip
+          mouseTrack
+          mouseTrackLeft={10}
+          style={{ fontSize: "14px" }}
+          target={`#${field}-${node.key}`}
+        />
+      </React.Fragment>
     );
-};
+  };
 
-const logNode = (node : TreeNode)=>{
-  let [, ...newArr] = itemsAction;
+  const logNode = (node: TreeNode) => {
+    let [, ...newArr] = itemsAction;
 
-  return  <SplitButton
+    return (
+      <SplitButton
         icon="fa-solid fa-bars"
         className="tableActionMenu"
-        model={node.data.level === 3 ?newArr:itemsAction}
+        model={node.data.level === 3 ? newArr : itemsAction}
         dropdownIcon="pi pi-list"
         onFocus={() => getActionBtn(node.data.id, node.data)}
-      />;
-}
-
-
+      />
+    );
+  };
 
   return (
     <div>
@@ -997,27 +1001,27 @@ const logNode = (node : TreeNode)=>{
                       : "Active"}
                   </label>
                 </span>
-                {prop.inactiveFlag == true&&(
-                <span
-                  style={{ marginLeft: "10px" }}
-                  className="d-flex align-items-center"
-                >
-                  <RadioButton
-                    inputId={gridId + "gridInactive"}
-                    name="filter"
-                    value="Inactive"
-                    onChange={(e) => redioFilterSelection(e.value)}
-                    checked={redioFilter === "Inactive"}
-                  />
-                  <label
-                    htmlFor={gridId + "gridInactive"}
-                    style={{ marginBottom: 0 }}
+                {prop.inactiveFlag == true && (
+                  <span
+                    style={{ marginLeft: "10px" }}
+                    className="d-flex align-items-center"
                   >
-                    {labelbtnFlag.inactiveradio
-                      ? labelbtnFlag.inactiveradio
-                      : "Inactive"}
-                  </label>
-                </span>
+                    <RadioButton
+                      inputId={gridId + "gridInactive"}
+                      name="filter"
+                      value="Inactive"
+                      onChange={(e) => redioFilterSelection(e.value)}
+                      checked={redioFilter === "Inactive"}
+                    />
+                    <label
+                      htmlFor={gridId + "gridInactive"}
+                      style={{ marginBottom: 0 }}
+                    >
+                      {labelbtnFlag.inactiveradio
+                        ? labelbtnFlag.inactiveradio
+                        : "Inactive"}
+                    </label>
+                  </span>
                 )}
                 <span
                   style={{ marginLeft: "10px" }}
@@ -1122,7 +1126,7 @@ const logNode = (node : TreeNode)=>{
             <>
               <TreeTable
                 ref={dt}
-                sortMode="multiple"
+                // sortMode="multiple"
                 value={nodes}
                 filters={filter}
                 key={key}
@@ -1193,10 +1197,11 @@ const logNode = (node : TreeNode)=>{
                             width: e.width ? getWidth(e.width) : "65px",
                           }}
                           header={e.header}
-                          body={data2 =>  logNode(data2) 
+                          body={
+                            (data2) => logNode(data2)
                             //   (
                             //   <>
-                            //    
+                            //
                             //   </>
                             // )
                           }
@@ -1256,7 +1261,6 @@ const logNode = (node : TreeNode)=>{
                           columnKey={e.field}
                           field={e.field}
                           style={{ width: getWidth(e.width) }}
-                          sortable
                           body={(data2) => {
                             if (data2) {
                               if (data2?.data[e.field] == "Active") {
@@ -1294,7 +1298,6 @@ const logNode = (node : TreeNode)=>{
                           editor={typeEditor}
                           // expander={e.expander}
                           expander={i == 0 ? true : false}
-                          sortable
                         />
                       );
                     } else {
@@ -1307,7 +1310,6 @@ const logNode = (node : TreeNode)=>{
                           style={{ width: getWidth(e.width) }}
                           // expander={e.expander}
                           expander={i == 0 ? true : false}
-                          sortable
                           body={(node) => bodyTemplate(node, e)}
                         />
                       );

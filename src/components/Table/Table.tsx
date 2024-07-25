@@ -810,19 +810,23 @@ export const Table = (prop) => {
   };
 
   const bodyTemplate = (rowData, column) => {
-   
     const field = column.field;
     const value = rowData[field];
     const tooltip = value;
     return (
-        <>
-            <span id={`${field}`} data-pr-tooltip={tooltip}>
-                {value}
-            </span>
-            <Tooltip mouseTrack mouseTrackLeft={10}  style={{fontSize:'14px'}} target={`#${field}`} />
-        </>
+      <>
+        <span id={`${field}`} data-pr-tooltip={tooltip}>
+          {value}
+        </span>
+        <Tooltip
+          mouseTrack
+          mouseTrackLeft={10}
+          style={{ fontSize: "14px" }}
+          target={`#${field}`}
+        />
+      </>
     );
-};
+  };
 
   return (
     <div>
@@ -1184,6 +1188,30 @@ export const Table = (prop) => {
                               } else if (data2[e.field] == "Inactive") {
                                 return (
                                   <span className="badge bg-danger">
+                                    {data2[e.field]}
+                                  </span>
+                                );
+                              } else if (data2[e.field] == "Completed") {
+                                return (
+                                  <span className="badge bg-primary">
+                                    {data2[e.field]}
+                                  </span>
+                                );
+                              } else if (data2[e.field] == "Not Started") {
+                                return (
+                                  <span className="badge bg-secondary">
+                                    {data2[e.field]}
+                                  </span>
+                                );
+                              } else if (data2[e.field] == "Rejected") {
+                                return (
+                                  <span className="badge bg-danger">
+                                    {data2[e.field]}
+                                  </span>
+                                );
+                              } else if (data2[e.field] == "In-Progress") {
+                                return (
+                                  <span className="badge bg-warning">
                                     {data2[e.field]}
                                   </span>
                                 );
