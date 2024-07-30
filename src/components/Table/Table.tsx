@@ -1139,6 +1139,7 @@ export const Table = (prop) => {
                                         className={
                                           button.className + " gridIcon"
                                         }
+                                        disabled={data2[prop.disabledflag] ? true : false}
                                         onClick={() =>
                                           button["id"] == "Delete"
                                             ? deleteConfirmOnAction(
