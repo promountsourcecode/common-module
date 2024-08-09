@@ -30,9 +30,8 @@ import { Tooltip } from "primereact/tooltip";
 
 export const Table = (prop) => {
   const menuItemId = sessionStorage.getItem("menuItemId");
-  const [userId, setUserId] = useState(sessionStorage.getItem("id"));
+  let row_per_page: string = useAppSelector(state => state.commonReducer.RowsPerPage.configurationValue);
   const dt = useRef<any>();
-  const dispatch = useAppDispatch();
   const [reasonFlag, setReasonFlag] = useState<boolean>(false);
   const [data, setData] = useState<any>();
   const [column, setColumn] = useState<any>();
@@ -80,11 +79,8 @@ export const Table = (prop) => {
   const [actionId, setActionId] = useState<number>();
   const [editObject, setEditObject] = useState<any>([]);
   const [columnLengthForExport, setColumnLengthForExport] = useState<any>();
-  let row_per_page: string = useAppSelector(
-    (state) => state.commonReducer.RowsPerPage.configurationValue
-  );
-  const dropdownOptions: any = [];
-
+  
+  let dropdownOptions: any = [];
   const getColumnLength = async () => {
     const columnLengthForExport = await axios.get(
       `${CORE_BASE_URL}api/getSystemConfigurationByName/column_length`
@@ -95,23 +91,24 @@ export const Table = (prop) => {
   useEffect(() => {
     setlazyState(lazyState);
   }, [lazyState]);
+
   const paginatorTemplate = {
     layout:
       "RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport ",
     RowsPerPageDropdown: (options) => {
+
       if (row_per_page) {
         let arr = row_per_page ? row_per_page.split(",") : "";
         for (let i = 0; i < arr.length; i++) {
-          dropdownOptions.push({ size: Number(arr[i]) });
+          dropdownOptions.push({ value: Number(arr[i]) });
         }
       }
-
       return (
         <React.Fragment>
           <Dropdown
             value={options.value}
-            optionLabel="size"
-            optionValue="size"
+            optionLabel="value"
+            optionValue="value"
             scrollHeight={"270px"}
             options={dropdownOptions}
             onChange={options.onChange}
@@ -124,7 +121,6 @@ export const Table = (prop) => {
         <span
           className="totalPages"
           style={{
-            //color: 'var(--text-color)',
             fontSize: "14px",
             userSelect: "none",
             marginLeft: "auto",
@@ -140,6 +136,7 @@ export const Table = (prop) => {
   const getActionBtn = (id, object) => {
     setActionId(id);
     setEditObject(object);
+    setSelectedItem(object)
   };
   useEffect(() => {
     const compareJsonjs = document.createElement("script");
@@ -147,7 +144,6 @@ export const Table = (prop) => {
       "https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js";
     compareJsonjs.async = true;
     document.body.appendChild(compareJsonjs);
-
     getColumnLength();
   }, []);
 
@@ -176,10 +172,7 @@ export const Table = (prop) => {
           : setColumn(prop.column);
         const pageData = {
           first: lazyState.first,
-          rows:
-            gridData.data.data.length > 0
-              ? parseInt(gridData.data.data[0].gridPageSize)
-              : 10,
+          rows: lazyState.rows,
           page: lazyState.page,
           sortField: lazyState.sortField,
           sortOrder: lazyState.sortOrder,
@@ -215,7 +208,6 @@ export const Table = (prop) => {
             });
           }
         }
-
         setfilters(filterObject);
         await prepareRowAction(gridData.data.data);
       }
@@ -244,9 +236,6 @@ export const Table = (prop) => {
 
   useEffect(() => {
     setData(prop.data);
-
-    // prop.data.length > 0 ? setErrorMessage(true) : setErrorMessage(false);
-    // setitemsAction(prop.actionFlag);
   }, [prop.data]);
 
   const labelbtnFlag: any = {
@@ -264,7 +253,6 @@ export const Table = (prop) => {
 
   const prepareRowAction = (actionArr: any[]) => {
     let tmpRowAction = [];
-
     try {
       if (actionArr) {
         for (let i = 0; i < actionArr.length; i++) {
@@ -275,7 +263,7 @@ export const Table = (prop) => {
                 let item = {
                   className:
                     actinObj[j]["className"] != null &&
-                    actinObj[j]["className"] != ""
+                      actinObj[j]["className"] != ""
                       ? actinObj[j]["className"]
                       : "icon",
                   label: (
@@ -290,18 +278,18 @@ export const Table = (prop) => {
                   command: () => {
                     actinObj[j]["id"] == "Delete"
                       ? deleteConfirmOnAction(
+                        actionId,
+                        actinObj[j]["askReason"],
+                        editObject
+                      )
+                      : eval(
+                        prop[actinObj[j].command](
                           actionId,
+                          gridId,
                           actinObj[j]["askReason"],
                           editObject
                         )
-                      : eval(
-                          prop[actinObj[j].command](
-                            actionId,
-                            gridId,
-                            actinObj[j]["askReason"],
-                            editObject
-                          )
-                        );
+                      );
                   },
                 };
                 tmpRowAction.push(item);
@@ -309,7 +297,6 @@ export const Table = (prop) => {
               }
             }
           }
-
           if (actionArr[i]["type"] == "Button") {
             let butonObj = actionArr[i].actionJson;
             setButtonAction(butonObj);
@@ -320,7 +307,6 @@ export const Table = (prop) => {
       toast.error(error.toString());
     }
   };
-
   useEffect(() => {
     setSelectedItem(prop.sendSelectedItem ? prop.sendSelectedItem : "");
     setSelectCheckboxRc(prop.sendSelectedItem);
@@ -328,12 +314,10 @@ export const Table = (prop) => {
 
   useEffect(() => {
     getGridData();
-
     setRedioFilterPublish("All");
     if (!redioFilter) {
       setRedioFilter("Active");
     }
-
     if (
       gridId === "dmsClientID" ||
       gridId === "dmsParameterID" ||
@@ -344,10 +328,8 @@ export const Table = (prop) => {
     if (gridId === "documentWorkspaceID") {
       setifHideHeader(false);
     }
-
     setSearchPlaceholder(String(<Translate contentKey="export"></Translate>));
   }, []);
-
   const [exportColumnData, setExportColumnData] = useState([]);
   const getErrorMessage = () => {
     const getMsg =
@@ -359,7 +341,6 @@ export const Table = (prop) => {
       toast.error(res.data);
     });
   };
-
   const toggle = (e) => {
     if (data.length > 0) {
       let exportColumn = [
@@ -374,11 +355,9 @@ export const Table = (prop) => {
       getErrorMessage();
     }
   };
-
   const edit = (id) => {
     prop.onEdit(id);
   };
-
   const settingChangesExport = (coulmnData) => {
     setModalExport(false);
     setExportCol(coulmnData);
@@ -457,7 +436,6 @@ export const Table = (prop) => {
 
     for (let i = 0; i < array.length; i++) {
       let line = "";
-      // eslint-disable-next-line guard-for-in
       for (const index in array[i]) {
         if (line !== "") line += ",";
         line += array[i][index];
@@ -469,19 +447,12 @@ export const Table = (prop) => {
   };
 
   const exportCSV = (newData, headers) => {
-    // Convert Object to JSON
     const jsonObject = JSON.stringify(newData);
-
     const csv = convertToCSV(jsonObject);
-
     const exportedFilenmae = "report" + ".csv" || "export.csv";
-
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-
     const link = document.createElement("a");
     if (link.download !== undefined) {
-      // feature detection
-      // Browsers that support HTML5 download attribute
       const url = URL.createObjectURL(blob);
       link.setAttribute("href", url);
       link.setAttribute("download", exportedFilenmae);
@@ -509,7 +480,6 @@ export const Table = (prop) => {
     doc.setFont("aakar");
     const title = prop.title.concat(" Report");
     var data = newData.map((obj) => headers.map((header) => obj[header]));
-
     const content = {
       startY: 50,
       head: [out],
@@ -519,11 +489,8 @@ export const Table = (prop) => {
       },
     };
     doc.text(title, 40, 40);
-
     autoTable(doc, content);
-
     const totalPage = doc.getNumberOfPages();
-
     for (let i = 1; i <= totalPage; i++) {
       doc.setPage(i);
       doc.setFontSize(10);
@@ -572,25 +539,8 @@ export const Table = (prop) => {
     selectedPageSize,
     columnFilter
   ) => {
-    // setModal(false);
-    // await setColumn(coulmnData);
-    // setfilter(filterToggle);
-    // if (!columnFilter) {
-    //   await getGridData();
-    // }
-    // setColumnfilters(columnFilter);
-    // const pageData = {
-    //   first: lazyState.first,
-    //   rows: selectedPageSize,
-    //   page: lazyState.page,
-    //   sortField: lazyState.sortField,
-    //   sortOrder: lazyState.sortOrder,
-    // };
-    // setlazyState(pageData);
     if (gridId && language && menuItemId) {
       setModal(false);
-      // dispatch(
-
       getColumns({
         gridId: gridId,
         id: language,
@@ -605,6 +555,7 @@ export const Table = (prop) => {
           sortOrder: lazyState.sortOrder,
         };
         setlazyState(pageData);
+
         if (res?.data != null) {
           setfilter(
             res?.data?.data?.length > 0
@@ -629,8 +580,6 @@ export const Table = (prop) => {
     let id;
     if (gridId && language && menuItemId) {
       setModal(false);
-      // dispatch(
-
       getColumns({
         gridId: gridId,
         id: language,
@@ -639,12 +588,11 @@ export const Table = (prop) => {
         await setColumn(res.data.data);
         const pageData = {
           first: lazyState.first,
-          rows: await parseInt(res.data.data[0].gridPageSize),
+          rows: parseInt(res.data.data[0].gridPageSize.size),
           page: lazyState.page,
           sortField: lazyState.sortField,
           sortOrder: lazyState.sortOrder,
         };
-        setlazyState(pageData);
         if (res?.data != null) {
           setfilter(
             res?.data?.data?.length > 0
@@ -704,9 +652,7 @@ export const Table = (prop) => {
   const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     const _filters = { ...filters };
-
     _filters["global"].value = value;
-
     setfilters(_filters);
     setGlobalFilterValue(value);
 
@@ -726,7 +672,6 @@ export const Table = (prop) => {
     prop.onFilterChanges(name, prop.gridId);
   };
   const [selectCheckboxRc, setSelectCheckboxRc] = useState<any>([]);
-
   const radioSelectRecord = (record, fieldName) => {
     prop.radioEvent(record, fieldName);
   };
@@ -843,10 +788,6 @@ export const Table = (prop) => {
                     onChange={(e) => onGlobalFilterChange(e)}
                   />
                 </IconField>
-                {/* <span className="p-input-icon-left">
-                  <i className="pi pi-search" />
-                  <InputText value={globalFilterValue} onChange={e => onGlobalFilterChange(e)} />
-                </span> */}
               </>
             )}
           </div>
@@ -933,15 +874,6 @@ export const Table = (prop) => {
           >
             <i className="fa-solid fa-gear"></i>
           </Button>
-          {/* <SplitButton
-            tooltip="Export"
-            tooltipOptions={{ position: 'top' }}
-            label={labelbtnFlag.export ? labelbtnFlag.export : 'Export'}
-            className="tableExportMenu"
-            model={items}
-          /> */}
-
-          {/* <div className="input-group"> */}
           <button
             className="btn btn-outline-secondary dropdown-toggle"
             type="button"
@@ -958,7 +890,6 @@ export const Table = (prop) => {
             {labelbtnFlag.export ? labelbtnFlag.export : "Export"}
           </button>
           <ul className="dropdown-menu" style={{}}>
-            {/* <li> <a className="dropdown-item" onClick={() => toggle('CSV')}><i className="fa-solid fa-file-csv" style={{color:'#1d7dc8'}}></i> CSV</a></li> */}
             <li>
               {" "}
               <a className="dropdown-item" onClick={() => toggle("EXCEL")}>
@@ -979,13 +910,9 @@ export const Table = (prop) => {
                 PDF
               </a>
             </li>
-            {/* <li> <a className="dropdown-item" onClick={() => exportToJson()}><i className="fa-solid fa-file-arrow-down" style={{color:'#53d1e5'}}></i>  Json</a></li> */}
-            {/* <li> <a className="dropdown-item" ><i className="fa-solid fa-print" style={{color:'#f08080'}}></i>  Print</a></li> */}
           </ul>
-          {/* </div> */}
         </div>
       </div>
-
       {modal && (
         <Setting
           show={modal}
@@ -1021,7 +948,6 @@ export const Table = (prop) => {
               value={data}
               globalFilterFields={filterColumnGlobal()}
               filters={filters}
-              // header={header}
               filterDisplay={columnfilters ? "row" : null}
               scrollable
               scrollHeight="400px"
@@ -1037,10 +963,6 @@ export const Table = (prop) => {
               }
               reorderableRows={reOrderRowValue}
               removableSort
-
-              // paginator
-              // rows={defaultPageSize}
-              // rowsPerPageOptions={perPage}
             >
               {rowReorder && <Column rowReorder style={{ width: "40px" }} />}
               {column &&
@@ -1086,7 +1008,6 @@ export const Table = (prop) => {
                                 onChange={(x) => {
                                   onSelectCheckBox(x, data2, e.field);
                                 }}
-                                // checked={defaultChecked(e.field, data2)}
                                 checked={data2[e.field] === true}
                               />
                             </>
@@ -1107,7 +1028,6 @@ export const Table = (prop) => {
                               <SplitButton
                                 icon="fa-solid fa-ellipsis"
                                 className="tableActionMenu"
-                                // style={{ color:'red' }}
                                 dropdownIcon="pi pi-list"
                                 model={itemsAction}
                                 onFocus={() => getActionBtn(data2.id, data2)}
@@ -1116,8 +1036,6 @@ export const Table = (prop) => {
                           )}
                         />
                       );
-
-                      //  <Column header="Field Name" body={rowData => <span>Hello</span>} />;
                     }
                     if (e.type === "Button") {
                       return (
@@ -1134,7 +1052,6 @@ export const Table = (prop) => {
                                     {button.visible == true && (
                                       <Button
                                         style={{ marginLeft: "15px" }}
-                                        // tooltip={button.label}
                                         tooltipOptions={{ position: "top" }}
                                         className={
                                           button.className + " gridIcon"
@@ -1143,18 +1060,18 @@ export const Table = (prop) => {
                                         onClick={() =>
                                           button["id"] == "Delete"
                                             ? deleteConfirmOnAction(
-                                                data2.id,
-                                                button["askReason"],
-                                                data2
-                                              )
+                                              data2.id,
+                                              button["askReason"],
+                                              data2
+                                            )
                                             : eval(
-                                                prop[buttonAction[0].command](
-                                                  data2.id,
-                                                  gridId,
-                                                  true,
-                                                  editObject
-                                                )
+                                              prop[buttonAction[0].command](
+                                                data2.id,
+                                                gridId,
+                                                true,
+                                                editObject
                                               )
+                                            )
                                         }
                                       >
                                         <i className={button.icon}></i>
@@ -1167,7 +1084,6 @@ export const Table = (prop) => {
                         />
                       );
                     }
-
                     if (e.type === "Status") {
                       return (
                         <Column
@@ -1256,7 +1172,6 @@ export const Table = (prop) => {
               className="justify-content-end"
             />
           </>
-
           {reasonFlag && (
             <AskReason
               data={reasonIdDelete}

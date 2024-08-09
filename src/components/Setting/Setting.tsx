@@ -30,7 +30,6 @@ interface ModalInputProps {
 
 class Setting extends Component<ModalInputProps> {
   tableColumns: any;
-
   state = {
     visible: this.props.show,
     columns: this.props.columns,
@@ -39,13 +38,13 @@ class Setting extends Component<ModalInputProps> {
     prop: this.props,
     pageSize: this.props.dropdownOptions,
     columnfilters: this.props.isColumnfilters,
-    language: sessionStorage.getItem("Language"),
+    language: sessionStorage.getItem('Language'),
     selectedPageSize: Number(this.props?.columns[0]?.gridPageSize),
   };
 
   constructor(props) {
     super(props);
-    const columnsCopy = this.props.columns.map((col) => ({ ...col }));
+    const columnsCopy = this.props.columns.map(col => ({ ...col }));
     this.state = {
       visible: this.props.show,
       columns: columnsCopy,
@@ -54,7 +53,7 @@ class Setting extends Component<ModalInputProps> {
       prop: this.props,
       pageSize: this.props.dropdownOptions,
       columnfilters: this.props.isColumnfilters,
-      language: sessionStorage.getItem("Language"),
+      language: sessionStorage.getItem('Language'),
       selectedPageSize: Number(this.props?.columns[0]?.gridPageSize),
     };
     try {
@@ -68,17 +67,15 @@ class Setting extends Component<ModalInputProps> {
     }
   }
 
-  toggle = (e) => {
+  toggle = e => {
     e.preventDefault();
     this.setState({ visible: !this.state.visible });
   };
 
-  //const coldata: any = [];
-  async setSelectedPageSize(e) {
+  async setSelectedPageSize(e) {  
     this.setState({
       selectedPageSize: e,
     });
-    //this.coldata = e;
   }
 
   checkboxChange = (event, index) => {
@@ -89,12 +86,7 @@ class Setting extends Component<ModalInputProps> {
 
   async handleChange() {
     await this.getTabelHeaderData();
-    await this.props.onSetting(
-      this.tableColumns,
-      this.state.filter,
-      this.state.selectedPageSize,
-      this.state.columnfilters
-    );
+    await this.props.onSetting(this.tableColumns, this.state.filter, this.state.selectedPageSize, this.state.columnfilters);
   }
   handleCancel() {
     this.setState({
@@ -106,7 +98,6 @@ class Setting extends Component<ModalInputProps> {
 
   async resetSettings() {
     await this.resetFromServer();
-
     await this.props.onReset();
   }
 
@@ -114,14 +105,14 @@ class Setting extends Component<ModalInputProps> {
     let id;
 
     try {
-      if (this.state.language === "en") id = 1;
-      else if (this.state.language === "hi") id = 2;
+      if (this.state.language === 'en') id = 1;
+      else if (this.state.language === 'hi') id = 2;
       else id = 3;
       const reset = await axios
         .delete(
           `${CORE_BASE_URL}api/grid-user-settings/deleteByUserIdAndHierarchyIdAndGridIdAndMenuItemId?userMasterId=${1}&languageId=${id}&gridId=${
             this.state.prop.gridId
-          }&menuItemId=${sessionStorage.getItem("menuItemId")}`
+          }&menuItemId=${sessionStorage.getItem('menuItemId')}`
         )
         .then((res: any) => {
           this.setState({
@@ -137,12 +128,7 @@ class Setting extends Component<ModalInputProps> {
   footerContent = () => {
     return (
       <div>
-        <Button
-          label="Apply"
-          icon="pi pi-check"
-          onClick={() => this.handleChange()}
-          autoFocus
-        />
+        <Button label="Apply" icon="pi pi-check" onClick={() => this.handleChange()} autoFocus />
         <Button label="Reset" onClick={() => this.resetSettings()} />
         <Button
           label="Cancel"
@@ -159,61 +145,45 @@ class Setting extends Component<ModalInputProps> {
   async getTabelHeaderData() {
     let data1: any = [];
     let id;
-    if (this.state.language === "en") id = 1;
-    else if (this.state.language === "hi") id = 2;
+    if (this.state.language === 'en') id = 1;
+    else if (this.state.language === 'hi') id = 2;
     else id = 3;
-    this.state.columns.forEach((column) => {
-      column["gridPageSize"] = this.state.selectedPageSize;
-      column["filterEnable"] = this.state.filter;
-      column["columnsFilterEnable"] = this.state.columnfilters;
+    this.state.columns.forEach(column => {
+      column['gridPageSize'] = this.state.selectedPageSize;
+      column['filterEnable'] = this.state.filter;
+      column['columnsFilterEnable'] = this.state.columnfilters;
     });
 
     const entity = {
       gridId: String(this.props.gridId),
       gridSettingDetailText: JSON.stringify(this.state.columns),
-      menuItemId: sessionStorage.getItem("menuItemId"),
+      menuItemId: sessionStorage.getItem('menuItemId'),
       userMasterId: 1,
       hierarchyLevelId: 1,
       languageId: id,
     };
-
-    data1 = await axios.put(
-      "services/coreweb/api/grid-user-settings/saveUpdateData",
-      entity,
-      {
-        headers: { menuItemId: this.props.gridId },
-      }
-    );
-    const dataJson = JSON.parse(data1.data.gridSettingDetailText);
+    data1 = await axios.put('services/coreweb/api/grid-user-settings/saveUpdateData', entity, {
+      headers: { menuItemId: this.props.gridId },
+    });
   }
   render() {
-    const cellEditor = (options) => {
+    const cellEditor = options => {
       return textEditor(options);
     };
-    const textEditor = (options) => {
-      return (
-        <InputText
-          type="text"
-          value={options.value}
-          onChange={(e) => options.editorCallback(e.target.value)}
-        />
-      );
+    const textEditor = options => {
+      return <InputText type="text" value={options.value} onChange={e => options.editorCallback(e.target.value)} />;
     };
-    const onCellEditComplete = (e) => {
+    const onCellEditComplete = e => {
       const { rowData, newValue, field, originalEvent: event } = e;
-
       switch (field) {
-        case "quantity":
+        case 'quantity':
         default:
           if (newValue.trim().length > 0) rowData[field] = newValue;
-          //else event.preventDefault();
-          else rowData[field] = "";
+          else rowData[field] = '';
           break;
       }
     };
-    const rowReorder = (e) => {
-      // this.tableColumns = null;
-      // this.tableColumns = e.value;
+    const rowReorder = e => {
       if (this.state.gridData.length === 0) {
         this.setState({ columns: e.value });
         this.tableColumns = this.state.columns;
@@ -227,11 +197,10 @@ class Setting extends Component<ModalInputProps> {
       <Dialog
         header={<Translate contentKey="setting.label"></Translate>}
         className="settingModal"
-        //footer={this.footerContent}
         visible={this.state.visible}
-        style={{ width: "50vw" }}
+        style={{ width: '50vw' }}
         onHide={() => {
-          this.handleCancel();
+          this.handleCancel(); 
         }}
         draggable={false}
         resizable={false}
@@ -241,122 +210,87 @@ class Setting extends Component<ModalInputProps> {
           <div className="modal-content">
             <div className="row">
               <div className="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-xs-12 d-flex">
-                {/* <h4> */}
                 <div className="d-flex justify-content-left align-items-center m-r-20">
                   <label className="form-label mb-0">
-                    <Translate contentKey="setting.filters"></Translate>{" "}
+                    <Translate contentKey="setting.filters"></Translate>{' '}
                   </label>
                   <Checkbox
-                    style={{ marginLeft: "10px" }}
-                    onChange={(event) =>
-                      this.setState({ filter: !this.state.filter })
-                    }
+                    style={{ marginLeft: '10px' }}
+                    onChange={event => this.setState({ filter: !this.state.filter })}
                     checked={this.state.filter}
                   ></Checkbox>
                 </div>
                 <div className="d-flex justify-content-left align-items-center">
                   <label className="form-label mb-0">
-                    <Translate contentKey="setting.columnFilter"></Translate>{" "}
+                    <Translate contentKey="setting.columnFilter"></Translate>{' '}
                   </label>
                   <Checkbox
-                    style={{ marginLeft: "10px" }}
-                    onChange={(event) =>
+                    style={{ marginLeft: '10px' }}
+                    onChange={event =>
                       this.setState({
                         columnfilters: !this.state.columnfilters,
                       })
                     }
                     checked={this.state.columnfilters}
                   ></Checkbox>
-                </div>{" "}
-                {/* </h4> */}
+                </div>{' '}
               </div>
               <div className="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-xs-12 ">
                 <div className="d-flex justify-content-end align-items-center">
-                  <label
-                    className="form-label mb-0"
-                    style={{ marginRight: "10px" }}
-                  >
+                  <label className="form-label mb-0" style={{ marginRight: '10px' }}>
                     <Translate contentKey="setting.pageSize"></Translate>
                   </label>
                   <Dropdown
                     value={this.state.selectedPageSize}
-                    onChange={(e) => this.setSelectedPageSize(e.value)}
+                    onChange={e => this.setSelectedPageSize(e.value)}
                     options={this.state.pageSize}
-                    optionLabel="size"
-                    optionValue="size"
+                    optionLabel="value"
+                    optionValue="value"
                     placeholder="Select a Page Size"
                   />
                 </div>
               </div>
             </div>
-            <div className="tableWrap" style={{ marginTop: "10px" }}>
+            <div className="tableWrap" style={{ marginTop: '10px' }}>
               <DataTable
                 value={this.tableColumns}
                 reorderableRows
-                onRowReorder={(e) => rowReorder(e)}
-                responsiveLayout="scroll"
+                onRowReorder={e => rowReorder(e)}
                 rows={this.tableColumns.length}
-                scrollable
-                
+                scrollable  
               >
-                {/* <Column header="ID" body={props => <div>{props.rowIndex}</div>}></Column> */}
-                <Column rowReorder style={{ width: "3rem" }} />
+                <Column rowReorder style={{ width: '3rem' }} />
                 <Column
                   field="header"
-                  header={
-                    <Translate contentKey="setting.grid.colomn"></Translate>
-                  }
-                  editor={(options) => cellEditor(options)}
+                  header={<Translate contentKey="setting.grid.colomn"></Translate>}
+                  editor={options => cellEditor(options)}
                   onCellEditComplete={onCellEditComplete}
                 />
                 <Column
                   field="width"
-                  header={
-                    <Translate contentKey="setting.grid.width"></Translate>
-                  }
-                  editor={(options) => cellEditor(options)}
+                  header={<Translate contentKey="setting.grid.width"></Translate>}
+                  editor={options => cellEditor(options)}
                   onCellEditComplete={onCellEditComplete}
                 />
                 <Column
-                  header={
-                    <Translate contentKey="setting.grid.display"></Translate>
-                  }
+                  header={<Translate contentKey="setting.grid.display"></Translate>}
                   body={(data, props) => (
                     <div>
-                      <Checkbox
-                        onChange={(event) =>
-                          this.checkboxChange(event, props.rowIndex)
-                        }
-                        checked={data.visible}
-                      ></Checkbox>
+                      <Checkbox onChange={event => this.checkboxChange(event, props.rowIndex)} checked={data.visible}></Checkbox>
                     </div>
                   )}
                 ></Column>
-                {/* {dynamicColumns} */}
               </DataTable>
             </div>
           </div>
           <div className="p-dialog-footer">
-            <Button
-              className="btnStyle btn btn-success"
-              onClick={() => this.handleChange()}
-              autoFocus
-            >
-              <FontAwesomeIcon icon={faCheck} />{" "}
-              <Translate contentKey="home.apply"></Translate>
+            <Button className="btnStyle btn btn-success" onClick={() => this.handleChange()} autoFocus>
+              <FontAwesomeIcon icon={faCheck} /> <Translate contentKey="home.apply"></Translate>
             </Button>
-            <Button
-              className="btnStyle btn btn-info"
-              onClick={() => this.resetSettings()}
-            >
-              <FontAwesomeIcon icon={faRepeat} />{" "}
-              <Translate contentKey="home.reset"></Translate>
+            <Button className="btnStyle btn btn-info" onClick={() => this.resetSettings()}>
+              <FontAwesomeIcon icon={faRepeat} /> <Translate contentKey="home.reset"></Translate>
             </Button>
-
-            <Button
-              className="btnStyle btn btn-danger"
-              onClick={() => this.handleCancel()}
-            >
+            <Button className="btnStyle btn btn-danger" onClick={() => this.handleCancel()}>
               <FontAwesomeIcon icon="times" />
               <Translate contentKey="home.close"></Translate>
             </Button>

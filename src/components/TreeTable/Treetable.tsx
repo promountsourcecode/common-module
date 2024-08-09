@@ -33,7 +33,8 @@ import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
 import { InputText } from "primereact/inputtext";
 import { TreeNode } from "primereact/treenode";
-export const Treetable = (prop) => {
+
+export const Treetable = prop => {
   const dispatch = useAppDispatch();
   const dt = useRef<any>();
   const [data, setData] = useState<any>();
@@ -50,34 +51,21 @@ export const Treetable = (prop) => {
   const [modalExport, setModalExport] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [exportType, setExportType] = useState();
-  const [globalFilterValue, setGlobalFilterValue] = useState("");
+  const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [columnfilters, setColumnfilters] = useState(true);
   const [ifShowHeader, setifShowHeader] = useState(false);
   const [ifHideHeader, setifHideHeader] = useState(true);
   const [lazyState, setlazyState] = useState(prop.pagination);
   const [exportColumnData, setColumnData] = useState([]);
-  const [language, setlanguage] = useState(
-    sessionStorage.getItem("LanguageId")
-  );
-  const [redioFilter, setRedioFilter] = useState("Active");
-  const menuItemId = sessionStorage.getItem("menuItemId");
-  const [deleteHeader, setdeleteHeader] = useState(
-    <Translate contentKey="global.deleteConfirm"></Translate>
-  );
-  const [deletemsg, setdeletemsg] = useState(
-    <Translate contentKey="home.deleteMsg"></Translate>
-  );
+  const [language, setlanguage] = useState(sessionStorage.getItem('LanguageId'));
+  const [redioFilter, setRedioFilter] = useState('Active');
+  const menuItemId = sessionStorage.getItem('menuItemId');
+  const [deleteHeader, setdeleteHeader] = useState(<Translate contentKey="global.deleteConfirm"></Translate>);
+  const [deletemsg, setdeletemsg] = useState(<Translate contentKey="home.deleteMsg"></Translate>);
   const [updatedJson, setUpdatedJson] = useState<any>();
-  const [columnLengthForExport, setColumnLengthForExport] = useState<any>();
-
   const finalObject = [];
-
-  const getColumnLength = async () => {
-    const columnLengthForExport = await axios.get(
-      `${CORE_BASE_URL}api/getSystemConfigurationByName/column_length`
-    );
-    setColumnLengthForExport(columnLengthForExport.data.configurationValue);
-  };
+  let row_per_page: string = useAppSelector(state => state.commonReducer.RowsPerPage.configurationValue);
+  let  dropdownOptions: any = [];
 
   useEffect(() => {
     setlazyState(lazyState);
@@ -87,27 +75,20 @@ export const Treetable = (prop) => {
     try {
       if (
         gridId != null &&
-        gridId != "" &&
+        gridId != '' &&
         gridId != undefined &&
         language != null &&
-        language != "" &&
+        language != '' &&
         language != undefined &&
         menuItemId != null &&
-        menuItemId != "" &&
+        menuItemId != '' &&
         menuItemId != undefined
       ) {
-        const gridData = await axios.get(
-          `${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`
-        );
-        await setColumn(
-          gridData.data.data.length > 0 ? gridData.data.data : prop.column
-        );
+        const gridData = await axios.get(`${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
+        await setColumn(gridData.data.data.length > 0 ? gridData.data.data : prop.column);
         const pageData = {
           first: lazyState.first,
-          rows:
-            gridData.data.data.length > 0
-              ? parseInt(gridData.data.data[0].gridPageSize)
-              : 10,
+          rows: lazyState.rows,
           page: lazyState.page,
           sortField: lazyState.sortField,
           sortOrder: lazyState.sortOrder,
@@ -118,13 +99,8 @@ export const Treetable = (prop) => {
         };
         if (gridData?.data?.data != null) {
           if (gridData?.data?.data.length > 0) {
-            gridData.data.data.forEach((item) => {
-              if (
-                item.field != "radio" &&
-                item.field != "checkbox" &&
-                item.field != "action" &&
-                item.field != "button"
-              )
+            gridData.data.data.forEach(item => {
+              if (item.field != 'radio' && item.field != 'checkbox' && item.field != 'action' && item.field != 'button')
                 filterObject[item.field] = {
                   value: null,
                   matchMode: FilterMatchMode.CONTAINS,
@@ -132,16 +108,8 @@ export const Treetable = (prop) => {
             });
           }
         }
-        setfilter(
-          gridData.data.data.length > 0
-            ? gridData.data.data[0].filterEnable
-            : false
-        );
-        setColumnfilters(
-          gridData.data.data.length > 0
-            ? gridData.data.data[0].columnsFilterEnable
-            : false
-        );
+        setfilter(gridData.data.data.length > 0 ? gridData.data.data[0].filterEnable : false);
+        setColumnfilters(gridData.data.data.length > 0 ? gridData.data.data[0].columnsFilterEnable : false);
         setfilters(filterObject);
         await prepareRowAction(gridData.data.data);
       }
@@ -151,8 +119,13 @@ export const Treetable = (prop) => {
   };
   useEffect(() => {
     setNodes((pre: any) => {
-      if (!prop.data) return pre;
-      else return prop.data;
+      if (!prop.data) {
+        return pre;
+      }
+      else {
+        getGridData();
+        return prop.data;
+      }
     });
     setData((pre: any) => {
       if (!prop.data) return pre;
@@ -161,33 +134,24 @@ export const Treetable = (prop) => {
   }, [prop.data, columnfilters]);
 
   useEffect(() => {
-    getGridData();
     if (!redioFilter) {
-      setRedioFilter("Active");
+      setRedioFilter('Active');
     }
-    if (
-      gridId === "dmsClientID" ||
-      gridId === "dmsParameterID" ||
-      gridId === "ParameterCategoriesID"
-    ) {
+    if (gridId === 'dmsClientID' || gridId === 'dmsParameterID' || gridId === 'ParameterCategoriesID') {
       setifShowHeader(true);
     }
-    if (gridId === "documentWorkspaceID") {
+    if (gridId === 'documentWorkspaceID') {
       setifHideHeader(false);
     }
-
-    getColumnLength();
   }, []);
 
-  const toggle = (e) => {
-    let exportColumn = [
-      ...column.filter((col) => col.type !== "Action" && col.type !== "Button"),
-    ];
+  const toggle = e => {
+    let exportColumn = [...column.filter(col => col.type !== 'Action' && col.type !== 'Button')];
     setColumnData(exportColumn);
     setExportType(e);
     setModalExport(!modalExport);
   };
-  const edit = (id) => {
+  const edit = id => {
     prop.onEdit(id);
   };
   const save = () => {
@@ -195,17 +159,10 @@ export const Treetable = (prop) => {
   };
 
   const [key, setKey] = useState(0);
-
   const resetFilters = () => {
-    // Increment the key to force re-rendering
     setKey(key + 1);
   };
-  const settingChanges = async (
-    coulmnData,
-    filterToggle,
-    selectedPageSize,
-    columnFilter
-  ) => {
+  const settingChanges = async (coulmnData, filterToggle, selectedPageSize, columnFilter) => {
     setModal(false);
     await setColumn(coulmnData);
     setfilter(filterToggle);
@@ -215,7 +172,7 @@ export const Treetable = (prop) => {
     await setColumnfilters(columnFilter);
     const pageData = {
       first: lazyState.first,
-      rows: selectedPageSize,
+      rows: lazyState.rows,
       page: lazyState.page,
       sortField: lazyState.sortField,
       sortOrder: lazyState.sortOrder,
@@ -223,32 +180,32 @@ export const Treetable = (prop) => {
     setlazyState(pageData);
   };
 
-  const getDataForPdfXls = (data) => {
+  const getDataForPdfXls = data => {
     if (data.length > 0) {
-      data.forEach((element) => {
-        if (element["data"]) {
-          finalObject.push(element["data"]);
+      data.forEach(element => {
+        if (element['data']) {
+          finalObject.push(element['data']);
         }
-        if (element["children"]) {
-          getDataForPdfXls(element["children"]);
+        if (element['children']) {
+          getDataForPdfXls(element['children']);
         }
       });
     }
   };
 
-  const settingChangesExport = (coulmnData) => {
+  const settingChangesExport = coulmnData => {
     getDataForPdfXls(data);
     setModalExport(false);
     setExportCol(coulmnData);
     const exportData = data;
     const headers = [];
-    coulmnData.map((col) => {
+    coulmnData.map(col => {
       if (col.visible) headers.push(col.field);
     });
     const newData = [];
-    exportData.map((element) => {
+    exportData.map(element => {
       const newObj = {};
-      headers.forEach((name) => {
+      headers.forEach(name => {
         newObj[name] = element[name];
       });
       newData.push(newObj);
@@ -256,13 +213,13 @@ export const Treetable = (prop) => {
     });
 
     switch (exportType) {
-      case "PDF":
+      case 'PDF':
         exportPdf(newData, headers, coulmnData, finalObject);
         break;
-      case "EXCEL":
+      case 'EXCEL':
         exportExcel(newData, coulmnData, finalObject);
         break;
-      case "CSV":
+      case 'CSV':
         exportCSV(newData, headers);
         break;
       default:
@@ -273,17 +230,28 @@ export const Treetable = (prop) => {
     setlazyState(lazyState);
   }, [lazyState]);
 
-  const convertToCSV = (objArray) => {
-    const array =
-      typeof objArray !== "object" ? JSON.parse(objArray) : objArray;
-    let str = "";
+  const logNode = (node: TreeNode) => {
+    let [, ...newArr] = itemsAction;
+
+    return <SplitButton
+      icon="fa-solid fa-bars"
+      className="tableActionMenu"
+      model={node.data.level === 3 ? newArr : itemsAction}
+      dropdownIcon="pi pi-list"
+      onFocus={() => getActionBtn(node.data.id, node.data)}
+    />;
+  }
+
+  const convertToCSV = objArray => {
+    const array = typeof objArray !== 'object' ? JSON.parse(objArray) : objArray;
+    let str = '';
     for (let i = 0; i < array.length; i++) {
-      let line = "";
+      let line = '';
       for (const index in array[i]) {
-        if (line !== "") line += ",";
+        if (line !== '') line += ',';
         line += array[i][index];
       }
-      str += line + "\r\n";
+      str += line + '\r\n';
     }
     return str;
   };
@@ -291,14 +259,14 @@ export const Treetable = (prop) => {
   const exportCSV = (newData, headers) => {
     const jsonObject = JSON.stringify(newData);
     const csv = convertToCSV(jsonObject);
-    const exportedFilenmae = "report" + ".csv" || "export.csv";
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
+    const exportedFilenmae = 'report' + '.csv' || 'export.csv';
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
     if (link.download !== undefined) {
       const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute("download", exportedFilenmae);
-      link.style.visibility = "hidden";
+      link.setAttribute('href', url);
+      link.setAttribute('download', exportedFilenmae);
+      link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -312,67 +280,47 @@ export const Treetable = (prop) => {
         out.push(coulmnData[i].header);
       }
     }
-    const unit = "pt";
-    const size = "A4";
-    const columnLength = Number(columnLengthForExport);
-    const orientation = colData.length >= columnLength ? "l" : "p";
+    const unit = 'pt';
+    const size = 'A4';
+    const orientation = 'portrait';
     const doc = new jsPDF(orientation, unit, size);
-    doc.addFont("/content/fonts/arial-unicode-ms.ttf", "aakar", "normal");
-    doc.setFont("aakar");
-    const title = prop.title.concat(" Report");
-    var dataForExport = data1.map((obj) =>
-      column.map((header) => obj[header.field])
-    );
+    doc.addFont('/content/fonts/arial-unicode-ms.ttf', 'aakar', 'normal');
+    doc.setFont('aakar');
+    const title = prop.title.concat(' Report');
+    var dataForExport = data1.map(obj => column.map(header => obj[header.field]));
 
     const content = {
       startY: 50,
       head: [out],
       body: dataForExport,
       styles: {
-        font: "aakar",
+        font: 'aakar',
       },
     };
     doc.text(title, 40, 40);
-
     autoTable(doc, content);
-
-    const totalPage = doc.getNumberOfPages();
-
-    for (let i = 1; i <= totalPage; i++) {
-      doc.setPage(i);
-      doc.setFontSize(10);
-      let pageStr = `Page ${i} of ${totalPage}`;
-      doc.text(pageStr, 510, 820);
-    }
-    let fileName = `_Report_${moment(new Date()).format(
-      "DD_MM_YYYY_HH_mm_ss"
-    )}.pdf`;
+    let fileName = `_Report_${moment(new Date()).format('DD_MM_YYYY_HH_mm_ss')}.pdf`;
     doc.save(prop.title.concat(fileName));
   };
 
   const exportExcel = (newData, coulmnData, data1) => {
-    var dataForExport = data1.map((obj) =>
-      column.map((header) => obj[header.field])
-    );
-    import("xlsx").then((xlsx) => {
+    var dataForExport = data1.map(obj => column.map(header => obj[header.field]));
+    import('xlsx').then(xlsx => {
       const worksheet = xlsx.utils.json_to_sheet(dataForExport);
-      const workbook = { Sheets: { data: worksheet }, SheetNames: ["data"] };
+      const workbook = { Sheets: { data: worksheet }, SheetNames: ['data'] };
       const excelBuffer = xlsx.write(workbook, {
-        bookType: "xlsx",
-        type: "array",
+        bookType: 'xlsx',
+        type: 'array',
       });
-      let fileName = `${prop.title}_Report_${moment(new Date()).format(
-        "DD_MM_YYYY_HH_mm_ss"
-      )}`;
+      let fileName = `${prop.title}_Report_${moment(new Date()).format('DD_MM_YYYY_HH_mm_ss')}`;
       saveAsExcelFile(excelBuffer, fileName);
     });
   };
   const saveAsExcelFile = (buffer, fileName) => {
-    import("file-saver").then((module) => {
+    import('file-saver').then(module => {
       if (module && module.default) {
-        const EXCEL_TYPE =
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
-        const EXCEL_EXTENSION = ".xlsx";
+        const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+        const EXCEL_EXTENSION = '.xlsx';
         const dataa = new Blob([buffer], {
           type: EXCEL_TYPE,
         });
@@ -380,16 +328,16 @@ export const Treetable = (prop) => {
       }
     });
   };
-  const getSubDocType = (e) => {
+  const getSubDocType = e => {
     setSelectedProduct(e);
   };
   const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     const _filters = { ...filters };
-    _filters["global"].value = value;
+    _filters['global'].value = value;
     setfilters(_filters);
     setGlobalFilterValue(value);
-    if (gridId === "dmsParameterID") {
+    if (gridId === 'dmsParameterID') {
       prop.onSearch(value);
     }
   };
@@ -398,51 +346,36 @@ export const Treetable = (prop) => {
     try {
       if (
         gridId != null &&
-        gridId != "" &&
+        gridId != '' &&
         gridId != undefined &&
         language != null &&
-        language != "" &&
+        language != '' &&
         language != undefined &&
         menuItemId != null &&
-        menuItemId != "" &&
+        menuItemId != '' &&
         menuItemId != undefined
       ) {
-        const gridData = await axios.get(
-          `${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`
-        );
+        const gridData = await axios.get(`${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
         setColumn(gridData.data.data);
         const pageData = {
           first: lazyState.first,
-          rows: await parseInt(gridData.data.data[0].gridPageSize),
+          rows: lazyState.rows,
           page: lazyState.page,
           sortField: lazyState.sortField,
           sortOrder: lazyState.sortOrder,
         };
         setlazyState(pageData);
         if (gridData?.data != null) {
-          setfilter(
-            gridData.data?.data?.length > 0
-              ? gridData?.data?.data[0].filterEnable
-              : false
-          );
-          setColumnfilters(
-            gridData?.data?.data?.length > 0
-              ? gridData?.data?.data[0].columnsFilterEnable
-              : false
-          );
+          setfilter(gridData.data?.data?.length > 0 ? gridData?.data?.data[0].filterEnable : false);
+          setColumnfilters(gridData?.data?.data?.length > 0 ? gridData?.data?.data[0].columnsFilterEnable : false);
         }
         const filterObject = {
           global: { value: null, matchMode: FilterMatchMode.CONTAINS },
         };
         if (gridData?.data?.data != null) {
           if (gridData?.data?.data.length > 0) {
-            gridData.data.data.forEach((item) => {
-              if (
-                item.field != "radio" &&
-                item.field != "checkbox" &&
-                item.field != "action" &&
-                item.field != "button"
-              )
+            gridData.data.data.forEach(item => {
+              if (item.field != 'radio' && item.field != 'checkbox' && item.field != 'action' && item.field != 'button')
                 filterObject[item.field] = {
                   value: null,
                   matchMode: FilterMatchMode.CONTAINS,
@@ -459,9 +392,9 @@ export const Treetable = (prop) => {
       toast.error(error.toString());
     }
   };
-  const redioFilterSelection = (name) => {
+  const redioFilterSelection = name => {
     setRedioFilter(name);
-    sessionStorage.setItem("FilterStatus", name);
+    sessionStorage.setItem('FilterStatus', name);
     prop.onFilterChanges(name);
   };
   var labelbtnFlag: any = {
@@ -480,30 +413,26 @@ export const Treetable = (prop) => {
   const [buttonAction, setButtonAction] = useState<any>([]);
   const [reasonIdDelete, setReasonIdDelete] = useState<any>();
   const [reasonFlag, setReasonFlag] = useState<boolean>(false);
-  const deleteConfirmOnAction = async (
-    id: number,
-    flag: boolean,
-    record: any
-  ) => {
+  const deleteConfirmOnAction = async (id: number, flag: boolean, record: any) => {
     setMsgLangKeyInSessionStorage(prop.msgLangKey);
     const idObj = {};
-    idObj["id"] = id;
+    idObj['id'] = id;
     setReasonIdDelete(idObj);
     confirmDialog({
       message: deletemsg,
       header: deleteHeader,
-      icon: "pi pi-info-circle",
-      acceptClassName: "p-button-success",
-      rejectClassName: "p-button-danger",
-      acceptLabel: labelbtnFlag.yes ? labelbtnFlag.yes : "Yes",
-      rejectLabel: labelbtnFlag.no ? labelbtnFlag.no : "No",
+      icon: 'pi pi-info-circle',
+      acceptClassName: 'p-button-success',
+      rejectClassName: 'p-button-danger',
+      acceptLabel: labelbtnFlag.yes ? labelbtnFlag.yes : 'Yes',
+      rejectLabel: labelbtnFlag.no ? labelbtnFlag.no : 'No',
       accept: async () => {
         flag == true ? await setReasonFlag(!reasonFlag) : accept(id, record);
       },
       reject: () => reject(),
     });
   };
-  const reject = () => {};
+  const reject = () => { };
   const accept = (data: any, record: any) => {
     prop.onDelete(data, record);
     setReasonFlag(false);
@@ -512,37 +441,31 @@ export const Treetable = (prop) => {
     const newNodes = JSON.parse(JSON.stringify(nodes));
     let indexs = options.rowIndex;
     let typeValue = typeof options.rowIndex;
-    if (typeValue == "string") {
-      indexs = options.rowIndex.split("_");
+    if (typeValue == 'string') {
+      indexs = options.rowIndex.split('_');
     }
     let obj = newNodes;
-    if (typeof indexs == "number") {
+    if (typeof indexs == 'number') {
       obj = obj[indexs];
     } else {
       for (let idx = 0; idx < indexs.length; idx++) {
         if (idx == 0) {
           obj = obj[parseInt(indexs[idx])];
         } else {
-          obj = obj["children"][parseInt(indexs[idx])];
+          obj = obj['children'][parseInt(indexs[idx])];
         }
       }
     }
 
-    obj["data"][options.field] = await value;
+    obj['data'][options.field] = await value;
     let finaljson = {};
     await setNodes(newNodes);
-    finaljson["data"] = [obj];
+    finaljson['data'] = [obj];
     setUpdatedJson(finaljson);
   };
 
-  const inputTextEditor = (options) => {
-    return (
-      <InputText
-        type="text"
-        value={options.rowData[options.field]}
-        onChange={(e) => onEditorValueChange(options, e.target.value)}
-      />
-    );
+  const inputTextEditor = options => {
+    return <InputText type="text" value={options.rowData[options.field]} onChange={e => onEditorValueChange(options, e.target.value)} />;
   };
   const [editObject, setEditObject] = useState<any>([]);
   const getActionBtn = (id, object) => {
@@ -550,43 +473,28 @@ export const Treetable = (prop) => {
     setEditObject(object);
   };
 
+
+
   const [actionId, setActionId] = useState<number>();
   const prepareRowAction = (actionArr: any[]) => {
     let tmpRowAction = [];
     try {
       if (actionArr) {
         for (let i = 0; i < actionArr.length; i++) {
-          if (actionArr[i]["type"] == "Action") {
+          if (actionArr[i]['type'] == 'Action') {
             let actinObj = actionArr[i].actionJson;
             if (actinObj) {
               for (let j = 0; j < actinObj.length; j++) {
                 let item = {
-                  className:
-                    actinObj[j]["className"] != null &&
-                    actinObj[j]["className"] != ""
-                      ? actinObj[j]["className"]
-                      : "icon",
-                  label: (
-                    <Translate contentKey={actinObj[j]["label"]}></Translate>
-                  ),
-                  icon: actinObj[j]["icon"],
-                  id: actinObj[j]["id"],
-                  visible: actinObj[j]["visible"],
+                  className: actinObj[j]['className'] != null && actinObj[j]['className'] != '' ? actinObj[j]['className'] : 'icon',
+                  label: <Translate contentKey={actinObj[j]['label']}></Translate>,
+                  icon: actinObj[j]['icon'],
+                  id: actinObj[j]['id'],
+                  visible: actinObj[j]['visible'],
                   command: () => {
-                    actinObj[j]["id"] == "Delete"
-                      ? deleteConfirmOnAction(
-                          actionId,
-                          actinObj[j]["askReason"],
-                          editObject
-                        )
-                      : eval(
-                          prop[actinObj[j].command](
-                            actionId,
-                            gridId,
-                            actinObj[j]["askReason"],
-                            editObject
-                          )
-                        );
+                    actinObj[j]['id'] == 'Delete'
+                      ? deleteConfirmOnAction(actionId, actinObj[j]['askReason'], editObject)
+                      : eval(prop[actinObj[j].command](actionId, gridId, actinObj[j]['askReason'], editObject));
                   },
                 };
                 tmpRowAction.push(item);
@@ -594,7 +502,7 @@ export const Treetable = (prop) => {
               setitemsAction(tmpRowAction);
             }
           }
-          if (actionArr[i]["type"] == "Button") {
+          if (actionArr[i]['type'] == 'Button') {
             let butonObj = actionArr[i].actionJson;
             setButtonAction(butonObj);
           }
@@ -605,7 +513,7 @@ export const Treetable = (prop) => {
     }
   };
 
-  const typeEditor = (options) => {
+  const typeEditor = options => {
     return inputTextEditor(options);
   };
   useEffect(() => {
@@ -620,18 +528,16 @@ export const Treetable = (prop) => {
 
   const defaultChecked = (fieldName, data1) => {
     let flag: any;
-    flag = typeof data1.data[fieldName]
-      ? typeof data1.data[fieldName]
-      : undefined;
+    flag = typeof data1.data[fieldName] ? typeof data1.data[fieldName] : undefined;
     if (flag != undefined) {
-      if (flag == "boolean") {
+      if (flag == 'boolean') {
         return data1.data[fieldName];
-      } else if (flag == "string" || flag == "number") {
+      } else if (flag == 'string' || flag == 'number') {
         let returnValue: boolean;
-        if (flag == "number") {
+        if (flag == 'number') {
         }
-        if (flag == "string") {
-          returnValue = data1.data[fieldName] == "Yes" ? true : false;
+        if (flag == 'string') {
+          returnValue = data1.data[fieldName] == 'Yes' ? true : false;
         }
         return returnValue;
       }
@@ -662,8 +568,7 @@ export const Treetable = (prop) => {
   const [selectCheckboxRc, setSelectCheckboxRc] = useState<any>([]);
   const onSelectCheckBox = (e, fieldName, obj) => {
     obj.data[fieldName] = e.target.checked;
-    let selectedItemsArray: any =
-      selectCheckboxRc != undefined ? [...selectCheckboxRc] : [];
+    let selectedItemsArray: any = selectCheckboxRc != undefined ? [...selectCheckboxRc] : [];
     const checked = e.target.checked;
     try {
       if (e.checked) {
@@ -671,10 +576,7 @@ export const Treetable = (prop) => {
           selectedItemsArray.push(obj);
         } else {
           for (let i = 0; i < selectCheckboxRc.length; i++) {
-            if (
-              obj.id != selectCheckboxRc[i].id ||
-              selectCheckboxRc.legth == 0
-            ) {
+            if (obj.id != selectCheckboxRc[i].id || selectCheckboxRc.legth == 0) {
               selectedItemsArray.push(obj);
             }
           }
@@ -688,10 +590,7 @@ export const Treetable = (prop) => {
     }
   };
   const [totalRecords, setTotalRecords] = useState(prop.totalRecords);
-  let row_per_page: string = useAppSelector(
-    (state) => state.commonReducer.RowsPerPage.configurationValue
-  );
-  const dropdownOptions: any = [];
+
   useEffect(() => {
     setTotalRecords(prop.totalRecords);
   }, [prop.totalRecords]);
@@ -699,81 +598,40 @@ export const Treetable = (prop) => {
     setlazyState(prop.pagination);
   }, [prop.pagination]);
 
-  // const paginatorTemplate = {
-  //   layout:
-  //     "RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport ",
-  //   RowsPerPageDropdown: (options) => {
-  //     if (row_per_page) {
-  //       let arr = row_per_page ? row_per_page.split(",") : "";
-  //       for (let i = 0; i < arr.length; i++) {
-  //         dropdownOptions.push(Number(arr[i]));
-  //       }
-  //     }
-  //     return (
-  //       <React.Fragment>
-  //         <Dropdown
-  //           value={options.value}
-  //           scrollHeight={"270px"}
-  //           options={dropdownOptions}
-  //           onChange={options.onChange}
-  //         />
-  //       </React.Fragment>
-  //     );
-  //   },
-  //   CurrentPageReport: (options) => {
-  //     return (
-  //       <span
-  //         className="totalPages"
-  //         style={{
-  //           color: "var(--text-color)",
-  //           fontSize: "14px",
-  //           userSelect: "none",
-  //           marginLeft: "auto",
-  //           textAlign: "center",
-  //         }}
-  //       >
-  //         {options.first} - {options.last} of {options.totalRecords}
-  //       </span>
-  //     );
-  //   },
-  // };
   const paginatorTemplate = {
-    layout:
-      "RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport ",
-    RowsPerPageDropdown: (options) => {
+    layout: 'RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport ',
+    RowsPerPageDropdown: options => {
       if (row_per_page) {
-        let arr = row_per_page ? row_per_page.split(",") : "";
+        let arr = row_per_page ? row_per_page.split(',') : '';
         for (let i = 0; i < arr.length; i++) {
-          dropdownOptions.push({ size: Number(arr[i]) });
+          dropdownOptions.push({ value: Number(arr[i]) });
         }
       }
-
       return (
         <React.Fragment>
           <Dropdown
             value={options.value}
-            optionLabel="size"
-            optionValue="size"
-            scrollHeight={"270px"}
+            optionLabel="value"
+            optionValue="value"
+            scrollHeight={'270px'}
             options={dropdownOptions}
             onChange={options.onChange}
           />
         </React.Fragment>
       );
     },
-    CurrentPageReport: (options) => {
+    CurrentPageReport: options => {
       return (
         <span
           className="totalPages"
           style={{
-            //color: 'var(--text-color)',
-            fontSize: "14px",
-            userSelect: "none",
-            marginLeft: "auto",
-            textAlign: "center",
+            fontSize: '14px',
+            userSelect: 'none',
+            marginLeft: 'auto',
+            textAlign: 'center',
           }}
         >
-          Record {options.first} - {options.last} of {options.totalRecords}
+          {options.first} - {options.last} of {options.totalRecords}
         </span>
       );
     },
@@ -793,23 +651,15 @@ export const Treetable = (prop) => {
           setColumn(res.payload.data.data);
           const pageData = {
             first: lazyState.first,
-            rows: parseInt(res.payload.data.data[0].gridPageSize),
+            rows: parseInt(res.data.data[0].gridPageSize.size),
             page: lazyState.page,
             sortField: lazyState.sortField,
             sortOrder: lazyState.sortOrder,
           };
           setlazyState(pageData);
           if (res?.payload?.data != null) {
-            setfilter(
-              res?.payload?.data?.data?.length > 0
-                ? res?.payload?.data?.data[0].filterEnable
-                : false
-            );
-            setColumnfilters(
-              res?.payload?.data?.data?.length > 0
-                ? res?.payload?.data?.data[0].columnsFilterEnable
-                : false
-            );
+            setfilter(res?.payload?.data?.data?.length > 0 ? res?.payload?.data?.data[0].filterEnable : false);
+            setColumnfilters(res?.payload?.data?.data?.length > 0 ? res?.payload?.data?.data[0].columnsFilterEnable : false);
           }
           await prepareRowAction(res.payload.data.data);
           await prop.onPageChange(pageData);
@@ -843,9 +693,9 @@ export const Treetable = (prop) => {
     }
   };
 
-  const getAllNodeKeys = (nodes) => {
+  const getAllNodeKeys = nodes => {
     let keys = [];
-    nodes.forEach((node) => {
+    nodes.forEach(node => {
       keys.push(node.key);
       if (node.children) {
         keys = keys.concat(getAllNodeKeys(node.children));
@@ -853,7 +703,7 @@ export const Treetable = (prop) => {
     });
     return keys;
   };
-  const onToggle = (event) => {
+  const onToggle = event => {
     setExpandedKeys(event.value);
   };
 
@@ -871,22 +721,22 @@ export const Treetable = (prop) => {
     }
   }, [dtContainerRef.current]);
 
-  const getWidth = (width) => {
+  const getWidth = width => {
     if (width) {
-      if (width.includes("%")) {
-        width = width.replace("%", "");
+      if (width.includes('%')) {
+        width = width.replace('%', '');
         const widthFloat = parseFloat(width);
         if (!isNaN(widthFloat)) {
           const widthInPixels = (widthFloat / 100) * tableWidth;
           return `${widthInPixels}px`;
         }
-      } else if (width.includes("px") || width.includes("PX")) {
+      } else if (width.includes('px') || width.includes('PX')) {
         return width;
       } else {
-        return "auto";
+        return 'auto';
       }
     }
-    return "auto";
+    return 'auto';
   };
 
   const bodyTemplate = (node, column) => {
@@ -898,27 +748,8 @@ export const Treetable = (prop) => {
         <span id={`${field}-${node.key}`} data-pr-tooltip={tooltip}>
           {value}
         </span>
-        <Tooltip
-          mouseTrack
-          mouseTrackLeft={10}
-          style={{ fontSize: "14px" }}
-          target={`#${field}-${node.key}`}
-        />
+        <Tooltip target={`#${field}-${node.key}`} />
       </React.Fragment>
-    );
-  };
-
-  const logNode = (node: TreeNode) => {
-    let [, ...newArr] = itemsAction;
-
-    return (
-      <SplitButton
-        icon="fa-solid fa-bars"
-        className="tableActionMenu"
-        model={node.data.level === 3 ? newArr : itemsAction}
-        dropdownIcon="pi pi-list"
-        onFocus={() => getActionBtn(node.data.id, node.data)}
-      />
     );
   };
 
@@ -931,26 +762,15 @@ export const Treetable = (prop) => {
               {filter && (
                 <IconField iconPosition="left">
                   <InputIcon className="pi pi-search"> </InputIcon>
-                  <InputText
-                    placeholder="Keyword Search"
-                    value={globalFilterValue}
-                    onChange={(e) => onGlobalFilterChange(e)}
-                  />
+                  <InputText placeholder="Keyword Search" value={globalFilterValue} onChange={e => onGlobalFilterChange(e)} />
                 </IconField>
-                // <span className="p-input-icon-left">
-                //   <i className="pi pi-search" />
-                //   <InputText value={globalFilterValue} onChange={e => onGlobalFilterChange(e)} placeholder="Keyword Search" />
-                // </span>
+
               )}
             </div>
           }
           <div className="d-flex flex-wrap">
             {ifShowHeader && (
-              <Button
-                onClick={() => edit("")}
-                className="btn btn-primary btnStyle"
-                data-cy="entityCreateButton"
-              >
+              <Button onClick={() => edit('')} className="btn btn-primary btnStyle" data-cy="entityCreateButton">
                 <FontAwesomeIcon icon="plus" />
                 Add
               </Button>
@@ -962,7 +782,7 @@ export const Treetable = (prop) => {
                 inputId="input-metakey"
                 style={{ height: 23, marginTop: 5 }}
                 checked={metaKey}
-                onChange={(e) => {
+                onChange={e => {
                   toggleApplications(), setMetaKey(e.value);
                 }}
               />
@@ -981,61 +801,42 @@ export const Treetable = (prop) => {
 
             {prop.statusFilter === true && (
               <span className="d-flex justify-content-center m-r-15 statusFilter">
-                <span
-                  style={{ marginLeft: "10px" }}
-                  className="d-flex align-items-center"
-                >
+                <span style={{ marginLeft: '10px' }} className="d-flex align-items-center">
                   <RadioButton
-                    inputId={gridId + "gridActive"}
+                    inputId={gridId + 'gridActive'}
                     name="filter"
                     value="Active"
-                    onChange={(e) => redioFilterSelection(e.value)}
-                    checked={redioFilter === "Active"}
+                    onChange={e => redioFilterSelection(e.value)}
+                    checked={redioFilter === 'Active'}
                   />
-                  <label
-                    htmlFor={gridId + "gridActive"}
-                    style={{ marginBottom: 0 }}
-                  >
-                    {labelbtnFlag.activeradio
-                      ? labelbtnFlag.activeradio
-                      : "Active"}
+                  <label htmlFor={gridId + 'gridActive'} style={{ marginBottom: 0 }}>
+                    {labelbtnFlag.activeradio ? labelbtnFlag.activeradio : 'Active'}
                   </label>
                 </span>
                 {prop.inactiveFlag == true && (
-                  <span
-                    style={{ marginLeft: "10px" }}
-                    className="d-flex align-items-center"
-                  >
+                  <span style={{ marginLeft: '10px' }} className="d-flex align-items-center">
                     <RadioButton
-                      inputId={gridId + "gridInactive"}
+                      inputId={gridId + 'gridInactive'}
                       name="filter"
                       value="Inactive"
-                      onChange={(e) => redioFilterSelection(e.value)}
-                      checked={redioFilter === "Inactive"}
+                      onChange={e => redioFilterSelection(e.value)}
+                      checked={redioFilter === 'Inactive'}
                     />
-                    <label
-                      htmlFor={gridId + "gridInactive"}
-                      style={{ marginBottom: 0 }}
-                    >
-                      {labelbtnFlag.inactiveradio
-                        ? labelbtnFlag.inactiveradio
-                        : "Inactive"}
+                    <label htmlFor={gridId + 'gridInactive'} style={{ marginBottom: 0 }}>
+                      {labelbtnFlag.inactiveradio ? labelbtnFlag.inactiveradio : 'Inactive'}
                     </label>
                   </span>
                 )}
-                <span
-                  style={{ marginLeft: "10px" }}
-                  className="d-flex align-items-center"
-                >
+                <span style={{ marginLeft: '10px' }} className="d-flex align-items-center">
                   <RadioButton
-                    inputId={gridId + "All"}
+                    inputId={gridId + 'All'}
                     name="filter"
                     value="All"
-                    onChange={(e) => redioFilterSelection(e.value)}
-                    checked={redioFilter === "All"}
+                    onChange={e => redioFilterSelection(e.value)}
+                    checked={redioFilter === 'All'}
                   />
-                  <label htmlFor={gridId + "All"} style={{ marginBottom: 0 }}>
-                    {labelbtnFlag.allradio ? labelbtnFlag.allradio : "All"}
+                  <label htmlFor={gridId + 'All'} style={{ marginBottom: 0 }}>
+                    {labelbtnFlag.allradio ? labelbtnFlag.allradio : 'All'}
                   </label>
                 </span>
               </span>
@@ -1046,8 +847,6 @@ export const Treetable = (prop) => {
               onClick={() => {
                 setModal(!modal);
               }}
-              tooltip={placeholder("setting.label")}
-              tooltipOptions={{ position: "top" }}
             >
               <i className="fa-solid fa-gear"></i>
             </Button>
@@ -1058,34 +857,26 @@ export const Treetable = (prop) => {
               data-bs-toggle="dropdown"
               aria-expanded="false"
               style={{
-                border: "none",
-                background: "#1565C00D",
-                marginLeft: "15px",
-                boxShadow: "none",
-                color: "#1565c0",
+                border: 'none',
+                background: '#1565C00D',
+                marginLeft: '15px',
+                boxShadow: 'none',
+                color: '#1565c0',
               }}
             >
-              {labelbtnFlag.export ? labelbtnFlag.export : "Export"}
+              {labelbtnFlag.export ? labelbtnFlag.export : 'Export'}
             </button>
             <ul className="dropdown-menu" style={{}}>
               <li>
-                {" "}
-                <a className="dropdown-item" onClick={() => toggle("EXCEL")}>
-                  <i
-                    className="fa-solid fa-file-excel"
-                    style={{ color: "#1c6c42" }}
-                  ></i>{" "}
-                  Excel
+                {' '}
+                <a className="dropdown-item" onClick={() => toggle('EXCEL')}>
+                  <i className="fa-solid fa-file-excel" style={{ color: '#1c6c42' }}></i> Excel
                 </a>
               </li>
               <li>
-                {" "}
-                <a className="dropdown-item" onClick={() => toggle("PDF")}>
-                  <i
-                    className="fa-solid fa-file-pdf"
-                    style={{ color: "#f72015" }}
-                  ></i>{" "}
-                  PDF
+                {' '}
+                <a className="dropdown-item" onClick={() => toggle('PDF')}>
+                  <i className="fa-solid fa-file-pdf" style={{ color: '#f72015' }}></i> PDF
                 </a>
               </li>
             </ul>
@@ -1110,23 +901,15 @@ export const Treetable = (prop) => {
       )}
 
       {modalExport && (
-        <ExportSetting
-          show={modalExport}
-          columns={exportColumnData}
-          onSetting={settingChangesExport}
-          onClose={exportClose}
-        />
+        <ExportSetting show={modalExport} columns={exportColumnData} onSetting={settingChangesExport} onClose={exportClose} />
       )}
-      <div
-        ref={dtContainerRef}
-        className={columnfilters ? "dataTable" : "dataTable columnFilters"}
-      >
+      <div ref={dtContainerRef} className={columnfilters ? 'dataTable' : 'dataTable columnFilters'}>
         <>
           {prop.data && prop.data.length > 0 ? (
             <>
               <TreeTable
                 ref={dt}
-                // sortMode="multiple"
+               // sortMode="multiple"
                 value={nodes}
                 filters={filter}
                 key={key}
@@ -1134,33 +917,33 @@ export const Treetable = (prop) => {
                 id="table"
                 selectionMode="single"
                 selectionKeys={selectedProduct}
-                onSelectionChange={(e) => getSubDocType(e.value)}
+                onSelectionChange={e => getSubDocType(e.value)}
                 onExpand={onNodeExpand}
                 expandedKeys={expandedKeys}
                 globalFilter={globalFilterValue}
-                filterMode={columnfilters ? "lenient" : null}
+                filterMode={columnfilters ? 'lenient' : null}
                 onToggle={onToggle}
-                tableStyle={{ minWidth: "50rem" }}
+                tableStyle={{ minWidth: '50rem' }}
                 scrollable
                 scrollHeight="400px"
+
               >
-                {/* <Column expander={true} style={{ width: '5%' }}></Column> */}
                 {column.map((e: any, i: any) => {
                   if (e.visible) {
-                    if (e.type === "Radio") {
+                    if (e.type === 'Radio') {
                       return (
                         <Column
                           header={e.header}
                           style={{
-                            width: e.width ? getWidth(e.width) : "65px",
+                            width: e.width ? getWidth(e.width) : '65px',
                           }}
-                          body={(data2) => (
+                          body={data2 => (
                             <>
                               <RadioButton
                                 inputId={data2}
                                 name={data2.id}
                                 value={selectedCategory}
-                                onChange={(e) => setSelectedCategory(data2)}
+                                onChange={e => setSelectedCategory(data2)}
                                 checked={selectedCategory === data2}
                               />
                             </>
@@ -1168,20 +951,20 @@ export const Treetable = (prop) => {
                         />
                       );
                     }
-                    if (e.type === "CheckBox") {
+                    if (e.type === 'CheckBox') {
                       return (
                         <Column
                           key={i}
                           header={e.header}
                           style={{
-                            width: e.width ? getWidth(e.width) : "65px",
+                            width: e.width ? getWidth(e.width) : '65px',
                           }}
-                          body={(data) => (
+                          body={data => (
                             <Checkbox
                               key={Math.random()}
                               name={data.id}
                               value={e.field}
-                              onChange={(x) => {
+                              onChange={x => {
                                 onSelectCheckBox(x, e.field, data);
                               }}
                               checked={defaultChecked(e.field, data)}
@@ -1190,55 +973,38 @@ export const Treetable = (prop) => {
                         ></Column>
                       );
                     }
-                    if (e.type === "Action") {
+                    if (e.type === 'Action') {
                       return (
                         <Column
                           style={{
-                            width: e.width ? getWidth(e.width) : "65px",
+                            width: e.width ? getWidth(e.width) : '65px',
                           }}
                           header={e.header}
-                          body={
-                            (data2) => logNode(data2)
-                            //   (
-                            //   <>
-                            //
-                            //   </>
-                            // )
+                          body={data2 => logNode(data2)
                           }
                         />
                       );
                     }
-                    if (e.type === "Button") {
+                    if (e.type === 'Button') {
                       return (
                         <Column
                           header={e.header}
                           style={{
-                            width: e.width ? getWidth(e.width) : "65px",
+                            width: e.width ? getWidth(e.width) : '65px',
                           }}
-                          body={(data2) => (
+                          body={data2 => (
                             <>
-                              {buttonAction.map((button) => (
+                              {buttonAction.map(button => (
                                 <>
                                   {button.visible == true && (
                                     <Button
                                       tooltip={button.label}
-                                      tooltipOptions={{ position: "top" }}
-                                      className={button.className + " gridIcon"}
+                                      tooltipOptions={{ position: 'top' }}
+                                      className={button.className + ' gridIcon'}
                                       onClick={() =>
-                                        button["id"] == "Delete"
-                                          ? deleteConfirmOnAction(
-                                              data2.id,
-                                              button["askReason"],
-                                              editObject
-                                            )
-                                          : eval(
-                                              prop[buttonAction[0].command](
-                                                data2.id,
-                                                gridId,
-                                                true,
-                                                editObject
-                                              )
-                                            )
+                                        button['id'] == 'Delete'
+                                          ? deleteConfirmOnAction(data2.id, button['askReason'], editObject)
+                                          : eval(prop[buttonAction[0].command](data2.id, gridId, true, editObject))
                                       }
                                     >
                                       <i className={button.icon}></i>
@@ -1252,7 +1018,7 @@ export const Treetable = (prop) => {
                       );
                     }
 
-                    if (e.type === "Status") {
+                    if (e.type === 'Status') {
                       return (
                         <Column
                           key={i}
@@ -1261,26 +1027,15 @@ export const Treetable = (prop) => {
                           columnKey={e.field}
                           field={e.field}
                           style={{ width: getWidth(e.width) }}
-                          body={(data2) => {
+                         // sortable
+                          body={data2 => {
                             if (data2) {
-                              if (data2?.data[e.field] == "Active") {
-                                return (
-                                  <span className="badge bg-success">
-                                    {data2?.data[e.field]}
-                                  </span>
-                                );
-                              } else if (data2?.data[e.field] == "Inactive") {
-                                return (
-                                  <span className="badge bg-danger">
-                                    {data2?.data[e.field]}
-                                  </span>
-                                );
+                              if (data2?.data[e.field] == 'Active') {
+                                return <span className="badge bg-success">{data2?.data[e.field]}</span>;
+                              } else if (data2?.data[e.field] == 'Inactive') {
+                                return <span className="badge bg-danger">{data2?.data[e.field]}</span>;
                               } else {
-                                return (
-                                  <span className="badge bg-primary">
-                                    {data2?.data[e.field]}
-                                  </span>
-                                );
+                                return <span className="badge bg-primary">{data2?.data[e.field]}</span>;
                               }
                             }
                           }}
@@ -1294,10 +1049,11 @@ export const Treetable = (prop) => {
                           key={i}
                           field={e.field}
                           header={e.header}
+                          columnKey={e.field}
                           style={{ width: getWidth(e.width) }}
                           editor={typeEditor}
-                          // expander={e.expander}
                           expander={i == 0 ? true : false}
+                         // sortable
                         />
                       );
                     } else {
@@ -1306,10 +1062,11 @@ export const Treetable = (prop) => {
                           key={i}
                           field={e.field}
                           filter
+                          columnKey={e.field}
                           header={e.header}
                           style={{ width: getWidth(e.width) }}
-                          // expander={e.expander}
                           expander={i == 0 ? true : false}
+                        //  sortable
                           body={(node) => bodyTemplate(node, e)}
                         />
                       );
@@ -1319,9 +1076,9 @@ export const Treetable = (prop) => {
               </TreeTable>
               <Paginator
                 template={paginatorTemplate}
-                rows={lazyState?.rows}
-                first={lazyState?.first}
-                onPageChange={(e) => {
+                rows={lazyState.rows}
+                first={lazyState.first}
+                onPageChange={e => {
                   setlazyState(e);
                   prop.onPageChange(e);
                 }}
@@ -1336,25 +1093,12 @@ export const Treetable = (prop) => {
             </div>
           )}
           {reasonFlag && (
-            <AskReason
-              data={reasonIdDelete}
-              action="delete"
-              visible={reasonFlag}
-              saveWithReason={accept}
-              onClose={handleCloseForReason}
-            />
+            <AskReason data={reasonIdDelete} action="delete" visible={reasonFlag} saveWithReason={accept} onClose={handleCloseForReason} />
           )}
         </>
         {prop.flag && (
           <div className="p-dialog-footer">
-            <Button
-              color="primary"
-              id="save-entity"
-              onClick={save}
-              className="btnStyle"
-              data-cy="entityCreateSaveButton"
-              type="submit"
-            >
+            <Button color="primary" id="save-entity" onClick={save} className="btnStyle" data-cy="entityCreateSaveButton" type="submit">
               <FontAwesomeIcon icon="save" />
               <Translate contentKey="home.save"></Translate>
             </Button>
