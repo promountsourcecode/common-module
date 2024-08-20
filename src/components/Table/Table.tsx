@@ -28,9 +28,14 @@ import { InputIcon } from "primereact/inputicon";
 import { InputText } from "primereact/inputtext";
 import { Tooltip } from "primereact/tooltip";
 
+import moment from "moment";
+import $ from "jquery";
+
 export const Table = (prop) => {
   const menuItemId = sessionStorage.getItem("menuItemId");
-  let row_per_page: string = useAppSelector(state => state.commonReducer.RowsPerPage.configurationValue);
+  let row_per_page: string = useAppSelector(
+    (state) => state.commonReducer.RowsPerPage.configurationValue
+  );
   const dt = useRef<any>();
   const [reasonFlag, setReasonFlag] = useState<boolean>(false);
   const [data, setData] = useState<any>();
@@ -66,9 +71,7 @@ export const Table = (prop) => {
   );
   const [redioFilter, setRedioFilter] = useState("Active");
   const [redioFilterPublish, setRedioFilterPublish] = useState("");
-  const [errorMessage, setErrorMessage] = useState<any>(
-    <Translate contentKey="home.notFound" />
-  );
+  const [errorMessage, setErrorMessage] = useState<any>(prop.emptyMessage);
   const [Searchplaceholder, setSearchPlaceholder] = useState("Keyword Search");
   const [itemsAction, setitemsAction] = useState<any>([]);
   const [buttonAction, setButtonAction] = useState<any>([]);
@@ -79,7 +82,7 @@ export const Table = (prop) => {
   const [actionId, setActionId] = useState<number>();
   const [editObject, setEditObject] = useState<any>([]);
   const [columnLengthForExport, setColumnLengthForExport] = useState<any>();
-  
+
   let dropdownOptions: any = [];
   const getColumnLength = async () => {
     const columnLengthForExport = await axios.get(
@@ -92,11 +95,76 @@ export const Table = (prop) => {
     setlazyState(lazyState);
   }, [lazyState]);
 
+  useEffect(() => {
+    // $('#yourDataTableId tbody').on('mouseover', 'td', function () {
+    //   $('#btnCopyTextToClipboard').removeClass('hide');
+    // });
+
+    // $('#yourDataTableId tbody').on('mouseleave', 'td', function () {
+    //   $('#btnCopyTextToClipboard').addClass('hide');
+    // });
+    const handleHover = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (target.className == "tooltipClass" && target.tagName === "TD") {
+        copyText = target.innerText;
+        var btnCopyTextToClipboardPos = target.getBoundingClientRect();
+
+        $("#btnCopyTextToClipboard").removeClass("hide");
+        $("#btnCopyTextToClipboard").css({
+          left:
+            btnCopyTextToClipboardPos.left +
+            btnCopyTextToClipboardPos.width -
+            115 +
+            "px",
+          top: btnCopyTextToClipboardPos.top + window.scrollY - 117 + "px",
+        });
+        // setHoveredCell(target);
+        // Additional logic can be added here
+      } else {
+        if (
+          target.parentElement
+            ? target.parentElement.id == "btnCopyTextToClipboard" ||
+              target.tagName == "path"
+            : ""
+        ) {
+        } else {
+          $("#btnCopyTextToClipboard").addClass("hide");
+        }
+      }
+    };
+
+    const table = document.getElementById("#tableClass");
+
+    window.addEventListener("mouseover", handleHover);
+    // table.addEventListener('mouseleave', function (event: MouseEvent) {
+    //   const target = event.target as HTMLElement;
+    //   console.log('mouseleave', target);
+    //   if (target.tagName != 'TD') {
+    //     console.log('target', target);
+    //     $('#btnCopyTextToClipboard').addClass('hide');
+    //   }
+    // });
+  }, []);
+  let copyText;
+  useEffect(() => {
+    const table = document.getElementById("btnCopyTextToClipboard");
+    let body_ = $("body");
+    const handleHover = (event: MouseEvent) => {
+      navigator.clipboard.writeText(copyText);
+      toast.success("Text copied successfully.");
+      // $('#copySuccessId').show(500, function () {
+      //   setTimeout(function () {
+      //     $('#copySuccessId').hide(500);
+      //   }, 2000);
+      // });
+    };
+    table.addEventListener("click", handleHover);
+  }, []);
+
   const paginatorTemplate = {
     layout:
       "RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport ",
     RowsPerPageDropdown: (options) => {
-
       if (row_per_page) {
         let arr = row_per_page ? row_per_page.split(",") : "";
         for (let i = 0; i < arr.length; i++) {
@@ -136,7 +204,7 @@ export const Table = (prop) => {
   const getActionBtn = (id, object) => {
     setActionId(id);
     setEditObject(object);
-    setSelectedItem(object)
+    setSelectedItem(object);
   };
   useEffect(() => {
     const compareJsonjs = document.createElement("script");
@@ -263,7 +331,7 @@ export const Table = (prop) => {
                 let item = {
                   className:
                     actinObj[j]["className"] != null &&
-                      actinObj[j]["className"] != ""
+                    actinObj[j]["className"] != ""
                       ? actinObj[j]["className"]
                       : "icon",
                   label: (
@@ -278,18 +346,18 @@ export const Table = (prop) => {
                   command: () => {
                     actinObj[j]["id"] == "Delete"
                       ? deleteConfirmOnAction(
-                        actionId,
-                        actinObj[j]["askReason"],
-                        editObject
-                      )
-                      : eval(
-                        prop[actinObj[j].command](
                           actionId,
-                          gridId,
                           actinObj[j]["askReason"],
                           editObject
                         )
-                      );
+                      : eval(
+                          prop[actinObj[j].command](
+                            actionId,
+                            gridId,
+                            actinObj[j]["askReason"],
+                            editObject
+                          )
+                        );
                   },
                 };
                 tmpRowAction.push(item);
@@ -774,417 +842,453 @@ export const Table = (prop) => {
   };
 
   return (
-    <div>
-      <div className="d-flex justify-content-between align-items-center flex-wrap">
-        {
-          <div className="d-flex globlFilter">
-            {filter && (
-              <>
-                <IconField iconPosition="left">
-                  <InputIcon className="pi pi-search"> </InputIcon>
-                  <InputText
-                    value={globalFilterValue}
-                    placeholder="Keyword Search"
-                    onChange={(e) => onGlobalFilterChange(e)}
-                  />
-                </IconField>
-              </>
+    <>
+      <div>
+        <div className="d-flex justify-content-between align-items-center flex-wrap">
+          {
+            <div className="d-flex globlFilter">
+              {filter && (
+                <>
+                  <IconField iconPosition="left">
+                    <InputIcon className="pi pi-search"> </InputIcon>
+                    <InputText
+                      value={globalFilterValue}
+                      placeholder="Keyword Search"
+                      onChange={(e) => onGlobalFilterChange(e)}
+                    />
+                  </IconField>
+                </>
+              )}
+            </div>
+          }
+          <div className="d-flex gridSetting flex-wrap">
+            {ifShowHeader && (
+              <Button
+                onClick={() => edit("")}
+                className="btn btn-primary btnStyle"
+                data-cy="entityCreateButton"
+              >
+                <FontAwesomeIcon icon="plus" />
+                Add
+              </Button>
             )}
-          </div>
-        }
-        <div className="d-flex gridSetting flex-wrap">
-          {ifShowHeader && (
+            {prop.statusFilter === true && (
+              <span className="d-flex justify-content-center m-r-15 statusFilter">
+                <span
+                  style={{ marginLeft: "10px" }}
+                  className="d-flex align-items-center"
+                >
+                  <RadioButton
+                    inputId={gridId + "gridActive"}
+                    name="filter"
+                    value="Active"
+                    onChange={(e) => redioFilterSelection(e.value)}
+                    checked={redioFilter === "Active"}
+                  />
+                  <label
+                    htmlFor={gridId + "gridActive"}
+                    style={{ marginBottom: 0 }}
+                  >
+                    {labelbtnFlag.activeradio
+                      ? labelbtnFlag.activeradio
+                      : "Active"}
+                  </label>
+                </span>
+                <span
+                  style={{ marginLeft: "10px" }}
+                  className="d-flex align-items-center"
+                >
+                  <RadioButton
+                    inputId={gridId + "gridInactive"}
+                    name="filter"
+                    value="Inactive"
+                    onChange={(e) => redioFilterSelection(e.value)}
+                    checked={redioFilter === "Inactive"}
+                  />
+                  <label
+                    htmlFor={gridId + "gridInactive"}
+                    style={{ marginBottom: 0 }}
+                  >
+                    {labelbtnFlag.inactiveradio
+                      ? labelbtnFlag.inactiveradio
+                      : "Inactive"}
+                  </label>
+                </span>
+                <span
+                  style={{ marginLeft: "10px" }}
+                  className="d-flex align-items-center"
+                >
+                  <RadioButton
+                    inputId={gridId + "All"}
+                    name="filter"
+                    value="All"
+                    onChange={(e) => redioFilterSelection(e.value)}
+                    checked={redioFilter === "All"}
+                  />
+                  <label htmlFor={gridId + "All"} style={{ marginBottom: 0 }}>
+                    {labelbtnFlag.allradio ? labelbtnFlag.allradio : "All"}
+                  </label>
+                </span>
+              </span>
+            )}
             <Button
-              onClick={() => edit("")}
-              className="btn btn-primary btnStyle"
-              data-cy="entityCreateButton"
-            >
-              <FontAwesomeIcon icon="plus" />
-              Add
-            </Button>
-          )}
-          {prop.statusFilter === true && (
-            <span className="d-flex justify-content-center m-r-15 statusFilter">
-              <span
-                style={{ marginLeft: "10px" }}
-                className="d-flex align-items-center"
-              >
-                <RadioButton
-                  inputId={gridId + "gridActive"}
-                  name="filter"
-                  value="Active"
-                  onChange={(e) => redioFilterSelection(e.value)}
-                  checked={redioFilter === "Active"}
-                />
-                <label
-                  htmlFor={gridId + "gridActive"}
-                  style={{ marginBottom: 0 }}
-                >
-                  {labelbtnFlag.activeradio
-                    ? labelbtnFlag.activeradio
-                    : "Active"}
-                </label>
-              </span>
-              <span
-                style={{ marginLeft: "10px" }}
-                className="d-flex align-items-center"
-              >
-                <RadioButton
-                  inputId={gridId + "gridInactive"}
-                  name="filter"
-                  value="Inactive"
-                  onChange={(e) => redioFilterSelection(e.value)}
-                  checked={redioFilter === "Inactive"}
-                />
-                <label
-                  htmlFor={gridId + "gridInactive"}
-                  style={{ marginBottom: 0 }}
-                >
-                  {labelbtnFlag.inactiveradio
-                    ? labelbtnFlag.inactiveradio
-                    : "Inactive"}
-                </label>
-              </span>
-              <span
-                style={{ marginLeft: "10px" }}
-                className="d-flex align-items-center"
-              >
-                <RadioButton
-                  inputId={gridId + "All"}
-                  name="filter"
-                  value="All"
-                  onChange={(e) => redioFilterSelection(e.value)}
-                  checked={redioFilter === "All"}
-                />
-                <label htmlFor={gridId + "All"} style={{ marginBottom: 0 }}>
-                  {labelbtnFlag.allradio ? labelbtnFlag.allradio : "All"}
-                </label>
-              </span>
-            </span>
-          )}
-          <Button
-            color="secondary"
-            className="iconBtn"
-            type="button"
-            onClick={() => {
-              setModal(!modal);
-            }}
-            tooltip={placeholder("setting.label")}
-            tooltipOptions={{ position: "top" }}
-          >
-            <i className="fa-solid fa-gear"></i>
-          </Button>
-          <button
-            className="btn btn-outline-secondary dropdown-toggle"
-            type="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-            style={{
-              border: "none",
-              background: "#1565C00D",
-              marginLeft: "15px",
-              boxShadow: "none",
-              color: "#1565c0",
-            }}
-          >
-            {labelbtnFlag.export ? labelbtnFlag.export : "Export"}
-          </button>
-          <ul className="dropdown-menu" style={{}}>
-            <li>
-              {" "}
-              <a className="dropdown-item" onClick={() => toggle("EXCEL")}>
-                <i
-                  className="fa-solid fa-file-excel"
-                  style={{ color: "#1c6c42" }}
-                ></i>{" "}
-                Excel
-              </a>
-            </li>
-            <li>
-              {" "}
-              <a className="dropdown-item" onClick={() => toggle("PDF")}>
-                <i
-                  className="fa-solid fa-file-pdf"
-                  style={{ color: "#f72015" }}
-                ></i>{" "}
-                PDF
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-      {modal && (
-        <Setting
-          show={modal}
-          gridId={gridId}
-          gridData={apiGridData}
-          filter={filter}
-          isColumnfilters={columnfilters}
-          columns={column}
-          menuItemId={menuItemId}
-          onClose={closeSettingModal}
-          onSetting={settingChanges}
-          onReset={onReset}
-          dropdownOptions={dropdownOptions}
-        />
-      )}
-
-      {modalExport && (
-        <ExportSetting
-          show={modalExport}
-          columns={exportColumnData}
-          onSetting={settingChangesExport}
-          onClose={exportClose}
-        />
-      )}
-
-      <div className="dataTable" id="tablePdf" ref={dtContainerRef}>
-        <>
-          <>
-            <DataTable
-              ref={dt}
-              emptyMessage={errorMessage}
-              sortMode="multiple"
-              value={data}
-              globalFilterFields={filterColumnGlobal()}
-              filters={filters}
-              filterDisplay={columnfilters ? "row" : null}
-              scrollable
-              scrollHeight="400px"
-              id={gridId}
-              selectionMode="single"
-              selection={selectedItem}
-              onSelectionChange={(e) => {
-                setSelectedItem(e.value);
-                prop.onSelect ? prop.onSelect(e.value) : {};
+              color="secondary"
+              className="iconBtn"
+              type="button"
+              onClick={() => {
+                setModal(!modal);
               }}
-              onRowReorder={(e: any): void =>
-                prop.onAddReorderRow(e.value, gridId)
-              }
-              reorderableRows={reOrderRowValue}
-              removableSort
+              tooltip={placeholder("setting.label")}
+              tooltipOptions={{ position: "top" }}
             >
-              {rowReorder && <Column rowReorder style={{ width: "40px" }} />}
-              {column &&
-                column.map((e: any, i: any) => {
-                  if (e.visible) {
-                    if (e.type === "Radio") {
-                      return (
-                        <Column
-                          style={{
-                            width: e.width ? getWidth(e.width) : "65px",
-                          }}
-                          header={e.header}
-                          body={(data2) => (
-                            <>
-                              <RadioButton
-                                inputId={data2}
-                                name={data2.id}
-                                value={e.field}
-                                onChange={(x) =>
-                                  radioSelectRecord(data2, e.field)
+              <i className="fa-solid fa-gear"></i>
+            </Button>
+            <button
+              className="btn btn-outline-secondary dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+              style={{
+                border: "none",
+                background: "#1565C00D",
+                marginLeft: "15px",
+                boxShadow: "none",
+                color: "#1565c0",
+              }}
+            >
+              {labelbtnFlag.export ? labelbtnFlag.export : "Export"}
+            </button>
+            <ul className="dropdown-menu" style={{}}>
+              <li>
+                {" "}
+                <a className="dropdown-item" onClick={() => toggle("EXCEL")}>
+                  <i
+                    className="fa-solid fa-file-excel"
+                    style={{ color: "#1c6c42" }}
+                  ></i>{" "}
+                  Excel
+                </a>
+              </li>
+              <li>
+                {" "}
+                <a className="dropdown-item" onClick={() => toggle("PDF")}>
+                  <i
+                    className="fa-solid fa-file-pdf"
+                    style={{ color: "#f72015" }}
+                  ></i>{" "}
+                  PDF
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        {modal && (
+          <Setting
+            show={modal}
+            gridId={gridId}
+            gridData={apiGridData}
+            filter={filter}
+            isColumnfilters={columnfilters}
+            columns={column}
+            menuItemId={menuItemId}
+            onClose={closeSettingModal}
+            onSetting={settingChanges}
+            onReset={onReset}
+            dropdownOptions={dropdownOptions}
+          />
+        )}
+
+        {modalExport && (
+          <ExportSetting
+            show={modalExport}
+            columns={exportColumnData}
+            onSetting={settingChangesExport}
+            onClose={exportClose}
+          />
+        )}
+
+        <div className="dataTable" id="tablePdf" ref={dtContainerRef}>
+          <>
+            <>
+              <DataTable
+                ref={dt}
+                emptyMessage={
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "start",
+                      alignItems: "center",
+                      textAlign: "start",
+                      backgroundColor: "#a1bce50D",
+                      height: "3rem",
+                      fontSize: "0.90rem",
+                      fontFamily: "Inter, sans-serif",
+                      margin: "-5px",
+                      marginTop: "2.5px",
+                      marginBottom: "2.5px",
+                    }}
+                  >
+                    <div style={{ marginLeft: "0.25rem", color: "#2c79d1" }}>
+                      {prop.emptyMessage
+                        ? prop.emptyMessage
+                        : "No record found!"}
+                    </div>
+                  </div>
+                }
+                sortMode="multiple"
+                value={data}
+                globalFilterFields={filterColumnGlobal()}
+                filters={filters}
+                filterDisplay={columnfilters ? "row" : null}
+                scrollable
+                scrollHeight="400px"
+                id={gridId}
+                selectionMode="single"
+                selection={selectedItem}
+                onSelectionChange={(e) => {
+                  setSelectedItem(e.value);
+                  prop.onSelect ? prop.onSelect(e.value) : {};
+                }}
+                onRowReorder={(e: any): void =>
+                  prop.onAddReorderRow(e.value, gridId)
+                }
+                reorderableRows={reOrderRowValue}
+                removableSort
+              >
+                {rowReorder && <Column rowReorder style={{ width: "40px" }} />}
+                {column &&
+                  column.map((e: any, i: any) => {
+                    if (e.visible) {
+                      if (e.type === "Radio") {
+                        return (
+                          <Column
+                            style={{
+                              width: e.width ? getWidth(e.width) : "65px",
+                            }}
+                            header={e.header}
+                            body={(data2) => (
+                              <>
+                                <RadioButton
+                                  inputId={data2}
+                                  name={data2.id}
+                                  value={e.field}
+                                  onChange={(x) =>
+                                    radioSelectRecord(data2, e.field)
+                                  }
+                                  checked={data2[e.field] === true}
+                                />
+                              </>
+                            )}
+                          />
+                        );
+                      }
+
+                      if (e.type === "CheckBox") {
+                        return (
+                          <Column
+                            style={{
+                              width: e.width ? getWidth(e.width) : "65px",
+                            }}
+                            header={e.header}
+                            body={(data2) => (
+                              <>
+                                <Checkbox
+                                  key={Math.random()}
+                                  name={data2.id}
+                                  value={e.field}
+                                  onChange={(x) => {
+                                    onSelectCheckBox(x, data2, e.field);
+                                  }}
+                                  checked={data2[e.field] === true}
+                                />
+                              </>
+                            )}
+                          />
+                        );
+                      }
+
+                      if (e.type === "Action") {
+                        return (
+                          <Column
+                            style={{
+                              width: e.width ? getWidth(e.width) : "65px",
+                            }}
+                            header={e.header}
+                            body={(data2) => (
+                              <>
+                                <SplitButton
+                                  icon="fa-solid fa-ellipsis"
+                                  className="tableActionMenu"
+                                  dropdownIcon="pi pi-list"
+                                  model={itemsAction}
+                                  onFocus={() => getActionBtn(data2.id, data2)}
+                                />
+                              </>
+                            )}
+                          />
+                        );
+                      }
+                      if (e.type === "Button") {
+                        return (
+                          <Column
+                            header={e.header}
+                            style={{
+                              width: e.width ? getWidth(e.width) : "65px",
+                            }}
+                            body={(data2) => (
+                              <>
+                                {buttonAction.length > 0 &&
+                                  buttonAction.map((button) => (
+                                    <>
+                                      {button.visible == true && (
+                                        <Button
+                                          style={{ marginLeft: "15px" }}
+                                          tooltipOptions={{ position: "top" }}
+                                          className={
+                                            button.className + " gridIcon"
+                                          }
+                                          disabled={
+                                            data2[prop.disabledflag]
+                                              ? true
+                                              : false
+                                          }
+                                          onClick={() =>
+                                            button["id"] == "Delete"
+                                              ? deleteConfirmOnAction(
+                                                  data2.id,
+                                                  button["askReason"],
+                                                  data2
+                                                )
+                                              : eval(
+                                                  prop[buttonAction[0].command](
+                                                    data2.id,
+                                                    gridId,
+                                                    true,
+                                                    editObject
+                                                  )
+                                                )
+                                          }
+                                        >
+                                          <i className={button.icon}></i>
+                                        </Button>
+                                      )}
+                                    </>
+                                  ))}
+                              </>
+                            )}
+                          />
+                        );
+                      }
+                      if (e.type === "Status") {
+                        return (
+                          <Column
+                            key={i}
+                            header={e.header}
+                            filter
+                            columnKey={e.field}
+                            field={e.field}
+                            style={{ width: getWidth(e.width) }}
+                            sortable
+                            body={(data2) => {
+                              if (data2) {
+                                if (data2[e.field] == "Active") {
+                                  return (
+                                    <span className="badge bg-success">
+                                      {data2[e.field]}
+                                    </span>
+                                  );
+                                } else if (data2[e.field] == "Inactive") {
+                                  return (
+                                    <span className="badge bg-danger">
+                                      {data2[e.field]}
+                                    </span>
+                                  );
+                                } else if (data2[e.field] == "Completed") {
+                                  return (
+                                    <span className="badge bg-primary">
+                                      {data2[e.field]}
+                                    </span>
+                                  );
+                                } else if (data2[e.field] == "Not Started") {
+                                  return (
+                                    <span className="badge bg-secondary">
+                                      {data2[e.field]}
+                                    </span>
+                                  );
+                                } else if (data2[e.field] == "Rejected") {
+                                  return (
+                                    <span className="badge bg-danger">
+                                      {data2[e.field]}
+                                    </span>
+                                  );
+                                } else if (data2[e.field] == "In-Progress") {
+                                  return (
+                                    <span className="badge bg-warning">
+                                      {data2[e.field]}
+                                    </span>
+                                  );
+                                } else {
+                                  return (
+                                    <span className="badge bg-primary">
+                                      {data2[e.field]}
+                                    </span>
+                                  );
                                 }
-                                checked={data2[e.field] === true}
-                              />
-                            </>
-                          )}
-                        />
-                      );
-                    }
-
-                    if (e.type === "CheckBox") {
-                      return (
-                        <Column
-                          style={{
-                            width: e.width ? getWidth(e.width) : "65px",
-                          }}
-                          header={e.header}
-                          body={(data2) => (
-                            <>
-                              <Checkbox
-                                key={Math.random()}
-                                name={data2.id}
-                                value={e.field}
-                                onChange={(x) => {
-                                  onSelectCheckBox(x, data2, e.field);
-                                }}
-                                checked={data2[e.field] === true}
-                              />
-                            </>
-                          )}
-                        />
-                      );
-                    }
-
-                    if (e.type === "Action") {
-                      return (
-                        <Column
-                          style={{
-                            width: e.width ? getWidth(e.width) : "65px",
-                          }}
-                          header={e.header}
-                          body={(data2) => (
-                            <>
-                              <SplitButton
-                                icon="fa-solid fa-ellipsis"
-                                className="tableActionMenu"
-                                dropdownIcon="pi pi-list"
-                                model={itemsAction}
-                                onFocus={() => getActionBtn(data2.id, data2)}
-                              />
-                            </>
-                          )}
-                        />
-                      );
-                    }
-                    if (e.type === "Button") {
-                      return (
-                        <Column
-                          header={e.header}
-                          style={{
-                            width: e.width ? getWidth(e.width) : "65px",
-                          }}
-                          body={(data2) => (
-                            <>
-                              {buttonAction.length > 0 &&
-                                buttonAction.map((button) => (
-                                  <>
-                                    {button.visible == true && (
-                                      <Button
-                                        style={{ marginLeft: "15px" }}
-                                        tooltipOptions={{ position: "top" }}
-                                        className={
-                                          button.className + " gridIcon"
-                                        }
-                                        disabled={data2[prop.disabledflag] ? true : false}
-                                        onClick={() =>
-                                          button["id"] == "Delete"
-                                            ? deleteConfirmOnAction(
-                                              data2.id,
-                                              button["askReason"],
-                                              data2
-                                            )
-                                            : eval(
-                                              prop[buttonAction[0].command](
-                                                data2.id,
-                                                gridId,
-                                                true,
-                                                editObject
-                                              )
-                                            )
-                                        }
-                                      >
-                                        <i className={button.icon}></i>
-                                      </Button>
-                                    )}
-                                  </>
-                                ))}
-                            </>
-                          )}
-                        />
-                      );
-                    }
-                    if (e.type === "Status") {
+                              }
+                            }}
+                          />
+                        );
+                      }
                       return (
                         <Column
                           key={i}
-                          header={e.header}
                           filter
                           columnKey={e.field}
                           field={e.field}
+                          header={e.header}
                           style={{ width: getWidth(e.width) }}
                           sortable
-                          body={(data2) => {
-                            if (data2) {
-                              if (data2[e.field] == "Active") {
-                                return (
-                                  <span className="badge bg-success">
-                                    {data2[e.field]}
-                                  </span>
-                                );
-                              } else if (data2[e.field] == "Inactive") {
-                                return (
-                                  <span className="badge bg-danger">
-                                    {data2[e.field]}
-                                  </span>
-                                );
-                              } else if (data2[e.field] == "Completed") {
-                                return (
-                                  <span className="badge bg-primary">
-                                    {data2[e.field]}
-                                  </span>
-                                );
-                              } else if (data2[e.field] == "Not Started") {
-                                return (
-                                  <span className="badge bg-secondary">
-                                    {data2[e.field]}
-                                  </span>
-                                );
-                              } else if (data2[e.field] == "Rejected") {
-                                return (
-                                  <span className="badge bg-danger">
-                                    {data2[e.field]}
-                                  </span>
-                                );
-                              } else if (data2[e.field] == "In-Progress") {
-                                return (
-                                  <span className="badge bg-warning">
-                                    {data2[e.field]}
-                                  </span>
-                                );
-                              } else {
-                                return (
-                                  <span className="badge bg-primary">
-                                    {data2[e.field]}
-                                  </span>
-                                );
-                              }
-                            }
-                          }}
+                          className="tooltipClass"
+                          body={(rowData) => bodyTemplate(rowData, e)}
                         />
                       );
                     }
-                    return (
-                      <Column
-                        key={i}
-                        filter
-                        columnKey={e.field}
-                        field={e.field}
-                        header={e.header}
-                        style={{ width: getWidth(e.width) }}
-                        sortable
-                        body={(rowData) => bodyTemplate(rowData, e)}
-                      />
-                    );
-                  }
-                })}
-            </DataTable>
-            <Paginator
-              template={paginatorTemplate}
-              rows={lazyState.rows}
-              first={lazyState.first}
-              onPageChange={(e) => {
-                setlazyState(e);
-                prop.onPageChange(e);
-              }}
-              pageLinkSize={3}
-              totalRecords={totalRecords}
-              className="justify-content-end"
-            />
+                  })}
+              </DataTable>
+              <Paginator
+                template={paginatorTemplate}
+                rows={lazyState.rows}
+                first={lazyState.first}
+                onPageChange={(e) => {
+                  setlazyState(e);
+                  prop.onPageChange(e);
+                }}
+                pageLinkSize={3}
+                totalRecords={totalRecords}
+                className="justify-content-end"
+              />
+            </>
+            {reasonFlag && (
+              <AskReason
+                data={reasonIdDelete}
+                deleteObject={editObject}
+                action="delete"
+                visible={reasonFlag}
+                saveWithReason={accept}
+                onClose={handleCloseForReason}
+              />
+            )}
           </>
-          {reasonFlag && (
-            <AskReason
-              data={reasonIdDelete}
-              deleteObject={editObject}
-              action="delete"
-              visible={reasonFlag}
-              saveWithReason={accept}
-              onClose={handleCloseForReason}
-            />
-          )}
-        </>
+        </div>
       </div>
-    </div>
+      <div
+        id="btnCopyTextToClipboard"
+        style={{ position: "absolute", cursor: "pointer" }}
+        className="hide"
+      >
+        <FontAwesomeIcon icon="copy" style={{ height: "15px" }} />
+      </div>
+    </>
   );
 };
 export default Table;
