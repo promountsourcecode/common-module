@@ -841,6 +841,21 @@ export const Table = (prop) => {
     );
   };
 
+
+  const logNode = (node: any) => {
+    let newArr = [];
+    newArr.push(itemsAction[0]);
+    return (
+      <SplitButton
+        icon="fa-solid fa-bars"
+        className="tableActionMenu"
+        model={prop.actionButtonHide === 'Pause' ? newArr : itemsAction}
+        dropdownIcon="pi pi-list"
+        onFocus={() => getActionBtn(node.id, node)}
+      />
+    );
+  };
+
   return (
     <>
       <div>
@@ -1114,17 +1129,18 @@ export const Table = (prop) => {
                               width: e.width ? getWidth(e.width) : "65px",
                             }}
                             header={e.header}
-                            body={(data2) => (
-                              <>
-                                <SplitButton
-                                  icon="fa-solid fa-ellipsis"
-                                  className="tableActionMenu"
-                                  dropdownIcon="pi pi-list"
-                                  model={itemsAction}
-                                  onFocus={() => getActionBtn(data2.id, data2)}
-                                />
-                              </>
-                            )}
+                            // body={(data2) => (
+                            //   <>
+                            //     <SplitButton
+                            //       icon="fa-solid fa-ellipsis"
+                            //       className="tableActionMenu"
+                            //       dropdownIcon="pi pi-list"
+                            //       model={itemsAction}
+                            //       onFocus={() => getActionBtn(data2.id, data2)}
+                            //     />
+                            //   </>
+                            // )}
+                            body={data2 => logNode(data2)}
                           />
                         );
                       }
