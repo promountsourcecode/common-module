@@ -1,10 +1,10 @@
 {
   "name": "@promountsourcecode/common_module",
-  "version": "2.13.1",
+  "version": "2.13.2",
   "description": "shared model for diffrent projects",
   "repository": {
     "type": "git",
-    "url": "https://github.com/promountsourcecode/common_module.git"
+    "url": "https://pkg.github.com/promountsourcecode/common_module.git"
   },
   "license": "",
   "author": "Promount Sourcecode",
