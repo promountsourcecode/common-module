@@ -1069,6 +1069,7 @@ export const Table = (prop) => {
                 }
                 reorderableRows={reOrderRowValue}
                 removableSort
+                virtualScrollerOptions={ prop.virtualScrollerOptions === true && totalRecords > "30" ? {itemSize: 36}:{ }}
               >
                 {rowReorder && <Column rowReorder style={{ width: "40px" }} />}
                 {column &&
@@ -1205,50 +1206,22 @@ export const Table = (prop) => {
                             field={e.field}
                             style={{ width: getWidth(e.width) }}
                             sortable
-                            body={(data2) => {
+                            body={data2 => {
                               if (data2) {
-                                if (data2[e.field] == "Active") {
-                                  return (
-                                    <span className="badge bg-success">
-                                      {data2[e.field]}
-                                    </span>
-                                  );
-                                } else if (data2[e.field] == "Inactive") {
-                                  return (
-                                    <span className="badge bg-danger">
-                                      {data2[e.field]}
-                                    </span>
-                                  );
-                                } else if (data2[e.field] == "Completed") {
-                                  return (
-                                    <span className="badge bg-primary">
-                                      {data2[e.field]}
-                                    </span>
-                                  );
-                                } else if (data2[e.field] == "Not Started") {
-                                  return (
-                                    <span className="badge bg-secondary">
-                                      {data2[e.field]}
-                                    </span>
-                                  );
-                                } else if (data2[e.field] == "Rejected") {
-                                  return (
-                                    <span className="badge bg-danger">
-                                      {data2[e.field]}
-                                    </span>
-                                  );
-                                } else if (data2[e.field] == "In-Progress") {
-                                  return (
-                                    <span className="badge bg-warning">
-                                      {data2[e.field]}
-                                    </span>
-                                  );
+                                if (data2[e.field] == 'Active') {
+                                  return <span className="badge bg-success">{data2[e.field]}</span>;
+                                } else if (data2[e.field] == 'Inactive') {
+                                  return <span className="badge bg-danger">{data2[e.field]}</span>;
+                                } else if (data2[e.field] == 'Completed') {
+                                  return <span className="badge bg-primary">{data2[e.field]}</span>;
+                                } else if (data2[e.field] == 'Not Started') {
+                                  return <span className="badge bg-secondary">{data2[e.field]}</span>;
+                                } else if (data2[e.field] == 'Rejected') {
+                                  return <span className="badge bg-danger">{data2[e.field]}</span>;
+                                } else if (data2[e.field] == 'In-Progress') {
+                                  return <span className="badge bg-warning">{data2[e.field]}</span>;
                                 } else {
-                                  return (
-                                    <span className="badge bg-primary">
-                                      {data2[e.field]}
-                                    </span>
-                                  );
+                                  return <span className="badge bg-primary">{data2[e.field]}</span>;
                                 }
                               }
                             }}
