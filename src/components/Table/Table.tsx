@@ -41,12 +41,17 @@ export const Table = (prop) => {
   const [data, setData] = useState<any>();
   const [column, setColumn] = useState<any>();
   const [exportCol, setExportCol] = useState<any>([]);
-  const [filter, setfilter] = useState(true);
+  //const [filter, setfilter] = useState(true);
   const [filters, setfilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
   });
-  const [columnfilters, setColumnfilters] = useState(true);
+ // const [columnfilters, setColumnfilters] = useState(true);
   /* pagination code */
+
+  const [filter, setfilter] = useState(useAppSelector(state => state.commonReducer.GridColumnGlobal.configurationValue));
+  const [columnfilters, setColumnfilters] = useState(useAppSelector(state => state.commonReducer.coloumnGlobal.configurationValue));
+  
+
   const [totalRecords, setTotalRecords] = useState(prop.totalRecords);
   const [lazyState, setlazyState] = useState(prop.pagination);
   const [gridId, setGridId] = useState(prop.gridId);
