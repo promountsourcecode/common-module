@@ -41,17 +41,20 @@ export const Table = (prop) => {
   const [data, setData] = useState<any>();
   const [column, setColumn] = useState<any>();
   const [exportCol, setExportCol] = useState<any>([]);
-  //const [filter, setfilter] = useState(true);
+  const [filter, setfilter] = useState(
+    useAppSelector(
+      (state) => state.commonReducer.GridColumnGlobal.configurationValue
+    )
+  );
+  const [columnfilters, setColumnfilters] = useState(
+    useAppSelector(
+      (state) => state.commonReducer.coloumnGlobal.configurationValue
+    )
+  );
   const [filters, setfilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
   });
- // const [columnfilters, setColumnfilters] = useState(true);
   /* pagination code */
-
-  const [filter, setfilter] = useState(useAppSelector(state => state.commonReducer.GridColumnGlobal.configurationValue));
-  const [columnfilters, setColumnfilters] = useState(useAppSelector(state => state.commonReducer.coloumnGlobal.configurationValue));
-  
-
   const [totalRecords, setTotalRecords] = useState(prop.totalRecords);
   const [lazyState, setlazyState] = useState(prop.pagination);
   const [gridId, setGridId] = useState(prop.gridId);
@@ -99,72 +102,6 @@ export const Table = (prop) => {
   useEffect(() => {
     setlazyState(lazyState);
   }, [lazyState]);
-
-  useEffect(() => {
-    // $('#yourDataTableId tbody').on('mouseover', 'td', function () {
-    //   $('#btnCopyTextToClipboard').removeClass('hide');
-    // });
-
-    // $('#yourDataTableId tbody').on('mouseleave', 'td', function () {
-    //   $('#btnCopyTextToClipboard').addClass('hide');
-    // });
-    const handleHover = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (target.className == "tooltipClass" && target.tagName === "TD") {
-        copyText = target.innerText;
-        var btnCopyTextToClipboardPos = target.getBoundingClientRect();
-
-        $("#btnCopyTextToClipboard").removeClass("hide");
-        $("#btnCopyTextToClipboard").css({
-          left:
-            btnCopyTextToClipboardPos.left +
-            btnCopyTextToClipboardPos.width -
-            115 +
-            "px",
-          top: btnCopyTextToClipboardPos.top + window.scrollY - 117 + "px",
-        });
-        // setHoveredCell(target);
-        // Additional logic can be added here
-      } else {
-        if (
-          target.parentElement
-            ? target.parentElement.id == "btnCopyTextToClipboard" ||
-              target.tagName == "path"
-            : ""
-        ) {
-        } else {
-          $("#btnCopyTextToClipboard").addClass("hide");
-        }
-      }
-    };
-
-    const table = document.getElementById("#tableClass");
-
-    window.addEventListener("mouseover", handleHover);
-    // table.addEventListener('mouseleave', function (event: MouseEvent) {
-    //   const target = event.target as HTMLElement;
-    //   console.log('mouseleave', target);
-    //   if (target.tagName != 'TD') {
-    //     console.log('target', target);
-    //     $('#btnCopyTextToClipboard').addClass('hide');
-    //   }
-    // });
-  }, []);
-  let copyText;
-  useEffect(() => {
-    const table = document.getElementById("btnCopyTextToClipboard");
-    let body_ = $("body");
-    const handleHover = (event: MouseEvent) => {
-      navigator.clipboard.writeText(copyText);
-      toast.success("Text copied successfully.");
-      // $('#copySuccessId').show(500, function () {
-      //   setTimeout(function () {
-      //     $('#copySuccessId').hide(500);
-      //   }, 2000);
-      // });
-    };
-    table.addEventListener("click", handleHover);
-  }, []);
 
   const paginatorTemplate = {
     layout:
@@ -846,21 +783,6 @@ export const Table = (prop) => {
     );
   };
 
-
-  const logNode = (node: any) => {
-    let newArr = [];
-    newArr.push(itemsAction[0]);
-    return (
-      <SplitButton
-        icon="fa-solid fa-bars"
-        className="tableActionMenu"
-        model={prop.actionButtonHide === 'Pause' ? newArr : itemsAction}
-        dropdownIcon="pi pi-list"
-        onFocus={() => getActionBtn(node.id, node)}
-      />
-    );
-  };
-
   return (
     <>
       <div>
@@ -1017,7 +939,6 @@ export const Table = (prop) => {
             dropdownOptions={dropdownOptions}
           />
         )}
-
         {modalExport && (
           <ExportSetting
             show={modalExport}
@@ -1074,7 +995,11 @@ export const Table = (prop) => {
                 }
                 reorderableRows={reOrderRowValue}
                 removableSort
-                virtualScrollerOptions={ prop.virtualScrollerOptions === true && totalRecords > "30" ? {itemSize: 36}:{ }}
+                virtualScrollerOptions={
+                  prop.virtualScrollerOptions === true && totalRecords > "30"
+                    ? { itemSize: 36 }
+                    : {}
+                }
               >
                 {rowReorder && <Column rowReorder style={{ width: "40px" }} />}
                 {column &&
@@ -1135,18 +1060,17 @@ export const Table = (prop) => {
                               width: e.width ? getWidth(e.width) : "65px",
                             }}
                             header={e.header}
-                            // body={(data2) => (
-                            //   <>
-                            //     <SplitButton
-                            //       icon="fa-solid fa-ellipsis"
-                            //       className="tableActionMenu"
-                            //       dropdownIcon="pi pi-list"
-                            //       model={itemsAction}
-                            //       onFocus={() => getActionBtn(data2.id, data2)}
-                            //     />
-                            //   </>
-                            // )}
-                            body={data2 => logNode(data2)}
+                            body={(data2) => (
+                              <>
+                                <SplitButton
+                                  icon="fa-solid fa-ellipsis"
+                                  className="tableActionMenu"
+                                  dropdownIcon="pi pi-list"
+                                  model={itemsAction}
+                                  onFocus={() => getActionBtn(data2.id, data2)}
+                                />
+                              </>
+                            )}
                           />
                         );
                       }
@@ -1211,22 +1135,50 @@ export const Table = (prop) => {
                             field={e.field}
                             style={{ width: getWidth(e.width) }}
                             sortable
-                            body={data2 => {
+                            body={(data2) => {
                               if (data2) {
-                                if (data2[e.field] == 'Active') {
-                                  return <span className="badge bg-success">{data2[e.field]}</span>;
-                                } else if (data2[e.field] == 'Inactive') {
-                                  return <span className="badge bg-danger">{data2[e.field]}</span>;
-                                } else if (data2[e.field] == 'Completed') {
-                                  return <span className="badge bg-primary">{data2[e.field]}</span>;
-                                } else if (data2[e.field] == 'Not Started') {
-                                  return <span className="badge bg-secondary">{data2[e.field]}</span>;
-                                } else if (data2[e.field] == 'Rejected') {
-                                  return <span className="badge bg-danger">{data2[e.field]}</span>;
-                                } else if (data2[e.field] == 'In-Progress') {
-                                  return <span className="badge bg-warning">{data2[e.field]}</span>;
+                                if (data2[e.field] == "Active") {
+                                  return (
+                                    <span className="badge bg-success">
+                                      {data2[e.field]}
+                                    </span>
+                                  );
+                                } else if (data2[e.field] == "Inactive") {
+                                  return (
+                                    <span className="badge bg-danger">
+                                      {data2[e.field]}
+                                    </span>
+                                  );
+                                } else if (data2[e.field] == "Completed") {
+                                  return (
+                                    <span className="badge bg-primary">
+                                      {data2[e.field]}
+                                    </span>
+                                  );
+                                } else if (data2[e.field] == "Not Started") {
+                                  return (
+                                    <span className="badge bg-secondary">
+                                      {data2[e.field]}
+                                    </span>
+                                  );
+                                } else if (data2[e.field] == "Rejected") {
+                                  return (
+                                    <span className="badge bg-danger">
+                                      {data2[e.field]}
+                                    </span>
+                                  );
+                                } else if (data2[e.field] == "In-Progress") {
+                                  return (
+                                    <span className="badge bg-warning">
+                                      {data2[e.field]}
+                                    </span>
+                                  );
                                 } else {
-                                  return <span className="badge bg-primary">{data2[e.field]}</span>;
+                                  return (
+                                    <span className="badge bg-primary">
+                                      {data2[e.field]}
+                                    </span>
+                                  );
                                 }
                               }
                             }}
@@ -1274,13 +1226,6 @@ export const Table = (prop) => {
             )}
           </>
         </div>
-      </div>
-      <div
-        id="btnCopyTextToClipboard"
-        style={{ position: "absolute", cursor: "pointer" }}
-        className="hide"
-      >
-        <FontAwesomeIcon icon="copy" style={{ height: "15px" }} />
       </div>
     </>
   );
