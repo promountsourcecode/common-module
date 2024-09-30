@@ -24,11 +24,14 @@ export const Translate = (prop) => {
               : 0
           }`
         )
-        .then((res) => {
-          sessionStorage.setItem("lastSyncTime", res.data.lastSyncTime);
-          sessionStorage.setItem("LanguageData", JSON.stringify(res.data));
-          setGetValue(JSON.stringify(res.data));
-          fetchData();
+        .then(async (res) => {
+          await sessionStorage.setItem("lastSyncTime", res.data.lastSyncTime);
+          await sessionStorage.setItem(
+            "LanguageData",
+            JSON.stringify(res.data)
+          );
+          await setGetValue(JSON.stringify(res.data));
+          await fetchData();
           //  setLoading(false);
         });
     } else {
@@ -41,6 +44,11 @@ export const Translate = (prop) => {
       JSON.parse(sessionStorage.getItem("LanguageData")) == null
         ? JSON.parse(getValue)
         : JSON.parse(sessionStorage.getItem("LanguageData"));
+    console.log(
+      "props",
+      languageDataLocal["translations"][selectLanguage][prop.contentKey],
+      prop.contentKey
+    );
 
     try {
       if (languageDataLocal) {
@@ -48,21 +56,34 @@ export const Translate = (prop) => {
           languageDataLocal["translations"][selectLanguage][prop.contentKey] !=
           undefined
         )
-          setFinalValue(
+          console.log(
+            "props",
             languageDataLocal["translations"][selectLanguage][prop.contentKey][
               "text"
-            ]
+            ],
+            prop.contentKey
           );
-        setIsMandatory(
-          languageDataLocal["translations"][selectLanguage][prop.contentKey]
+        setFinalValue(
+          languageDataLocal["translations"][selectLanguage][prop.contentKey] !=
+            undefined
+            ? languageDataLocal["translations"][selectLanguage][
+                prop.contentKey
+              ]["text"]
+            : "text"
         );
-        const obj = languageDataLocal["translations"][selectLanguage][
-          prop.contentKey
-        ]["type"]
-          ? languageDataLocal["translations"][selectLanguage][prop.contentKey][
-              "type"
-            ]
-          : "";
+        setIsMandatory(
+          languageDataLocal["translations"][selectLanguage][prop.contentKey] !=
+            undefined
+            ? languageDataLocal["translations"][selectLanguage][prop.contentKey]
+            : ""
+        );
+        const obj =
+          languageDataLocal["translations"][selectLanguage][prop.contentKey] !=
+          undefined
+            ? languageDataLocal["translations"][selectLanguage][
+                prop.contentKey
+              ]["type"]
+            : "";
         if (
           obj == "Textarea" ||
           obj == "CheckBox" ||
@@ -83,7 +104,7 @@ export const Translate = (prop) => {
 
   return (
     <>
-      {isMandatory != undefined ? <span>{isMandatory.text} </span> : ""}
+      {isMandatory != undefined ? <span>{isMandatory?.text} </span> : ""}
       {isMandatory != undefined ? (
         isMandatory.mandatory === true ? (
           lableFlag == true ? (
