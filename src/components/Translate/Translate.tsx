@@ -2,6 +2,7 @@ import { CORE_BASE_URL } from "@promountsourcecode/common_module";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { useLocation } from "react-router-dom";
 
 export const Translate = (prop) => {
   const [selectLanguage, setSelectLanguage] = useState(
@@ -13,8 +14,12 @@ export const Translate = (prop) => {
   const [lableFlag, setLableFlag] = useState<boolean>(false);
   const [finalValue, setFinalValue] = useState<any>();
   const [getValue, setGetValue] = useState<any>();
+  const location = useLocation();
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
+    setLoading(true);
+
     if (sessionStorage.getItem("LanguageData") == null) {
       axios
         .get(
@@ -31,11 +36,15 @@ export const Translate = (prop) => {
             JSON.stringify(res.data)
           );
           await setGetValue(JSON.stringify(res.data));
-          await fetchData();
+          setTimeout(() => {
+            fetchData();
+          }, 2500);
           //  setLoading(false);
         });
     } else {
-      fetchData();
+      setTimeout(() => {
+        fetchData();
+      }, 2500);
     }
   }, [""]);
 
@@ -95,34 +104,42 @@ export const Translate = (prop) => {
         } else {
           setLableFlag(false);
         }
+        setLoading(false);
       }
     } catch (error) {
       toast.error(error.toString());
+      setLoading(false);
     }
     // }
   };
 
   return (
     <>
-      {isMandatory != undefined ? <span>{isMandatory?.text} </span> : ""}
-      {isMandatory != undefined ? (
-        isMandatory.mandatory === true ? (
-          lableFlag == true ? (
-            <>
-              {" "}
+      {loading ? (
+        <></>
+      ) : (
+        <>
+          {isMandatory != undefined ? <span>{isMandatory?.text} </span> : ""}
+          {isMandatory != undefined ? (
+            isMandatory.mandatory === true ? (
+              lableFlag == true ? (
+                <>
+                  {" "}
+                  <span>:</span>
+                  <span className="reqsign">*</span>
+                </>
+              ) : (
+                ""
+              )
+            ) : lableFlag == true ? (
               <span>:</span>
-              <span className="reqsign">*</span>
-            </>
+            ) : (
+              ""
+            )
           ) : (
             ""
-          )
-        ) : lableFlag == true ? (
-          <span>:</span>
-        ) : (
-          ""
-        )
-      ) : (
-        ""
+          )}
+        </>
       )}
     </>
   );
