@@ -31,26 +31,16 @@ import { Tooltip } from "primereact/tooltip";
 import moment from "moment";
 import $ from "jquery";
 
-export const Table = (prop) => {
-  const menuItemId = sessionStorage.getItem("menuItemId");
-  let row_per_page: string = useAppSelector(
-    (state) => state.commonReducer.RowsPerPage.configurationValue
-  );
+export const Table = prop => {
+  const menuItemId = sessionStorage.getItem('menuItemId');
+  let row_per_page: string = useAppSelector(state => state.commonReducer.RowsPerPage.configurationValue);
   const dt = useRef<any>();
   const [reasonFlag, setReasonFlag] = useState<boolean>(false);
   const [data, setData] = useState<any>();
   const [column, setColumn] = useState<any>();
   const [exportCol, setExportCol] = useState<any>([]);
-  const [filter, setfilter] = useState(
-    useAppSelector(
-      (state) => state.commonReducer.GridColumnGlobal.configurationValue
-    )
-  );
-  const [columnfilters, setColumnfilters] = useState(
-    useAppSelector(
-      (state) => state.commonReducer.coloumnGlobal.configurationValue
-    )
-  );
+  const [filter, setfilter] = useState(useAppSelector(state => state.commonReducer.GridColumnGlobal.configurationValue));
+  const [columnfilters, setColumnfilters] = useState(useAppSelector(state => state.commonReducer.coloumnGlobal.configurationValue));
   const [filters, setfilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
   });
@@ -58,44 +48,32 @@ export const Table = (prop) => {
   const [totalRecords, setTotalRecords] = useState(prop.totalRecords);
   const [lazyState, setlazyState] = useState(prop.pagination);
   const [gridId, setGridId] = useState(prop.gridId);
-  const [reOrderRowValue, setReOrderRowValue] = useState<boolean>(
-    prop?.isReOrderableRows
-  );
+  const [reOrderRowValue, setReOrderRowValue] = useState<boolean>(prop?.isReOrderableRows);
   const [apiGridData, setApiGridData] = useState([]);
   const [modal, setModal] = useState(false);
   const [modalExport, setModalExport] = useState(false);
   const [exportType, setExportType] = useState();
-  const [globalFilterValue, setGlobalFilterValue] = useState("");
-  const [deleteHeader, setdeleteHeader] = useState(
-    <Translate contentKey="global.deleteConfirm"></Translate>
-  );
-  const [deletemsg, setdeletemsg] = useState(
-    <Translate contentKey="home.deleteMsg"></Translate>
-  );
+  const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [deleteHeader, setdeleteHeader] = useState(<Translate contentKey="global.deleteConfirm"></Translate>);
+  const [deletemsg, setdeletemsg] = useState(<Translate contentKey="home.deleteMsg"></Translate>);
   const [ifShowHeader, setifShowHeader] = useState(false);
   const [ifHideHeader, setifHideHeader] = useState(true);
-  const [language, setlanguage] = useState(
-    sessionStorage.getItem("LanguageId")
-  );
-  const [redioFilter, setRedioFilter] = useState("Active");
-  const [redioFilterPublish, setRedioFilterPublish] = useState("");
+  const [language, setlanguage] = useState(sessionStorage.getItem('LanguageId'));
+  const [redioFilter, setRedioFilter] = useState('Active');
+  const [redioFilterPublish, setRedioFilterPublish] = useState('');
   const [errorMessage, setErrorMessage] = useState<any>(prop.emptyMessage);
-  const [Searchplaceholder, setSearchPlaceholder] = useState("Keyword Search");
+  const [Searchplaceholder, setSearchPlaceholder] = useState('Keyword Search');
   const [itemsAction, setitemsAction] = useState<any>([]);
   const [buttonAction, setButtonAction] = useState<any>([]);
   const [selectedItem, setSelectedItem] = useState<any>();
-  const [rowReorder, setrowReorder] = useState(
-    prop.rowReorder ? prop.rowReorder : false
-  );
+  const [rowReorder, setrowReorder] = useState(prop.rowReorder ? prop.rowReorder : false);
   const [actionId, setActionId] = useState<number>();
   const [editObject, setEditObject] = useState<any>([]);
   const [columnLengthForExport, setColumnLengthForExport] = useState<any>();
 
   let dropdownOptions: any = [];
   const getColumnLength = async () => {
-    const columnLengthForExport = await axios.get(
-      `${CORE_BASE_URL}api/getSystemConfigurationByName/column_length`
-    );
+    const columnLengthForExport = await axios.get(`${CORE_BASE_URL}api/getSystemConfigurationByName/column_length`);
     setColumnLengthForExport(columnLengthForExport.data.configurationValue);
   };
 
@@ -104,11 +82,10 @@ export const Table = (prop) => {
   }, [lazyState]);
 
   const paginatorTemplate = {
-    layout:
-      "RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport ",
-    RowsPerPageDropdown: (options) => {
+    layout: 'RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport ',
+    RowsPerPageDropdown: options => {
       if (row_per_page) {
-        let arr = row_per_page ? row_per_page.split(",") : "";
+        let arr = row_per_page ? row_per_page.split(',') : '';
         for (let i = 0; i < arr.length; i++) {
           dropdownOptions.push({ value: Number(arr[i]) });
         }
@@ -119,22 +96,22 @@ export const Table = (prop) => {
             value={options.value}
             optionLabel="value"
             optionValue="value"
-            scrollHeight={"270px"}
+            scrollHeight={'270px'}
             options={dropdownOptions}
             onChange={options.onChange}
           />
         </React.Fragment>
       );
     },
-    CurrentPageReport: (options) => {
+    CurrentPageReport: options => {
       return (
         <span
           className="totalPages"
           style={{
-            fontSize: "14px",
-            userSelect: "none",
-            marginLeft: "auto",
-            textAlign: "center",
+            fontSize: '14px',
+            userSelect: 'none',
+            marginLeft: 'auto',
+            textAlign: 'center',
           }}
         >
           Record {options.first} - {options.last} of {options.totalRecords}
@@ -149,9 +126,8 @@ export const Table = (prop) => {
     setSelectedItem(object);
   };
   useEffect(() => {
-    const compareJsonjs = document.createElement("script");
-    compareJsonjs.src =
-      "https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js";
+    const compareJsonjs = document.createElement('script');
+    compareJsonjs.src = 'https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js';
     compareJsonjs.async = true;
     document.body.appendChild(compareJsonjs);
     getColumnLength();
@@ -165,21 +141,17 @@ export const Table = (prop) => {
     try {
       if (
         gridId != null &&
-        gridId != "" &&
+        gridId != '' &&
         gridId != undefined &&
         language != null &&
-        language != "" &&
+        language != '' &&
         language != undefined &&
         menuItemId != null &&
-        menuItemId != "" &&
+        menuItemId != '' &&
         menuItemId != undefined
       ) {
-        const gridData = await axios.get(
-          `${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`
-        );
-        (await gridData.data.data.length) > 0
-          ? setColumn(gridData.data.data)
-          : setColumn(prop.column);
+        const gridData = await axios.get(`${CORE_BASE_URL}api/grid-user-settings/${gridId}/${language}/${menuItemId}/1`);
+        (await gridData.data.data.length) > 0 ? setColumn(gridData.data.data) : setColumn(prop.column);
         const pageData = {
           first: lazyState.first,
           rows: lazyState.rows,
@@ -188,29 +160,16 @@ export const Table = (prop) => {
           sortOrder: lazyState.sortOrder,
         };
         setlazyState(pageData);
-        setfilter(
-          gridData.data.data.length > 0
-            ? gridData.data.data[0].filterEnable
-            : false
-        );
-        setColumnfilters(
-          gridData.data.data.length > 0
-            ? gridData.data.data[0].columnsFilterEnable
-            : false
-        );
+        setfilter(gridData.data.data.length > 0 ? gridData.data.data[0].filterEnable : false);
+        setColumnfilters(gridData.data.data.length > 0 ? gridData.data.data[0].columnsFilterEnable : false);
         const filterObject = {
           global: { value: null, matchMode: FilterMatchMode.CONTAINS },
         };
 
         if (gridData?.data?.data != null) {
           if (gridData?.data?.data.length > 0) {
-            gridData.data.data.forEach((item) => {
-              if (
-                item.field != "radio" &&
-                item.field != "checkbox" &&
-                item.field != "action" &&
-                item.field != "button"
-              )
+            gridData.data.data.forEach(item => {
+              if (item.field != 'radio' && item.field != 'checkbox' && item.field != 'action' && item.field != 'button')
                 filterObject[item.field] = {
                   value: null,
                   matchMode: FilterMatchMode.CONTAINS,
@@ -227,7 +186,7 @@ export const Table = (prop) => {
   };
 
   useEffect(() => {
-    column == undefined ? setColumn(prop.column) : "";
+    column == undefined ? setColumn(prop.column) : '';
   }, [prop.column]);
 
   useEffect(() => {
@@ -266,40 +225,25 @@ export const Table = (prop) => {
     try {
       if (actionArr) {
         for (let i = 0; i < actionArr.length; i++) {
-          if (actionArr[i]["type"] == "Action") {
+          if (actionArr[i]['type'] == 'Action') {
             let actinObj = actionArr[i].actionJson;
             if (actinObj) {
               for (let j = 0; j < actinObj.length; j++) {
                 let item = {
-                  className:
-                    actinObj[j]["className"] != null &&
-                    actinObj[j]["className"] != ""
-                      ? actinObj[j]["className"]
-                      : "icon",
+                  className: actinObj[j]['className'] != null && actinObj[j]['className'] != '' ? actinObj[j]['className'] : 'icon',
                   label: (
-                    <span style={{ color: "#1565c0" }}>
-                      <Translate contentKey={actinObj[j]["label"]}></Translate>
+                    <span style={{ color: '#1565c0' }}>
+                      <Translate contentKey={actinObj[j]['label']}></Translate>
                     </span>
                   ),
-                  icon: actinObj[j]["icon"],
-                  id: actinObj[j]["id"],
-                  visible: actinObj[j]["visible"],
-                  askReason: actinObj[j]["askReason"],
+                  icon: actinObj[j]['icon'],
+                  id: actinObj[j]['id'],
+                  visible: actinObj[j]['visible'],
+                  askReason: actinObj[j]['askReason'],
                   command: () => {
-                    actinObj[j]["id"] == "Delete"
-                      ? deleteConfirmOnAction(
-                          actionId,
-                          actinObj[j]["askReason"],
-                          editObject
-                        )
-                      : eval(
-                          prop[actinObj[j].command](
-                            actionId,
-                            gridId,
-                            actinObj[j]["askReason"],
-                            editObject
-                          )
-                        );
+                    actinObj[j]['id'] == 'Delete'
+                      ? deleteConfirmOnAction(actionId, actinObj[j]['askReason'], editObject)
+                      : eval(prop[actinObj[j].command](actionId, gridId, actinObj[j]['askReason'], editObject));
                   },
                 };
                 tmpRowAction.push(item);
@@ -307,7 +251,7 @@ export const Table = (prop) => {
               }
             }
           }
-          if (actionArr[i]["type"] == "Button") {
+          if (actionArr[i]['type'] == 'Button') {
             let butonObj = actionArr[i].actionJson;
             setButtonAction(butonObj);
           }
@@ -318,24 +262,20 @@ export const Table = (prop) => {
     }
   };
   useEffect(() => {
-    setSelectedItem(prop.sendSelectedItem ? prop.sendSelectedItem : "");
+    setSelectedItem(prop.sendSelectedItem ? prop.sendSelectedItem : '');
     setSelectCheckboxRc(prop.sendSelectedItem);
   }, [prop.sendSelectedItem]);
 
   useEffect(() => {
     getGridData();
-    setRedioFilterPublish("All");
+    setRedioFilterPublish('All');
     if (!redioFilter) {
-      setRedioFilter("Active");
+      setRedioFilter('Active');
     }
-    if (
-      gridId === "dmsClientID" ||
-      gridId === "dmsParameterID" ||
-      gridId === "ParameterCategoriesID"
-    ) {
+    if (gridId === 'dmsClientID' || gridId === 'dmsParameterID' || gridId === 'ParameterCategoriesID') {
       setifShowHeader(true);
     }
-    if (gridId === "documentWorkspaceID") {
+    if (gridId === 'documentWorkspaceID') {
       setifHideHeader(false);
     }
     setSearchPlaceholder(String(<Translate contentKey="export"></Translate>));
@@ -343,21 +283,14 @@ export const Table = (prop) => {
   const [exportColumnData, setExportColumnData] = useState([]);
   const getErrorMessage = () => {
     const getMsg =
-      CORE_BASE_URL +
-      `api/getErrorMessageByCodeLanguageJson?errorCode=${1404}&languageId=${sessionStorage.getItem(
-        "LanguageId"
-      )}`;
-    axios.get(getMsg).then(async (res) => {
+      CORE_BASE_URL + `api/getErrorMessageByCodeLanguageJson?errorCode=${1404}&languageId=${sessionStorage.getItem('LanguageId')}`;
+    axios.get(getMsg).then(async res => {
       toast.error(res.data);
     });
   };
-  const toggle = (e) => {
+  const toggle = e => {
     if (data.length > 0) {
-      let exportColumn = [
-        ...column.filter(
-          (col) => col.type !== "Action" && col.type !== "Button"
-        ),
-      ];
+      let exportColumn = [...column.filter(col => col.type !== 'Action' && col.type !== 'Button')];
       setExportColumnData(exportColumn);
       setExportType(e);
       setModalExport(!modalExport);
@@ -365,25 +298,25 @@ export const Table = (prop) => {
       getErrorMessage();
     }
   };
-  const edit = (id) => {
+  const edit = id => {
     prop.onEdit(id);
   };
-  const settingChangesExport = (coulmnData) => {
+  const settingChangesExport = coulmnData => {
     setModalExport(false);
     setExportCol(coulmnData);
     const exportData = data;
     const headers = [];
     const colData = [];
-    coulmnData.map((col) => {
+    coulmnData.map(col => {
       if (col.visible) headers.push(col.field);
     });
-    coulmnData.map((col) => {
+    coulmnData.map(col => {
       if (col.visible) colData.push(col);
     });
     const newData = [];
-    exportData.map((element) => {
+    exportData.map(element => {
       const newObj = {};
-      headers.forEach((name) => {
+      headers.forEach(name => {
         newObj[name] = element[name];
       });
       newData.push(newObj);
@@ -392,27 +325,26 @@ export const Table = (prop) => {
 
     const newDataExcel = [];
     let headersExcel: any = [];
-    coulmnData.map((col) => {
-      if (col.visible)
-        headersExcel.push({ title: col.header, field: col.field });
+    coulmnData.map(col => {
+      if (col.visible) headersExcel.push({ title: col.header, field: col.field });
     });
 
-    exportData.map((element) => {
+    exportData.map(element => {
       const newObj = {};
-      headersExcel.forEach((name) => {
+      headersExcel.forEach(name => {
         newObj[name.title] = element[name.field];
       });
       newDataExcel.push(newObj);
     });
 
     switch (exportType) {
-      case "PDF":
+      case 'PDF':
         exportPdf(newData, headers, colData);
         break;
-      case "EXCEL":
+      case 'EXCEL':
         exportExcel(newDataExcel);
         break;
-      case "CSV":
+      case 'CSV':
         exportCSV(newData, headers);
         break;
       default:
@@ -422,16 +354,16 @@ export const Table = (prop) => {
   const exportToJson = () => {
     downloadFile({
       body: JSON.stringify(data),
-      fileName: "users.json",
-      fileType: "text/json",
+      fileName: 'users.json',
+      fileType: 'text/json',
     });
   };
   const downloadFile = ({ body, fileName, fileType }) => {
     const blob = new Blob([body], { type: fileType });
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.download = fileName;
     a.href = window.URL.createObjectURL(blob);
-    const clickEvt = new MouseEvent("click", {
+    const clickEvt = new MouseEvent('click', {
       view: window,
       bubbles: true,
       cancelable: true,
@@ -439,18 +371,17 @@ export const Table = (prop) => {
     a.dispatchEvent(clickEvt);
     a.remove();
   };
-  const convertToCSV = (objArray) => {
-    const array =
-      typeof objArray !== "object" ? JSON.parse(objArray) : objArray;
-    let str = "";
+  const convertToCSV = objArray => {
+    const array = typeof objArray !== 'object' ? JSON.parse(objArray) : objArray;
+    let str = '';
 
     for (let i = 0; i < array.length; i++) {
-      let line = "";
+      let line = '';
       for (const index in array[i]) {
-        if (line !== "") line += ",";
+        if (line !== '') line += ',';
         line += array[i][index];
       }
-      str += line + "\r\n";
+      str += line + '\r\n';
     }
 
     return str;
@@ -459,14 +390,14 @@ export const Table = (prop) => {
   const exportCSV = (newData, headers) => {
     const jsonObject = JSON.stringify(newData);
     const csv = convertToCSV(jsonObject);
-    const exportedFilenmae = "report" + ".csv" || "export.csv";
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
+    const exportedFilenmae = 'report' + '.csv' || 'export.csv';
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
     if (link.download !== undefined) {
       const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute("download", exportedFilenmae);
-      link.style.visibility = "hidden";
+      link.setAttribute('href', url);
+      link.setAttribute('download', exportedFilenmae);
+      link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -480,22 +411,22 @@ export const Table = (prop) => {
         out.push(colData[i].header);
       }
     }
-    const input = document.getElementById("tablePdf");
-    const unit = "pt";
-    const size = "A4";
+    const input = document.getElementById('tablePdf');
+    const unit = 'pt';
+    const size = 'A4';
     const columnLength = Number(columnLengthForExport);
-    const orientation = colData.length >= columnLength ? "l" : "p";
+    const orientation = colData.length >= columnLength ? 'l' : 'p';
     const doc = new jsPDF(orientation, unit, size);
-    doc.addFont("/content/fonts/arial-unicode-ms.ttf", "aakar", "normal");
-    doc.setFont("aakar");
-    const title = prop.title.concat(" Report");
-    var data = newData.map((obj) => headers.map((header) => obj[header]));
+    doc.addFont('/content/fonts/arial-unicode-ms.ttf', 'aakar', 'normal');
+    doc.setFont('aakar');
+    const title = prop.title.concat(' Report');
+    var data = newData.map(obj => headers.map(header => obj[header]));
     const content = {
       startY: 50,
       head: [out],
       body: data,
       styles: {
-        font: "aakar",
+        font: 'aakar',
       },
     };
     doc.text(title, 40, 40);
@@ -508,33 +439,28 @@ export const Table = (prop) => {
       doc.text(pageStr, 510, 820);
     }
 
-    let fileName = `_Report_${moment(new Date()).format(
-      "DD_MM_YYYY_HH_mm_ss"
-    )}.pdf`;
+    let fileName = `_Report_${moment(new Date()).format('DD_MM_YYYY_HH_mm_ss')}.pdf`;
     doc.save(prop.title.concat(fileName));
   };
 
-  const exportExcel = (newData) => {
-    import("xlsx").then((xlsx) => {
+  const exportExcel = newData => {
+    import('xlsx').then(xlsx => {
       const worksheet = xlsx.utils.json_to_sheet(newData);
-      const workbook = { Sheets: { data: worksheet }, SheetNames: ["data"] };
+      const workbook = { Sheets: { data: worksheet }, SheetNames: ['data'] };
       const excelBuffer = xlsx.write(workbook, {
-        bookType: "xlsx",
-        type: "array",
+        bookType: 'xlsx',
+        type: 'array',
       });
-      let fileName = `${prop.title}_Report_${moment(new Date()).format(
-        "DD_MM_YYYY_HH_mm_ss"
-      )}`;
+      let fileName = `${prop.title}_Report_${moment(new Date()).format('DD_MM_YYYY_HH_mm_ss')}`;
       saveAsExcelFile(excelBuffer, fileName);
     });
   };
 
   const saveAsExcelFile = (buffer, fileName) => {
-    import("file-saver").then((module) => {
+    import('file-saver').then(module => {
       if (module && module.default) {
-        const EXCEL_TYPE =
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
-        const EXCEL_EXTENSION = ".xlsx";
+        const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+        const EXCEL_EXTENSION = '.xlsx';
         const dataa = new Blob([buffer], {
           type: EXCEL_TYPE,
         });
@@ -543,12 +469,7 @@ export const Table = (prop) => {
     });
   };
 
-  const settingChanges = async (
-    coulmnData,
-    filterToggle,
-    selectedPageSize,
-    columnFilter
-  ) => {
+  const settingChanges = async (coulmnData, filterToggle, selectedPageSize, columnFilter) => {
     if (gridId && language && menuItemId) {
       setModal(false);
       getColumns({
@@ -567,16 +488,8 @@ export const Table = (prop) => {
         setlazyState(pageData);
 
         if (res?.data != null) {
-          setfilter(
-            res?.data?.data?.length > 0
-              ? res?.data?.data[0].filterEnable
-              : false
-          );
-          setColumnfilters(
-            res?.data?.data?.length > 0
-              ? res?.data?.data[0].columnsFilterEnable
-              : false
-          );
+          setfilter(res?.data?.data?.length > 0 ? res?.data?.data[0].filterEnable : false);
+          setColumnfilters(res?.data?.data?.length > 0 ? res?.data?.data[0].columnsFilterEnable : false);
         }
         await prepareRowAction(res.data.data);
         await prop.onPageChange(pageData);
@@ -604,16 +517,8 @@ export const Table = (prop) => {
           sortOrder: lazyState.sortOrder,
         };
         if (res?.data != null) {
-          setfilter(
-            res?.data?.data?.length > 0
-              ? res?.data?.data[0].filterEnable
-              : false
-          );
-          setColumnfilters(
-            res?.data?.data?.length > 0
-              ? res?.data?.data[0].columnsFilterEnable
-              : false
-          );
+          setfilter(res?.data?.data?.length > 0 ? res?.data?.data[0].filterEnable : false);
+          setColumnfilters(res?.data?.data?.length > 0 ? res?.data?.data[0].columnsFilterEnable : false);
         }
         await prepareRowAction(res.data.data);
         await prop.onPageChange(pageData);
@@ -627,24 +532,20 @@ export const Table = (prop) => {
   };
 
   const [reasonIdDelete, setReasonIdDelete] = useState<any>();
-  const deleteConfirmOnAction = async (
-    id: number,
-    flag: boolean,
-    record: any
-  ) => {
+  const deleteConfirmOnAction = async (id: number, flag: boolean, record: any) => {
     setMsgLangKeyInSessionStorage(prop.msgLangKey);
     const idObj = {};
-    idObj["id"] = id;
+    idObj['id'] = id;
     setReasonIdDelete(idObj);
     confirmDialog({
       message: deletemsg,
       header: deleteHeader,
-      icon: "pi pi-info-circle",
-      acceptClassName: "p-button-success",
-      rejectClassName: "p-button-danger",
-      className: "confirmationModal",
-      acceptLabel: labelbtnFlag.yes ? labelbtnFlag.yes : "Yes",
-      rejectLabel: labelbtnFlag.no ? labelbtnFlag.no : "No",
+      icon: 'pi pi-info-circle',
+      acceptClassName: 'p-button-success',
+      rejectClassName: 'p-button-danger',
+      className: 'confirmationModal',
+      acceptLabel: labelbtnFlag.yes ? labelbtnFlag.yes : 'Yes',
+      rejectLabel: labelbtnFlag.no ? labelbtnFlag.no : 'No',
       accept: async () => {
         flag == true ? await setReasonFlag(!reasonFlag) : accept(id, record);
       },
@@ -662,11 +563,11 @@ export const Table = (prop) => {
   const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     const _filters = { ...filters };
-    _filters["global"].value = value;
+    _filters['global'].value = value;
     setfilters(_filters);
     setGlobalFilterValue(value);
 
-    if (gridId === "dmsParameterID") {
+    if (gridId === 'dmsParameterID') {
       prop.onSearch(value);
     }
   };
@@ -676,9 +577,9 @@ export const Table = (prop) => {
     setData(prop.data);
     setSelectCheckboxRc(prop.sendSelectedItem);
   };
-  const redioFilterSelection = (name) => {
+  const redioFilterSelection = name => {
     setRedioFilter(name);
-    sessionStorage.setItem("FilterStatus", name);
+    sessionStorage.setItem('FilterStatus', name);
     prop.onFilterChanges(name, prop.gridId);
   };
   const [selectCheckboxRc, setSelectCheckboxRc] = useState<any>([]);
@@ -689,7 +590,7 @@ export const Table = (prop) => {
   const filterColumnGlobal = () => {
     const globalFilterData = [];
     if (column) {
-      column.forEach((element) => {
+      column.forEach(element => {
         if (element.visible) globalFilterData.push(element.field);
       });
     }
@@ -698,8 +599,7 @@ export const Table = (prop) => {
 
   const onSelectCheckBox = (e, obj, fieldName) => {
     let selField = { ...obj };
-    let selectedItemsArray: any =
-      selectCheckboxRc != undefined ? [...selectCheckboxRc] : [];
+    let selectedItemsArray: any = selectCheckboxRc != undefined ? [...selectCheckboxRc] : [];
     const checked = e.checked;
 
     if (selField[fieldName] != undefined) {
@@ -715,15 +615,13 @@ export const Table = (prop) => {
         selectedItemsArray.splice(selectedItemsArray.indexOf(selField), 1);
       }
     } else {
-      checked == true
-        ? selectedItemsArray.push(selField)
-        : selectedItemsArray.splice(selectedItemsArray.indexOf(selField), 1);
+      checked == true ? selectedItemsArray.push(selField) : selectedItemsArray.splice(selectedItemsArray.indexOf(selField), 1);
     }
     setSelectCheckboxRc(selectedItemsArray);
     setReasonIdDelete(selField);
     prop.selectCheckbox(checked, selField, selectedItemsArray, fieldName);
 
-    let newData = data.map((item) => {
+    let newData = data.map(item => {
       if (item.id === obj.id) {
         return { ...item, [fieldName]: e.checked };
       }
@@ -746,22 +644,22 @@ export const Table = (prop) => {
     }
   }, [dtContainerRef.current]);
 
-  const getWidth = (width) => {
+  const getWidth = width => {
     if (width) {
-      if (width.includes("%")) {
-        width = width.replace("%", "");
+      if (width.includes('%')) {
+        width = width.replace('%', '');
         const widthFloat = parseFloat(width);
         if (!isNaN(widthFloat)) {
           const widthInPixels = (widthFloat / 100) * tableWidth;
           return `${widthInPixels}px`;
         }
-      } else if (width.includes("px") || width.includes("PX")) {
+      } else if (width.includes('px') || width.includes('PX')) {
         return width;
       } else {
-        return "auto";
+        return 'auto';
       }
     }
-    return "auto";
+    return 'auto';
   };
 
   const bodyTemplate = (rowData, column) => {
@@ -773,12 +671,7 @@ export const Table = (prop) => {
         <span id={`${field}`} data-pr-tooltip={tooltip}>
           {value}
         </span>
-        <Tooltip
-          mouseTrack
-          mouseTrackLeft={10}
-          style={{ fontSize: "14px" }}
-          target={`#${field}`}
-        />
+        <Tooltip mouseTrack mouseTrackLeft={10} style={{ fontSize: '14px' }} target={`#${field}`} />
       </>
     );
   };
@@ -793,11 +686,7 @@ export const Table = (prop) => {
                 <>
                   <IconField iconPosition="left">
                     <InputIcon className="pi pi-search"> </InputIcon>
-                    <InputText
-                      value={globalFilterValue}
-                      placeholder="Keyword Search"
-                      onChange={(e) => onGlobalFilterChange(e)}
-                    />
+                    <InputText value={globalFilterValue} placeholder="Keyword Search" onChange={e => onGlobalFilterChange(e)} />
                   </IconField>
                 </>
               )}
@@ -805,70 +694,47 @@ export const Table = (prop) => {
           }
           <div className="d-flex gridSetting flex-wrap">
             {ifShowHeader && (
-              <Button
-                onClick={() => edit("")}
-                className="btn btn-primary btnStyle"
-                data-cy="entityCreateButton"
-              >
+              <Button onClick={() => edit('')} className="btn btn-primary btnStyle" data-cy="entityCreateButton">
                 <FontAwesomeIcon icon="plus" />
                 Add
               </Button>
             )}
             {prop.statusFilter === true && (
               <span className="d-flex justify-content-center m-r-15 statusFilter">
-                <span
-                  style={{ marginLeft: "10px" }}
-                  className="d-flex align-items-center"
-                >
+                <span style={{ marginLeft: '10px' }} className="d-flex align-items-center">
                   <RadioButton
-                    inputId={gridId + "gridActive"}
+                    inputId={gridId + 'gridActive'}
                     name="filter"
                     value="Active"
-                    onChange={(e) => redioFilterSelection(e.value)}
-                    checked={redioFilter === "Active"}
+                    onChange={e => redioFilterSelection(e.value)}
+                    checked={redioFilter === 'Active'}
                   />
-                  <label
-                    htmlFor={gridId + "gridActive"}
-                    style={{ marginBottom: 0 }}
-                  >
-                    {labelbtnFlag.activeradio
-                      ? labelbtnFlag.activeradio
-                      : "Active"}
+                  <label htmlFor={gridId + 'gridActive'} style={{ marginBottom: 0 }}>
+                    {labelbtnFlag.activeradio ? labelbtnFlag.activeradio : 'Active'}
                   </label>
                 </span>
-                <span
-                  style={{ marginLeft: "10px" }}
-                  className="d-flex align-items-center"
-                >
+                <span style={{ marginLeft: '10px' }} className="d-flex align-items-center">
                   <RadioButton
-                    inputId={gridId + "gridInactive"}
+                    inputId={gridId + 'gridInactive'}
                     name="filter"
                     value="Inactive"
-                    onChange={(e) => redioFilterSelection(e.value)}
-                    checked={redioFilter === "Inactive"}
+                    onChange={e => redioFilterSelection(e.value)}
+                    checked={redioFilter === 'Inactive'}
                   />
-                  <label
-                    htmlFor={gridId + "gridInactive"}
-                    style={{ marginBottom: 0 }}
-                  >
-                    {labelbtnFlag.inactiveradio
-                      ? labelbtnFlag.inactiveradio
-                      : "Inactive"}
+                  <label htmlFor={gridId + 'gridInactive'} style={{ marginBottom: 0 }}>
+                    {labelbtnFlag.inactiveradio ? labelbtnFlag.inactiveradio : 'Inactive'}
                   </label>
                 </span>
-                <span
-                  style={{ marginLeft: "10px" }}
-                  className="d-flex align-items-center"
-                >
+                <span style={{ marginLeft: '10px' }} className="d-flex align-items-center">
                   <RadioButton
-                    inputId={gridId + "All"}
+                    inputId={gridId + 'All'}
                     name="filter"
                     value="All"
-                    onChange={(e) => redioFilterSelection(e.value)}
-                    checked={redioFilter === "All"}
+                    onChange={e => redioFilterSelection(e.value)}
+                    checked={redioFilter === 'All'}
                   />
-                  <label htmlFor={gridId + "All"} style={{ marginBottom: 0 }}>
-                    {labelbtnFlag.allradio ? labelbtnFlag.allradio : "All"}
+                  <label htmlFor={gridId + 'All'} style={{ marginBottom: 0 }}>
+                    {labelbtnFlag.allradio ? labelbtnFlag.allradio : 'All'}
                   </label>
                 </span>
               </span>
@@ -880,8 +746,8 @@ export const Table = (prop) => {
               onClick={() => {
                 setModal(!modal);
               }}
-              tooltip={placeholder("setting.label")}
-              tooltipOptions={{ position: "top" }}
+              tooltip={placeholder('setting.label')}
+              tooltipOptions={{ position: 'top' }}
             >
               <i className="fa-solid fa-gear"></i>
             </Button>
@@ -891,34 +757,26 @@ export const Table = (prop) => {
               data-bs-toggle="dropdown"
               aria-expanded="false"
               style={{
-                border: "none",
-                background: "#1565C00D",
-                marginLeft: "15px",
-                boxShadow: "none",
-                color: "#1565c0",
+                border: 'none',
+                background: '#1565C00D',
+                marginLeft: '15px',
+                boxShadow: 'none',
+                color: '#1565c0',
               }}
             >
-              {labelbtnFlag.export ? labelbtnFlag.export : "Export"}
+              {labelbtnFlag.export ? labelbtnFlag.export : 'Export'}
             </button>
             <ul className="dropdown-menu" style={{}}>
               <li>
-                {" "}
-                <a className="dropdown-item" onClick={() => toggle("EXCEL")}>
-                  <i
-                    className="fa-solid fa-file-excel"
-                    style={{ color: "#1c6c42" }}
-                  ></i>{" "}
-                  Excel
+                {' '}
+                <a className="dropdown-item" onClick={() => toggle('EXCEL')}>
+                  <i className="fa-solid fa-file-excel" style={{ color: '#1c6c42' }}></i> Excel
                 </a>
               </li>
               <li>
-                {" "}
-                <a className="dropdown-item" onClick={() => toggle("PDF")}>
-                  <i
-                    className="fa-solid fa-file-pdf"
-                    style={{ color: "#f72015" }}
-                  ></i>{" "}
-                  PDF
+                {' '}
+                <a className="dropdown-item" onClick={() => toggle('PDF')}>
+                  <i className="fa-solid fa-file-pdf" style={{ color: '#f72015' }}></i> PDF
                 </a>
               </li>
             </ul>
@@ -940,12 +798,7 @@ export const Table = (prop) => {
           />
         )}
         {modalExport && (
-          <ExportSetting
-            show={modalExport}
-            columns={exportColumnData}
-            onSetting={settingChangesExport}
-            onClose={exportClose}
-          />
+          <ExportSetting show={modalExport} columns={exportColumnData} onSetting={settingChangesExport} onClose={exportClose} />
         )}
 
         <div className="dataTable" id="tablePdf" ref={dtContainerRef}>
@@ -956,23 +809,21 @@ export const Table = (prop) => {
                 emptyMessage={
                   <div
                     style={{
-                      display: "flex",
-                      justifyContent: "start",
-                      alignItems: "center",
-                      textAlign: "start",
-                      backgroundColor: "#a1bce50D",
-                      height: "3rem",
-                      fontSize: "0.90rem",
-                      fontFamily: "Inter, sans-serif",
-                      margin: "-5px",
-                      marginTop: "2.5px",
-                      marginBottom: "2.5px",
+                      display: 'flex',
+                      justifyContent: 'start',
+                      alignItems: 'center',
+                      textAlign: 'start',
+                      backgroundColor: '#a1bce50D',
+                      height: '3rem',
+                      fontSize: '0.90rem',
+                      fontFamily: 'Inter, sans-serif',
+                      margin: '-5px',
+                      marginTop: '2.5px',
+                      marginBottom: '2.5px',
                     }}
                   >
-                    <div style={{ marginLeft: "0.25rem", color: "#2c79d1" }}>
-                      {prop.emptyMessage
-                        ? prop.emptyMessage
-                        : "No record found!"}
+                    <div style={{ marginLeft: '0.25rem', color: '#2c79d1' }}>
+                      {prop.emptyMessage ? prop.emptyMessage : 'No record found!'}
                     </div>
                   </div>
                 }
@@ -980,47 +831,39 @@ export const Table = (prop) => {
                 value={data}
                 globalFilterFields={filterColumnGlobal()}
                 filters={filters}
-                filterDisplay={columnfilters ? "row" : null}
+                filterDisplay={columnfilters ? 'row' : null}
                 scrollable
                 scrollHeight="400px"
                 id={gridId}
                 selectionMode="single"
                 selection={selectedItem}
-                onSelectionChange={(e) => {
+                onSelectionChange={e => {
                   setSelectedItem(e.value);
                   prop.onSelect ? prop.onSelect(e.value) : {};
                 }}
-                onRowReorder={(e: any): void =>
-                  prop.onAddReorderRow(e.value, gridId)
-                }
+                onRowReorder={(e: any): void => prop.onAddReorderRow(e.value, gridId)}
                 reorderableRows={reOrderRowValue}
                 removableSort
-                virtualScrollerOptions={
-                  prop.virtualScrollerOptions === true && totalRecords > "30"
-                    ? { itemSize: 36 }
-                    : {}
-                }
+                virtualScrollerOptions={prop.virtualScrollerOptions === true && totalRecords > '30' ? { itemSize: 36 } : {}}
               >
-                {rowReorder && <Column rowReorder style={{ width: "40px" }} />}
+                {rowReorder && <Column rowReorder style={{ width: '40px' }} />}
                 {column &&
                   column.map((e: any, i: any) => {
                     if (e.visible) {
-                      if (e.type === "Radio") {
+                      if (e.type === 'Radio') {
                         return (
                           <Column
                             style={{
-                              width: e.width ? getWidth(e.width) : "65px",
+                              width: e.width ? getWidth(e.width) : '65px',
                             }}
                             header={e.header}
-                            body={(data2) => (
+                            body={data2 => (
                               <>
                                 <RadioButton
                                   inputId={data2}
                                   name={data2.id}
                                   value={e.field}
-                                  onChange={(x) =>
-                                    radioSelectRecord(data2, e.field)
-                                  }
+                                  onChange={x => radioSelectRecord(data2, e.field)}
                                   checked={data2[e.field] === true}
                                 />
                               </>
@@ -1029,20 +872,20 @@ export const Table = (prop) => {
                         );
                       }
 
-                      if (e.type === "CheckBox") {
+                      if (e.type === 'CheckBox') {
                         return (
                           <Column
                             style={{
-                              width: e.width ? getWidth(e.width) : "65px",
+                              width: e.width ? getWidth(e.width) : '65px',
                             }}
                             header={e.header}
-                            body={(data2) => (
+                            body={data2 => (
                               <>
                                 <Checkbox
                                   key={Math.random()}
                                   name={data2.id}
                                   value={e.field}
-                                  onChange={(x) => {
+                                  onChange={x => {
                                     onSelectCheckBox(x, data2, e.field);
                                   }}
                                   checked={data2[e.field] === true}
@@ -1053,14 +896,14 @@ export const Table = (prop) => {
                         );
                       }
 
-                      if (e.type === "Action") {
+                      if (e.type === 'Action') {
                         return (
                           <Column
                             style={{
-                              width: e.width ? getWidth(e.width) : "65px",
+                              width: e.width ? getWidth(e.width) : '65px',
                             }}
                             header={e.header}
-                            body={(data2) => (
+                            body={data2 => (
                               <>
                                 <SplitButton
                                   icon="fa-solid fa-ellipsis"
@@ -1074,45 +917,28 @@ export const Table = (prop) => {
                           />
                         );
                       }
-                      if (e.type === "Button") {
+                      if (e.type === 'Button') {
                         return (
                           <Column
                             header={e.header}
                             style={{
-                              width: e.width ? getWidth(e.width) : "65px",
+                              width: e.width ? getWidth(e.width) : '65px',
                             }}
-                            body={(data2) => (
+                            body={data2 => (
                               <>
                                 {buttonAction.length > 0 &&
-                                  buttonAction.map((button) => (
+                                  buttonAction.map(button => (
                                     <>
                                       {button.visible == true && (
                                         <Button
-                                          style={{ marginLeft: "15px" }}
-                                          tooltipOptions={{ position: "top" }}
-                                          className={
-                                            button.className + " gridIcon"
-                                          }
-                                          disabled={
-                                            data2[prop.disabledflag]
-                                              ? true
-                                              : false
-                                          }
+                                          style={{ marginLeft: '15px' }}
+                                          tooltipOptions={{ position: 'top' }}
+                                          className={button.className + ' gridIcon'}
+                                          disabled={data2[prop.disabledflag] ? true : false}
                                           onClick={() =>
-                                            button["id"] == "Delete"
-                                              ? deleteConfirmOnAction(
-                                                  data2.id,
-                                                  button["askReason"],
-                                                  data2
-                                                )
-                                              : eval(
-                                                  prop[buttonAction[0].command](
-                                                    data2.id,
-                                                    gridId,
-                                                    true,
-                                                    editObject
-                                                  )
-                                                )
+                                            button['id'] == 'Delete'
+                                              ? deleteConfirmOnAction(data2.id, button['askReason'], data2)
+                                              : eval(prop[buttonAction[0].command](data2.id, gridId, true, editObject))
                                           }
                                         >
                                           <i className={button.icon}></i>
@@ -1125,7 +951,7 @@ export const Table = (prop) => {
                           />
                         );
                       }
-                      if (e.type === "Status") {
+                      if (e.type === 'Status') {
                         return (
                           <Column
                             key={i}
@@ -1135,50 +961,22 @@ export const Table = (prop) => {
                             field={e.field}
                             style={{ width: getWidth(e.width) }}
                             sortable
-                            body={(data2) => {
+                            body={data2 => {
                               if (data2) {
-                                if (data2[e.field] == "Active") {
-                                  return (
-                                    <span className="badge bg-success">
-                                      {data2[e.field]}
-                                    </span>
-                                  );
-                                } else if (data2[e.field] == "Inactive") {
-                                  return (
-                                    <span className="badge bg-danger">
-                                      {data2[e.field]}
-                                    </span>
-                                  );
-                                } else if (data2[e.field] == "Completed") {
-                                  return (
-                                    <span className="badge bg-primary">
-                                      {data2[e.field]}
-                                    </span>
-                                  );
-                                } else if (data2[e.field] == "Not Started") {
-                                  return (
-                                    <span className="badge bg-secondary">
-                                      {data2[e.field]}
-                                    </span>
-                                  );
-                                } else if (data2[e.field] == "Rejected") {
-                                  return (
-                                    <span className="badge bg-danger">
-                                      {data2[e.field]}
-                                    </span>
-                                  );
-                                } else if (data2[e.field] == "In-Progress") {
-                                  return (
-                                    <span className="badge bg-warning">
-                                      {data2[e.field]}
-                                    </span>
-                                  );
+                                if (data2[e.field] == 'Active') {
+                                  return <span className="badge bg-success">{data2[e.field]}</span>;
+                                } else if (data2[e.field] == 'Inactive') {
+                                  return <span className="badge bg-danger">{data2[e.field]}</span>;
+                                } else if (data2[e.field] == 'Completed') {
+                                  return <span className="badge bg-primary">{data2[e.field]}</span>;
+                                } else if (data2[e.field] == 'Not Started') {
+                                  return <span className="badge bg-secondary">{data2[e.field]}</span>;
+                                } else if (data2[e.field] == 'Rejected') {
+                                  return <span className="badge bg-danger">{data2[e.field]}</span>;
+                                } else if (data2[e.field] == 'In-Progress') {
+                                  return <span className="badge bg-warning">{data2[e.field]}</span>;
                                 } else {
-                                  return (
-                                    <span className="badge bg-primary">
-                                      {data2[e.field]}
-                                    </span>
-                                  );
+                                  return <span className="badge bg-primary">{data2[e.field]}</span>;
                                 }
                               }
                             }}
@@ -1195,7 +993,7 @@ export const Table = (prop) => {
                           style={{ width: getWidth(e.width) }}
                           sortable
                           className="tooltipClass"
-                          body={(rowData) => bodyTemplate(rowData, e)}
+                          body={rowData => bodyTemplate(rowData, e)}
                         />
                       );
                     }
@@ -1205,7 +1003,7 @@ export const Table = (prop) => {
                 template={paginatorTemplate}
                 rows={lazyState.rows}
                 first={lazyState.first}
-                onPageChange={(e) => {
+                onPageChange={e => {
                   setlazyState(e);
                   prop.onPageChange(e);
                 }}
