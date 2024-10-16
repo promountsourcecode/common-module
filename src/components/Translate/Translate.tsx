@@ -144,5 +144,4 @@ export const Translate = (prop) => {
     </>
   );
 };
-
 export default Translate;
